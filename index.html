@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FocusZen RPG</title>
+  <title>ZenQuest RPG</title>
   <link rel="stylesheet" href="styles.css">
   <script defer src="app.js"></script>
 </head>
 <body>
   <div class="game-container">
     <header class="game-header">
-      <h1>⚔️ FocusZen RPG ⚔️</h1>
-      <p>Embark on your productivity quest!</p>
+
+      <img src="images/logo_zenquest.png">
+      <p>EMBARK ON YOUR PRODUCTIVITY QUEST!</p>
     </header>
 
     <!-- RPG HUD -->
@@ -34,10 +35,10 @@
     <!-- Daily Quests -->
     <section id="daily-quests" class="game-section">
       <h2>📜 Daily Quests</h2>
-      <p>Complete at least 5 daily quests for extra rewards and  to avoid HP loss! Resets daily.</p>
+      <p class="note">Complete at least 5 daily quests for extra rewards and  to avoid HP loss! Resets daily.</p>
       <div class="quest-input">
-        <input type="text" id="daily-quest-input" placeholder="Add a new daily quest">
-        <button id="add-daily-quest-btn">Add</button>
+        <input class="input" type="text" id="daily-quest-input" placeholder="Add a new daily quest">
+        <button class="add-btn" id="add-daily-quest-btn">Add</button>
       </div>
       <ul id="daily-quest-list" class="quest-list"></ul>
     </section>
@@ -45,14 +46,14 @@
     <!-- Habits -->
     <section id="habits" class="game-section">
       <h2>⚡ Habits</h2>
-      <p>Positive habits earn XP & coins; negative habits deduct HP.</p>
+      <p class="note">Positive habits earn XP & coins; negative habits deduct HP.</p>
       <div class="quest-input">
-        <input type="text" id="habit-input" placeholder="Add a new habit">
-        <select id="habit-type">
+        <input class="input" type="text" id="habit-input" placeholder="Add a new habit">
+        <select class="add-btn" id="habit-type">
           <option value="positive">Positive</option>
           <option value="negative">Negative</option>
         </select>
-        <button id="add-habit-btn">Add</button>
+        <button class="add-btn" id="add-habit-btn">Add</button>
       </div>
       <ul id="habit-list" class="quest-list"></ul>
     </section>
@@ -60,10 +61,10 @@
     <!-- Main Quests -->
     <section id="main-quests" class="game-section">
       <h2>🏰 Main Quests</h2>
-      <p>One-off tasks with time limits.</p>
+      <p class="note">One-off tasks with time limits.</p>
       <div class="quest-input">
-        <input type="text" id="main-quest-input" placeholder="Add a new main quest">
-        <button id="add-main-quest-btn">Add</button>
+        <input class="input" type="text" id="main-quest-input" placeholder="Add a new main quest">
+        <button class="add-btn" id="add-main-quest-btn">Add</button>
       </div>
       <ul id="main-quest-list" class="quest-list"></ul>
     </section>
@@ -71,10 +72,10 @@
     <!-- Side Quests -->
     <section id="side-quests" class="game-section">
       <h2>🌟 Side Quests</h2>
-      <p>Little detours/bonus challenges</p>
+      <p class="note">Little detours or bonus challenges.</p>
       <div class="quest-input">
-        <input type="text" id="side-quest-input" placeholder="Add a new side quest">
-        <button id="add-side-quest-btn">Add</button>
+        <input class="input" type="text" id="side-quest-input" placeholder="Add a new side quest">
+        <button class="add-btn" id="add-side-quest-btn">Add</button>
       </div>
       <ul id="side-quest-list" class="quest-list"></ul>
     </section>
