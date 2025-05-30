@@ -31,7 +31,7 @@ function updateXP(amount) {
     levelDisplay.textContent = level;
     localStorage.setItem("level", level);
     showLevelUpMessage(level);
-    health = 100; 
+    health = 100;
     healthProgress.style.width = `${health}%`;
     localStorage.setItem("health", health);
     showHPMessage("+100");
@@ -94,7 +94,7 @@ function loadQuests() {
     dailyQuestList.innerHTML = savedDaily
       .map(
         quest =>
-          `<li class="quest-item"><span contenteditable="true">${quest}</span> <button class="complete-btn">✔</button></li>`
+          `<li class="quest-item pixel-corners-small"><span contenteditable="true">${quest}</span> <button class="complete-btn pixel-corners-small">✔</button></li>`
       )
       .join("");
   }
@@ -109,7 +109,7 @@ function addQuest(inputField, list, type = null, dueDate = null) {
   if (questText === "") return;
 
   const li = document.createElement("li");
-  li.className = "quest-item";
+  li.className = "quest-item pixel-corners-small";
   if (type) li.classList.add(type);
 
   // Create a container for the quest text and due date
@@ -124,9 +124,32 @@ function addQuest(inputField, list, type = null, dueDate = null) {
     <div class="quest-main">
       ${questContent}
     </div>
-    <button class="complete-btn">${buttonLabel}</button>
+    <button class="complete-btn pixel-corners-small">${buttonLabel}</button>
   `;
+
+  li.style.opacity = "0";
+  li.style.transform = "translateY(-20px)";
   list.appendChild(li);
+
+  gsap.fromTo(li,
+    {
+      opacity: 0,
+      y: -10,
+      scale: 0.7,
+      filter: "brightness(0.1)"
+    },
+    {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "brightness(1)",
+      duration: 0.5,
+      ease: "steps(30)",
+      clearProps: "all"
+    }
+  );
+
+
   inputField.value = "";
   if (list === dailyQuestList) {
     const masterDailies = [...dailyQuestList.querySelectorAll("span")].map(span => span.textContent);
@@ -151,7 +174,7 @@ function renderDailyQuests(completed = []) {
   dailyQuestList.innerHTML = quests
     .map(quest => {
       const completedClass = completed.includes(quest) ? "completed" : "";
-      return `<li class="quest-item ${completedClass}"><span contenteditable="true">${quest}</span> <button class="complete-btn">✔</button></li>`;
+      return `<li class="quest-item pixel-corners-small ${completedClass}"><span contenteditable="true">${quest}</span> <button class="complete-btn pixel-corners-small">✔</button></li>`;
     })
     .join("");
 }
@@ -206,7 +229,7 @@ document.querySelector("#add-side-quest-btn").addEventListener("click", () => {
 });
 
 // Allow removing quests by clearing the text and blurring the span
-document.addEventListener("blur", function(e) {
+document.addEventListener("blur", function (e) {
   if (e.target.matches(".quest-item span[contenteditable]")) {
     if (e.target.textContent.trim() === "") {
       const li = e.target.closest(".quest-item");
@@ -225,6 +248,7 @@ document.addEventListener("blur", function(e) {
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("complete-btn")) {
     const item = e.target.parentElement;
+
     if (item.parentElement === dailyQuestList) {
       // Mark as completed for today
       item.classList.add("completed");
@@ -236,20 +260,30 @@ document.addEventListener("click", (e) => {
       }
       maybeAwardZenCoins();
       updateXP(15);
-    } 
+    }
     else if (item.classList.contains("positive")) {
       maybeAwardZenCoins();
       updateXP(5);
-    } 
+    }
     else if (item.classList.contains("negative")) {
       updateHealth(-15);
-    } 
+    }
     else {
       // For main and side quests
-      item.remove();
-      saveQuests();
-      maybeAwardZenCoins();
-      updateXP(15);
+      gsap.to(item, {
+        scale: 0.65,
+        filter: "brightness(0.2)",
+        opacity: 0,
+        duration: 0.5,
+        ease: "steps(50)",
+        onComplete: () => {
+          item.remove();
+          saveQuests();
+          maybeAwardZenCoins();
+          updateXP(15);
+        }
+      });
+      return;
     }
     saveQuests();
   }
@@ -259,7 +293,7 @@ document.addEventListener("click", (e) => {
 function setBackgroundByTime() {
   const hour = new Date().getHours();
   const body = document.body;
-  if (hour >= 6 && hour <18) {
+  if (hour >= 6 && hour < 18) {
     // Daytime: 6am to 6pm
     body.style.backgroundImage = "url('images/default_bg.jpg')";
   } else {
@@ -287,11 +321,13 @@ function updatePomodoroDisplay() {
   const sec = String(pomodoroTime % 60).padStart(2, '0');
   document.getElementById('pomodoro-time').textContent = `${min}:${sec}`;
 
-  // Update progress circle
+  // Update progress circle - always use the current mode's full time for progress
   const circle = document.querySelector('.pomodoro-progress');
   const radius = circle.r.baseVal.value;
   const circumference = radius * 2 * Math.PI;
-  const progress = pomodoroTime / (POMODORO_STATES[currentState].time * 60);
+  // Calculate progress based on current time / current mode's total time
+  const currentModeTime = parseInt(document.querySelector('.pomodoro-type.active').dataset.time) * 60;
+  const progress = pomodoroTime / currentModeTime;
   const offset = circumference * (1 - progress);
   circle.style.strokeDasharray = `${circumference} ${circumference}`;
   circle.style.strokeDashoffset = offset;
@@ -307,34 +343,83 @@ function updateStats() {
 }
 
 // Add event listeners for timer type buttons
+// Update event listeners for timer type buttons
 document.querySelectorAll('.pomodoro-type').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelector('.pomodoro-type.active').classList.remove('active');
-    btn.classList.add('active');
-    pomodoroTime = parseInt(btn.dataset.time) * 60;
-    updatePomodoroDisplay();
+    // Only allow mode change if timer is not running
+    if (!isPomodoroRunning) {
+      // Remove active class from current button
+      document.querySelector('.pomodoro-type.active').classList.remove('active');
+      btn.classList.add('active');
+
+      // Update state and reset timer
+      currentState = btn.dataset.type;
+      pomodoroTime = parseInt(btn.dataset.time) * 60;
+
+      // Clear any existing interval
+      clearInterval(pomodoroInterval);
+      isPomodoroRunning = false;
+
+      // Reset UI elements
+      document.getElementById('pomodoro-start').textContent = 'Start';
+      document.getElementById('pomodoro-message').textContent = '';
+
+      // Update circle animation
+      const circle = document.querySelector('.pomodoro-circle');
+      circle.style.animation = 'timer-reset 0.7s';
+      setTimeout(() => circle.style.animation = '', 500);
+
+      // Update GIF to match new mode
+      const gif = document.querySelector('.pomodoro-gif');
+      gif.src = currentState === 'FOCUS' ? 'images/work.gif' : 'images/sleep.gif';
+      gif.style.display = 'none';
+
+      // Update timer display
+      updatePomodoroDisplay();
+    }
   });
 });
 
 function startPomodoro() {
   if (!isPomodoroRunning && pomodoroTime > 0) {
     isPomodoroRunning = true;
-    
-    // Add running animation
+
+    document.querySelector('.pomodoro-timer').classList.add('running');
+
+    // Running animation
     const circle = document.querySelector('.pomodoro-circle');
     circle.style.animation = 'timer-pulse 4s infinite';
-    
+
+    // Start GIF animation
+    const currentMode = document.querySelector('.pomodoro-type.active').dataset.type;
+    const gif = document.querySelector('.pomodoro-gif');
+    gif.src = currentMode === 'FOCUS' ? 'images/work.gif' : 'images/sleep.gif';
+    gif.style.display = 'block';
+
+    document.getElementById('pomodoro-start').textContent = '...';
+
+    // FOCUS message
+    const message = document.getElementById('pomodoro-message');
+
+    if (currentMode === 'FOCUS') {
+      message.textContent = 'FOCUS!';
+      message.style.color = '#19A8E6';
+    } else {
+      message.textContent = 'REST!';
+      message.style.color = '#4caf50';
+    }
+
     pomodoroInterval = setInterval(() => {
       pomodoroTime--;
       updatePomodoroDisplay();
-      
+
       if (pomodoroTime === 0) {
         clearInterval(pomodoroInterval);
         isPomodoroRunning = false;
-        
+
         // Complete animation
         circle.style.animation = 'timer-complete 1s';
-        
+
         if (currentState === 'FOCUS') {
           sessionCount++;
           totalFocusTime += POMODORO_STATES.FOCUS.time * 60;
@@ -342,7 +427,7 @@ function startPomodoro() {
           maybeAwardZenCoins();
         }
         updateStats();
-        
+
       }
     }, 1000);
   }
@@ -352,24 +437,58 @@ function pausePomodoro() {
   if (isPomodoroRunning) {
     clearInterval(pomodoroInterval);
     isPomodoroRunning = false;
-    
+
+    document.querySelector('.pomodoro-timer').classList.remove('running');
+
     // Add pause animation
     const circle = document.querySelector('.pomodoro-circle');
     circle.style.animation = 'timer-pause 0.7s';
     setTimeout(() => circle.style.animation = '', 300);
+
+    // Hide GIF when paused
+    const gif = document.querySelector('.pomodoro-gif');
+    gif.style.display = 'none';
+
+    document.getElementById('pomodoro-start').textContent = 'Resume';
+
+    // PAUSED message
+    const message = document.getElementById('pomodoro-message');
+    message.textContent = 'PAUSED';
+    message.style.color = '#E65719';
   }
 }
 
 function resetPomodoro() {
   clearInterval(pomodoroInterval);
-  pomodoroTime = POMODORO_STATES[currentState].time * 60;
+
+  document.querySelector('.pomodoro-timer').classList.remove('running');
+
+  // Get currently selected mode from active button
+  const activeButton = document.querySelector('.pomodoro-type.active');
+  if (activeButton) {
+    currentState = activeButton.dataset.type || 'FOCUS'; // Fallback to FOCUS if no type set
+    pomodoroTime = POMODORO_STATES[currentState].time * 60;
+  } else {
+    // Fallback to FOCUS mode if no active button found
+    currentState = 'FOCUS';
+    pomodoroTime = POMODORO_STATES.FOCUS.time * 60;
+  }
+
   isPomodoroRunning = false;
-  
+
   // Add reset animation
   const circle = document.querySelector('.pomodoro-circle');
   circle.style.animation = 'timer-reset 0.7s';
   setTimeout(() => circle.style.animation = '', 500);
-  
+
+  // Hide GIF on reset
+  const gif = document.querySelector('.pomodoro-gif');
+  gif.style.display = 'none';
+
+  document.getElementById('pomodoro-start').textContent = 'Start';
+
+  document.getElementById('pomodoro-message').textContent = '';
+
   updatePomodoroDisplay();
 }
 
@@ -488,4 +607,5 @@ window.addEventListener("DOMContentLoaded", () => {
   checkDailyReset();
   updateHUD();
   renderDailyQuests(getCompletedDailies());
+  updatePomodoroDisplay();
 });

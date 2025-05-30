@@ -1,154 +1,240 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZenQuest RPG</title>
-  <link rel="stylesheet" href="styles.css">
-  <script defer src="app.js"></script>
-  <!-- Toastify -->
-  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-  <!-- Notyf -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-</head>
-<body>
-  <div class="border-shadow"></div>
-  <div class="game-container">
-    <header class="game-header">
-      <a href="#">
-        <img src="images/logo_zenquest.png" alt="ZenQuest Logo">
-      </a>
-      <p>EMBARK ON YOUR PRODUCTIVITY QUEST!</p>
-    </header>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZenQuest RPG</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="app.js"></script>
+    <script defer src="utilities.js"></script>
 
-    <!-- RPG HUD -->
-    <div class="hud">
-  <div class="hud-item">
-    <p>❤️ Health:</p>
-    <div class="health-bar">
-      <div id="health-progress" style="width: 100%;"></div>
-    </div>
-  </div>
-  <div class="hud-item">
-    <p>⚡ XP:</p>
-    <div class="xp-bar">
-      <div id="xp-progress" style="width: 0%;"></div>
-    </div>
-    <div class="level-badge">
-  <span class="level-label">Level</span>
-  <span id="level" class="level-number">1</span>
-</div>
-  </div>
-  <div class="hud-item hud-item-right">
-    <span class="zen-coins-bar">
-      🪙 <span id="zen-coins-count">0</span>
-    </span>
-  </div>
-</div>
+    <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
 
-    <!-- Daily Quests -->
-    <section id="daily-quests" class="game-section">
-      <h2>📜 Daily Quests</h2>
-      <p class="note">Complete at least 5 daily quests for extra rewards and  to avoid HP loss! Resets daily.</p>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/CustomEase.min.js"></script>
+  </head>
+  <body>
+    <div class="border-shadow"></div>
+
+    <nav class="top-navbar">
+      <div class="header-icon">
+        <a href="#">
+          <img src="images/logo_zenquest.png" alt="ZenQuest Logo">
+        </a>
+      </div>
+      <div class="top-nav-buttons">
+        <button class="nav-btn nav-leftmost pixel-corners-small"
+          data-page="focus">
+          <span class="nav-icon"><img class="nav-icon"
+              src="images/focus.png"></span>
+          <span class="nav-label">Focus!</span>
+        </button>
+        <button class="nav-btn nav-left pixel-corners-small" data-page="market">
+          <span class="nav-icon"><img class="nav-icon"
+              src="images/shop.png"></span>
+          <span class="nav-label">Market</span>
+        </button>
+        <button class="nav-btn nav-center pixel-corners-small"
+          data-page="index">
+          <span><img class="nav-icon" src="images/quest.png"></span>
+          <span class="nav-label">Quests</span>
+        </button>
+        <button class="nav-btn nav-right pixel-corners-small" data-page="items">
+          <span class="nav-icon"><img class="nav-icon"
+              src="images/items.png"></span>
+          <span class="nav-label">Items</span>
+        </button>
+        <button class="nav-btn nav-rightmost pixel-corners-small"
+          data-page="user">
+          <span class="nav-icon"><img class="nav-icon"
+              src="images/user.png"></span>
+          <span class="nav-label">User</span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="game-container">
+      <header class="game-header">
+        <a href="#">
+          <img src="images/logo_zenquest.png" alt="ZenQuest Logo">
+        </a>
+        <p>EMBARK ON YOUR PRODUCTIVITY QUEST!</p>
+      </header>
+
+      <!-- RPG HUD -->
+      <div class="hud pixel-corners-small">
+        <div class="hud-item">
+          <p><img class="hud-icon" src="images/hp.png"> Health:</p>
+          <div class="health-bar pixel-corners-small">
+            <div id="health-progress" style="width: 100%;"
+              class="pixel-corners-small"></div>
+          </div>
+        </div>
+        <div class="hud-item">
+          <p><img class="hud-icon" src="images/xp.png"> XP:</p>
+          <div class="xp-bar pixel-corners-small">
+            <div id="xp-progress" style="width: 0%;"
+              class="pixel-corners-small"></div>
+          </div>
+          <div class="level-badge pixel-corners-small">
+            <span class="level-label">Level</span>
+            <span id="level" class="level-number pixel-corners-small">1</span>
+          </div>
+        </div>
+        <div class="hud-item hud-item-right ">
+          <span class="zen-coins-bar pixel-corners-small">
+            <img class="hud-icon" src="images/coin.png"> <span
+              id="zen-coins-count">0</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Daily Quests -->
+      <section id="daily-quests" class="game-section pixel-corners">
+        <h2><img class="icon" src="images/quest.png">Daily Quests</h2>
+        <p class="note">Complete at least 5 daily quests for extra rewards and
+          to avoid HP loss! Resets daily.</p>
         <p class="tiny-note" id="daily-reset-timer"></p>
-      <div class="quest-input">
-        <input class="input" type="text" id="daily-quest-input" placeholder="Add a new daily quest">
-        <button class="add-btn" id="add-daily-quest-btn">Add</button>
-      </div>
-      <ul id="daily-quest-list" class="quest-list"></ul>
-    </section>
+        <div class="quest-input">
+          <input class="input pixel-corners-small" type="text"
+            id="daily-quest-input" placeholder="Add a new daily quest">
+          <button class="add-btn pixel-corners-small"
+            id="add-daily-quest-btn">Add</button>
+        </div>
+        <ul id="daily-quest-list" class="quest-list"></ul>
+      </section>
 
-    <!-- Habits -->
-    <section id="habits" class="game-section">
-      <h2>⚡ Habits</h2>
-      <p class="note">Positive habits earn XP & coins; negative habits deduct HP.</p>
-      <div class="quest-input">
-        <input class="input" type="text" id="habit-input" placeholder="Add a new habit">
-        <select class="add-btn" id="habit-type">
-          <option value="positive">Positive</option>
-          <option value="negative">Negative</option>
-        </select>
-        <button class="add-btn" id="add-habit-btn">Add</button>
-      </div>
-      <ul id="habit-list" class="quest-list"></ul>
-    </section>
+      <!-- Habits -->
+      <section id="habits" class="game-section pixel-corners">
+        <h2><img class="icon" src="images/habits.png">Habits</h2>
+        <p class="note">Positive habits earn XP & coins; negative habits deduct
+          HP.</p>
+        <div class="quest-input">
+          <input class="input pixel-corners-small" type="text" id="habit-input"
+            placeholder="Add a new habit">
+          <select class="add-btn pixel-corners-small" id="habit-type">
+            <option value="positive">Positive</option>
+            <option value="negative">Negative</option>
+          </select>
+          <button class="add-btn pixel-corners-small"
+            id="add-habit-btn">Add</button>
+        </div>
+        <ul id="habit-list" class="quest-list"></ul>
+      </section>
 
-    <!-- Main Quests -->
-    <section id="main-quests" class="game-section">
-      <h2>🏰 Main Quests</h2>
-      <p class="note">One-off tasks with time limits.</p>
-      <div class="quest-input">
-        <input class="input" id="main-quest-input" type="text" placeholder="Add a new main quest">
-        <input class="due-date" id="main-quest-date" type="date">
-        <button class="add-btn" id="add-main-quest-btn">Add</button>
-      </div>
-      <ul id="main-quest-list" class="quest-list"></ul>
-    </section>
+      <!-- Main Quests -->
+      <section id="main-quests" class="game-section pixel-corners">
+        <h2><img class="icon" src="images/main.png">Main Quests</h2>
+        <p class="note">One-off tasks with time limits.</p>
+        <div class="quest-input">
+          <input class="input pixel-corners-small" id="main-quest-input"
+            type="text" placeholder="Add a new main quest">
+          <input class="due-date pixel-corners-small" id="main-quest-date"
+            type="date">
+          <button class="add-btn pixel-corners-small"
+            id="add-main-quest-btn">Add</button>
+        </div>
+        <ul id="main-quest-list" class="quest-list"></ul>
+      </section>
 
-    <!-- Side Quests -->
-    <section id="side-quests" class="game-section">
-      <h2>🌟 Side Quests</h2>
-      <p class="note">Little detours or bonus challenges.</p>
-      <div class="quest-input">
-        <input class="input" type="text" id="side-quest-input" placeholder="Add a new side quest">
-        <button class="add-btn" id="add-side-quest-btn">Add</button>
-      </div>
-      <ul id="side-quest-list" class="quest-list"></ul>
-    </section>
+      <!-- Side Quests -->
+      <section id="side-quests" class="game-section pixel-corners">
+        <h2><img class="icon" src="images/side.png">Side Quests</h2>
+        <p class="note">Little detours or bonus challenges.</p>
+        <div class="quest-input">
+          <input class="input pixel-corners-small" type="text"
+            id="side-quest-input" placeholder="Add a new side quest">
+          <button class="add-btn pixel-corners-small"
+            id="add-side-quest-btn">Add</button>
+        </div>
+        <ul id="side-quest-list" class="quest-list"></ul>
+      </section>
 
-    <!-- Pomodoro Timer -->
-<section id="pomodoro" class="game-section">
-  <h2>⏰ Pomodoro Timer</h2>
-  <div class="pomodoro-timer">
-    <div class="pomodoro-types">
-      <button class="pomodoro-type active" data-time="25">Focus</button>
-      <button class="pomodoro-type" data-time="5">Short Break</button>
-      <button class="pomodoro-type" data-time="15">Long Break</button>
+      <!-- Pomodoro Timer -->
+      <section id="pomodoro" class="game-section pixel-corners">
+        <h2><img class="icon" src="images/pomodoro.png">Pomodoro Timer</h2>
+        <div class="pomodoro-timer">
+          <div class="pomodoro-types">
+            <button class="pomodoro-type active pixel-corners-small"
+              data-time="25" data-type="FOCUS">Focus</button>
+            <button class="pomodoro-type pixel-corners-small" data-time="5"
+              data-type="SHORT_BREAK">Short Break</button>
+            <button class="pomodoro-type pixel-corners-small" data-time="15"
+              data-type="LONG_BREAK">Long Break</button>
+          </div>
+          <div class="pomodoro-circle pixel-corners-pomodoro">
+            <svg width="200" height="200">
+              <defs>
+                <lineargradient id="progressGradient" x1="0%" y1="0%" x2="100%"
+                  y2="0%">
+                  <stop offset="0%" style="stop-color:#c9e9f6;stop-opacity:1" />
+                  <stop offset="50%"
+                    style="stop-color:#45b3e0;stop-opacity:1" />
+                  <stop offset="100%"
+                    style="stop-color:#c9e9f6;stop-opacity:1" />
+                </lineargradient>
+              </defs>
+              <circle class="pomodoro-bg" cx="100" cy="100" r="90" />
+              <circle class="pomodoro-progress" cx="100" cy="100" r="90" />
+            </svg>
+            <div class="pomodoro-time" id="pomodoro-time">25:00</div>
+          </div>
+          <div class="pomodoro-controls">
+            <button class="pomodoro-btn pixel-corners-small"
+              id="pomodoro-start">Start</button>
+            <button class="pomodoro-btn pixel-corners-small"
+              id="pomodoro-pause">Pause</button>
+            <button class="pomodoro-btn pixel-corners-small"
+              id="pomodoro-reset">Reset</button>
+          </div>
+          <div id="pomodoro-message" class="pomodoro-message"></div>
+          <div class="pomodoro-animation">
+            <img src="images/work.gif" alt="Timer Animation"
+              class="pomodoro-gif">
+          </div>
+          <div class="pomodoro-stats">
+            <p>Today's Focus: <b id="focus-time">0h 0m</b></p>
+            <p>Sessions: <b id="session-count">0</b></p>
+          </div>
+        </div>
+      </section>
+
+      <nav class="game-navbar">
+        <button class="nav-btn nav-leftmost pixel-corners-small"
+          data-page="focus">
+          <span class="nav-icon"><img class="nav-icon"
+              src="images/focus.png"></span>
+          <span class="nav-label">Focus!</span>
+        </button>
+        <button class="nav-btn nav-left pixel-corners-small" data-page="market">
+          <span class="nav-icon"><img class="nav-icon"
+              src="images/shop.png"></span>
+          <span class="nav-label">Market</span>
+        </button>
+        <button class="nav-btn nav-center pixel-corners-small"
+          data-page="index">
+          <span><img class="nav-icon" src="images/quest.png"></span>
+          <span class="nav-label">Quests</span>
+        </button>
+        <button class="nav-btn nav-right pixel-corners-small" data-page="items">
+          <span class="nav-icon"><img class="nav-icon"
+              src="images/items.png"></span>
+          <span class="nav-label">Items</span>
+        </button>
+        <button class="nav-btn nav-rightmost pixel-corners-small"
+          data-page="user">
+          <span class="nav-icon"><img class="nav-icon"
+              src="images/user.png"></span>
+          <span class="nav-label">User</span>
+        </button>
+      </nav>
     </div>
-    <div class="pomodoro-circle">
-      <svg width="200" height="200">
-        <circle class="pomodoro-bg" cx="100" cy="100" r="90"/>
-        <circle class="pomodoro-progress" cx="100" cy="100" r="90"/>
-      </svg>
-      <div class="pomodoro-time" id="pomodoro-time">25:00</div>
-    </div>
-    <div class="pomodoro-controls">
-      <button class="pomodoro-btn" id="pomodoro-start">Start</button>
-      <button class="pomodoro-btn" id="pomodoro-pause">Pause</button>
-      <button class="pomodoro-btn" id="pomodoro-reset">Reset</button>
-    </div>
-    <div id="pomodoro-message" class="pomodoro-message"></div>
-    <div class="pomodoro-stats">
-      <span>Today's Focus: <b id="focus-time">0h 0m</b></span>
-      <span>Sessions: <b id="session-count">0</b></span>
-    </div>
-  </div>
-</section>
 
-  </div>
-  <nav class="game-navbar">
-    <button class="nav-btn nav-leftmost">
-      <span class="nav-icon">⚡</span>
-      <span class="nav-label">Focus!</span>
-    </button>
-    <button class="nav-btn nav-left">
-      <span class="nav-icon">🛒</span>
-      <span class="nav-label">Market</span>
-    </button>
-    <button class="nav-btn nav-center">
-      <span class="nav-icon">📜</span>
-      <span class="nav-label">Quests</span>
-    </button>
-    <button class="nav-btn nav-right">
-      <span class="nav-icon">🎒</span>
-      <span class="nav-label">Items</span>
-    </button>
-    <button class="nav-btn nav-rightmost">
-      <span class="nav-icon">👤</span>
-      <span class="nav-label">User</span>
-    </button>
-  </nav>
-</body>
+  </body>
 </html>

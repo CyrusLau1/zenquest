@@ -1,16 +1,279 @@
 /* General RPG Game Aesthetic */
 @import url('https://fonts.cdnfonts.com/css/minecraft-4');
 @import url('https://fonts.cdnfonts.com/css/pixelcraft-2');
-                
 
-@media only screen and (min-width: 992px)
-{
-  body {
-    display:flex; 
-    flex-direction:column; 
-    justify-content:center;
+
+/* Tablet Layout (768px and up) */
+@media screen and (min-width: 768px) {
+  .game-container {
+    padding: 30px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "header header"
+      "hud    hud"
+      "daily  habits"
+      "main   side"
+      "pomo   pomo";
+    gap: 25px;
+  }
+
+  .game-header {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 30px 40px;
+    margin-bottom: 40px;
+  }
+
+  .game-header img {
+    max-width: 400px;
+    margin: 0;
+  }
+
+  .game-header p {
+    font-size: 1.2em;
+  }
+
+  .hud {
+    grid-template-columns: repeat(3, minmax(250px, 1fr));
+    padding: 20px 30px;
+    margin: 0 40px 40px 40px;
+  }
+
+  .hud-item p {
+    font-size: 1em;
+  }
+
+  .health-bar,
+  .xp-bar {
+    height: 15px;
+  }
+
+  .level-badge {
+    padding: 10px 15px;
+    font-size: 1.1em;
+  }
+
+  .zen-coins-bar {
+    padding: 10px 15px;
+    font-size: 1.1em;
+  }
+
+  #daily-quests {
+    grid-area: daily;
+  }
+
+  #habits {
+    grid-area: habits;
+  }
+
+  #main-quests {
+    grid-area: main;
+  }
+
+  #side-quests {
+    grid-area: side;
+  }
+
+  #pomodoro {
+    grid-area: pomo;
+    margin-bottom: 80px;
+    /* Space for navbar */
+  }
+
+  .quest-list {
+    height: 350px;
+    overflow-y: auto;
   }
 }
+
+/* Desktop Layout (1200px and up) */
+@media screen and (min-width: 1200px) {
+
+  /* Create fixed wrapper */
+  .fixed-top-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: #1a1a1a;
+    border-bottom: 3px solid #333;
+    padding: 15px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* HUD modifications */
+  .hud {
+    background: #222222f1;
+    margin: 0;
+    padding: 15px 25px;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    grid-area: hud;
+  }
+
+  /* Navigation modifications */
+  .top-navbar {
+    display: flex !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #222222f8;
+    z-index: 1000;
+    height: 60px;
+    border-bottom: 3px solid #b0b0b0;
+    box-shadow: 0 2px 18px #000c;
+    padding: 0 40px;
+    justify-content: space-between;
+
+  }
+
+
+  .game-navbar {
+    display: none !important;
+    /* Hide bottom navbar on larger screens */
+  }
+
+  .top-nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Header icon styles */
+  .header-icon {
+    height: 50px;
+    display: flex;
+    align-items: center;
+  }
+
+  .header-icon img {
+    height: 40px;
+    width: auto;
+  }
+
+  .game-header {
+    display: none;
+  }
+
+  /* Style adjustments for top navbar */
+  .top-navbar .nav-btn {
+    height: 60px;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .top-navbar .nav-center {
+    transform: none;
+    margin: 0;
+    border-radius: 0;
+    background: #333;
+  }
+
+  .top-navbar .nav-icon {
+    margin: 0;
+  }
+
+  .top-navbar .nav-label {
+    font-size: 0.9em;
+  }
+
+
+  /* Adjust main content container */
+  .game-container {
+        padding: 40px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-areas:
+            "hud    hud    hud"
+            "daily habits main"
+            "side  pomo  pomo";
+        gap: 30px;
+        row-gap: 80px;
+        max-width: 1400px;
+        margin: 180px auto 180px auto;
+    }
+
+    #daily-quests { grid-area: daily; }
+    #habits { grid-area: habits; }
+    #main-quests { grid-area: main; }
+    #side-quests { grid-area: side; }
+    #pomodoro { 
+        grid-area: pomo;
+        margin-bottom: 40px;
+    }
+
+    .game-section {
+        height: 100%;
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .quest-list {
+        flex: 1;
+        height: auto;
+        min-height: 100px;
+        max-height: none;
+    }
+
+    /* Pomodoro section spans two columns */
+    #pomodoro {
+        max-width: none;
+    }
+
+  /* Fix some nested elements */
+  .hud-item {
+    margin: 0;
+  }
+
+  .hud-item-right {
+    margin: 0;
+    justify-self: end;
+  }
+
+  .level-badge,
+  .zen-coins-bar {
+    margin: 0;
+  }
+
+  .health-bar,
+  .xp-bar {
+    margin: 5px 0;
+  }
+}
+
+/* Additional tweaks for extra large screens */
+@media screen and (min-width: 1600px) {
+  .fixed-top-wrapper {
+    padding: 20px 60px;
+  }
+
+  .game-container {
+    margin-top: 200px;
+    max-width: 1800px;
+    gap: 40px;
+    padding: 50px;
+  }
+
+  .game-header img {
+    height: 60px;
+  }
+}
+
+
+.top-navbar {
+  display: none;
+}
+
 
 body {
   font-family: 'PixelCraft', sans-serif;
@@ -19,7 +282,7 @@ body {
   background: no-repeat center center fixed;
   background-size: cover;
   color: #e4e4e4;
-  text-shadow: 1px 1px #555 ;
+  text-shadow: 1px 1px #555;
   overflow-x: hidden;
   min-height: 100vh;
   box-sizing: border-box;
@@ -33,36 +296,39 @@ p {
   position: fixed;
   pointer-events: none;
   z-index: 99;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   border-radius: 1px;
   box-shadow:
-    0 0 0 6px #393939,
-    0 0 32px 8px #000a,
-    inset 0 0 4px 2px #2d2217;
+    0 0 0 8px #393939,
+    0 0 36px 8px #000a,
+    inset 0 0 6px 3px #2d2217;
   box-sizing: border-box;
 }
 
 header {
-  width:100%;
-  text-align:center;
-  text-shadow: 2px 2px #555 ;
+  width: 100%;
+  text-align: center;
+  text-shadow: 2px 2px #555;
   margin-bottom: 5vh;
   font-family: 'Minecraft', sans-serif;
   font-size: 1.1em;
 }
 
 header img {
-  height: 25vh; 
+  max-width: 55vw;
   width: auto;
-  display:inline-block;
+  display: inline-block;
   margin: -4px auto auto auto;
 }
 
 .game-container {
   margin: 0 auto;
   padding: 25px;
-  background: rgba(5, 5, 5, 0.33);
-  border-radius: 1px;
+  background: rgba(5, 5, 5, 0.33) !important;
+
 }
 
 ::-webkit-scrollbar {
@@ -73,9 +339,9 @@ header img {
 
 /* HUD Bars */
 .hud {
- margin: 7vh auto;
- font-family: 'Minecraft', sans-serif;
- font-size: 1.2em;
+  margin: 6vh auto;
+  font-family: 'Minecraft', sans-serif;
+  font-size: 1.2em;
 }
 
 .hud-item-right {
@@ -84,7 +350,7 @@ header img {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  margin-top: -46px;
+  margin-top: -50px;
   font-size: 1em;
   margin-bottom: 50px;
 }
@@ -93,9 +359,8 @@ header img {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: #232323;
-  border-radius: 4px;
-  padding: 6px 10px 8px 8px;
+  background: #333;
+  padding: 8px 10px 10px 8px;
   font-family: 'Minecraft', 'PixelCraft', monospace;
   font-size: 1em;
   color: #fff;
@@ -119,9 +384,8 @@ header img {
   font-size: 1.1em;
   font-weight: normal;
   color: #fff;
-  background: #444;
-  border-radius: 2px;
-  padding: 4px 8px 6px 8px;
+  background: #5e5e5e;
+  padding: 4px 8px 6px 9px;
   box-shadow: 0 1px 2px #000a, 0 0 2px #fff2 inset;
   text-shadow: 1px 1px #000, 0 0 2px #fff9;
   margin-left: 2px;
@@ -135,27 +399,26 @@ header img {
   transition: background 0.2s, transform 0.1s;
 }
 
-.health-bar, .xp-bar {
+.health-bar,
+.xp-bar {
   width: 88%;
-  height: 20px;
-  margin: 10px auto;
+  height: 18px;
+  margin: 15px auto;
   background: #393939;
-  border-radius: 4px;
   border: solid rgb(96, 96, 96);
+  margin-top: -8px;
 }
 
 #health-progress {
   background: linear-gradient(to right, #d83f3c, #ff6f00);
   height: 100%;
   transition: width 0.5s ease;
-  border-radius: 8px;
 }
 
 #xp-progress {
   background: linear-gradient(to right, #ff9800, #ffd700);
   height: 100%;
   transition: width 0.5s ease;
-  border-radius: 8px;
 }
 
 .zen-coins-bar {
@@ -169,19 +432,44 @@ header img {
   margin-left: 8px;
   box-shadow: 0 1px 4px #000a;
   cursor: default;
+  box-shadow: 0 1px 2px #000a, 0 0 0 1px #444 inset;
 }
 
 /* Game Sections */
 .game-section {
-  margin: 5vh 0;
+  margin: 7vh 0;
   padding: 5px 25px 20px 25px;
-  background: #222222bc;
+  background: #222222f1;
   border-radius: 10px;
+}
+
+.game-section:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.1),
+    0 7px 16px rgba(0, 0, 0, 0.3);
 }
 
 h2 {
   font-size: 1.4em;
   cursor: default;
+}
+
+.icon {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  background-size: cover;
+  margin-right: 12px;
+  vertical-align: middle;
+}
+
+.hud-icon {
+  display: inline-block;
+  width: 35px;
+  height: 35px;
+  background-size: cover;
+  vertical-align: middle;
 }
 
 .note {
@@ -195,17 +483,19 @@ h2 {
 .quest-list {
   list-style: none;
   padding: 0;
+  max-height: 400px;
+  overflow-y: scroll;
 }
 
 .quest-item {
   display: flex;
   justify-content: space-between;
-  background: #4f4f4fdf;
+  background: #4f4f4fe5;
   padding: 5px 10px;
   margin: 5px 0;
   border-radius: 5px;
   font-size: 0.7em;
-  box-shadow:inset 1px 1px 0 rgb(47, 47, 47);
+  box-shadow: inset 1px 1px 0 rgb(47, 47, 47);
   align-items: center;
   gap: 8px;
   min-height: 38px;
@@ -216,13 +506,38 @@ h2 {
   margin-right: 10px;
 }
 
+.quest-item {
+  background: linear-gradient(90deg, #363636, #2d2d2d);
+  border-left: 7px solid #555;
+  margin: 8px 0;
+  transition: all 0.2s;
+  position: relative;
+  will-change: transform, opacity, filter;
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
+
+.quest-item.completed {
+  opacity: 0.5;
+  filter: brightness(0.7);
+  transition: all 0.3s steps(5);
+}
+
+.quest-item:hover {
+  border-left-color: #666;
+  background: linear-gradient(90deg, #3a3a3a, #313131);
+}
+
+
 .complete-btn {
   background: #939393;
   color: rgb(255, 255, 255);
   cursor: pointer;
   border-radius: 2px;
-  border-right:#242424 solid 1.5px;;
-  border-bottom:#242424 solid 1.5px;;
+  border-right: #242424 solid 1.5px;
+  ;
+  border-bottom: #242424 solid 1.5px;
+  ;
   text-shadow: 1px 1px black;
   padding: 6px 9px;
 }
@@ -237,6 +552,7 @@ h2 {
   color: #fff;
   transform: scale(1.08) rotate(4deg);
 }
+
 
 .input {
   font-family: 'PixelCraft', sans-serif;
@@ -266,14 +582,15 @@ h2 {
 }
 
 .input:focus {
-  outline:none;
+  outline: none;
   background-color: #ffffff;
 }
+
 .add-btn {
   font-family: 'Minecraft', sans-serif;
   font-size: 1.1em;
   background-color: #939393;
-  color:#e4e4e4;
+  color: #e4e4e4;
   text-shadow: 1px 1px black;
   padding: 4px 7px 7px 7px;
   margin-left: 2px;
@@ -298,7 +615,7 @@ h2 {
   font-family: 'Minecraft', sans-serif;
   font-size: 0.8em;
   background-color: #939393;
-  color:#e4e4e4;
+  color: #e4e4e4;
   text-shadow: 1px 1px black;
   padding: 4px 7px 7px 7px;
 }
@@ -334,6 +651,7 @@ h2 {
   transform: scale(1.02);
 }
 
+
 /* Pomodoro Timer Styles */
 .pomodoro-timer {
   display: flex;
@@ -342,7 +660,7 @@ h2 {
   justify-content: center;
   margin: 2vh auto;
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
 }
 
 .pomodoro-types {
@@ -365,8 +683,10 @@ h2 {
   border-bottom: #242424 solid 1.5px;
   cursor: pointer;
   transition: all 0.2s;
-  min-width: 80px;
+  min-width: 65px;
   text-align: center;
+  margin-top: 10px;
+  transition: all 0.2s;
 }
 
 .pomodoro-type:hover {
@@ -376,9 +696,21 @@ h2 {
 }
 
 .pomodoro-type.active {
-  background: #ffd700;
-  color: #232323;
-  text-shadow: none;
+  background: #545454;
+  color: #ffffff;
+  border-color: #777;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.pomodoro-timer.running .pomodoro-type:not(.active) {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.pomodoro-timer.running .pomodoro-type:not(.active):hover {
+  transform: none;
+  background: #404040;
 }
 
 .pomodoro-circle {
@@ -386,10 +718,11 @@ h2 {
   width: 200px;
   height: 200px;
   margin: 25px auto;
-  filter: drop-shadow(0 0 16px #ffd70088);
+  filter: drop-shadow(0 0 4px #acd7ff88);
   display: flex;
   justify-content: center;
   align-items: center;
+
 }
 
 .pomodoro-circle svg {
@@ -402,17 +735,17 @@ h2 {
 .pomodoro-bg {
   fill: none;
   stroke: #333;
-  stroke-width: 10;
+  stroke-width: 7;
 }
 
 .pomodoro-progress {
   fill: none;
-  stroke: #ffd700;
-  stroke-width: 10;
+  stroke: url(#progressGradient);
+  stroke-width: 7;
   stroke-linecap: round;
   stroke-dasharray: 339.292;
   stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.5s cubic-bezier(.68,-0.55,.27,1.55);
+  transition: stroke-dashoffset 0.5s cubic-bezier(.68, -0.55, .27, 1.55);
 }
 
 .pomodoro-time {
@@ -420,13 +753,17 @@ h2 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-family: 'Minecraft', 'PixelCraft', monospace;
+  font-family: 'Minecraft', 'PixelCraft';
   font-size: 2.5em;
-  color: #ffd700;
-  text-shadow: 2px 2px #232323;
+  background: linear-gradient(0deg, #c9e9f6, #45b3e0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
   letter-spacing: 2px;
   user-select: none;
   z-index: 2;
+  filter: drop-shadow(2px 2px #2a2a2a);
 }
 
 .pomodoro-controls {
@@ -449,7 +786,7 @@ h2 {
   border-right: #242424 solid 1.5px;
   border-bottom: #242424 solid 1.5px;
   transition: all 0.2s;
-  min-width: 80px;
+  min-width: 75px;
   text-align: center;
 }
 
@@ -461,10 +798,9 @@ h2 {
 
 .pomodoro-message {
   font-size: 1.1em;
-  color: #ffd700;
+  color: #00b7ff;
   text-shadow: 1px 1px #222;
   min-height: 24px;
-  margin-top: 5px;
   transition: color 0.3s;
   animation: pomodoro-pop 0.7s;
   text-align: center;
@@ -480,33 +816,419 @@ h2 {
   width: 100%;
 }
 
+#pomodoro {
+  margin-bottom: 15vh;
+}
+
+.pomodoro-animation {
+  flex: 1;
+  max-width: 50%;
+  margin: 0 auto;
+  display: block;
+}
+
+.pomodoro-animation img {
+  width: 100%;
+  height: auto;
+}
+
+.pomodoro-gif {
+  display: none;
+  width: 100%;
+  height: auto;
+}
+
+.pixel-corners-pomodoro {
+  clip-path: polygon(0px calc(100% - 80px),
+      4px calc(100% - 80px),
+      4px calc(100% - 68px),
+      8px calc(100% - 68px),
+      8px calc(100% - 64px),
+      8px calc(100% - 56px),
+      12px calc(100% - 56px),
+      12px calc(100% - 48px),
+      16px calc(100% - 48px),
+      16px calc(100% - 44px),
+      20px calc(100% - 44px),
+      20px calc(100% - 40px),
+      24px calc(100% - 40px),
+      24px calc(100% - 36px),
+      24px calc(100% - 32px),
+      28px calc(100% - 32px),
+      32px calc(100% - 28px),
+      32px calc(100% - 24px),
+      36px calc(100% - 24px),
+      40px calc(100% - 24px),
+      40px calc(100% - 20px),
+      44px calc(100% - 20px),
+      44px calc(100% - 16px),
+      48px calc(100% - 16px),
+      48px calc(100% - 12px),
+      56px calc(100% - 12px),
+      56px calc(100% - 8px),
+      64px calc(100% - 8px),
+      68px calc(100% - 8px),
+      68px calc(100% - 4px),
+      80px calc(100% - 4px),
+      80px 100%,
+      calc(100% - 80px) 100%,
+      calc(100% - 80px) calc(100% - 4px),
+      calc(100% - 68px) calc(100% - 4px),
+      calc(100% - 68px) calc(100% - 8px),
+      calc(100% - 64px) calc(100% - 8px),
+      calc(100% - 56px) calc(100% - 8px),
+      calc(100% - 56px) calc(100% - 12px),
+      calc(100% - 48px) calc(100% - 12px),
+      calc(100% - 48px) calc(100% - 16px),
+      calc(100% - 44px) calc(100% - 16px),
+      calc(100% - 44px) calc(100% - 20px),
+      calc(100% - 40px) calc(100% - 20px),
+      calc(100% - 40px) calc(100% - 24px),
+      calc(100% - 36px) calc(100% - 24px),
+      calc(100% - 32px) calc(100% - 24px),
+      calc(100% - 32px) calc(100% - 28px),
+      calc(100% - 28px) calc(100% - 32px),
+      calc(100% - 24px) calc(100% - 32px),
+      calc(100% - 24px) calc(100% - 36px),
+      calc(100% - 24px) calc(100% - 40px),
+      calc(100% - 20px) calc(100% - 40px),
+      calc(100% - 20px) calc(100% - 44px),
+      calc(100% - 16px) calc(100% - 44px),
+      calc(100% - 16px) calc(100% - 48px),
+      calc(100% - 12px) calc(100% - 48px),
+      calc(100% - 12px) calc(100% - 56px),
+      calc(100% - 8px) calc(100% - 56px),
+      calc(100% - 8px) calc(100% - 64px),
+      calc(100% - 8px) calc(100% - 68px),
+      calc(100% - 4px) calc(100% - 68px),
+      calc(100% - 4px) calc(100% - 80px),
+      100% calc(100% - 80px),
+      100% 80px,
+      calc(100% - 4px) 80px,
+      calc(100% - 4px) 68px,
+      calc(100% - 8px) 68px,
+      calc(100% - 8px) 64px,
+      calc(100% - 8px) 56px,
+      calc(100% - 12px) 56px,
+      calc(100% - 12px) 48px,
+      calc(100% - 16px) 48px,
+      calc(100% - 16px) 44px,
+      calc(100% - 20px) 44px,
+      calc(100% - 20px) 40px,
+      calc(100% - 24px) 40px,
+      calc(100% - 24px) 36px,
+      calc(100% - 24px) 32px,
+      calc(100% - 28px) 32px,
+      calc(100% - 32px) 28px,
+      calc(100% - 32px) 24px,
+      calc(100% - 36px) 24px,
+      calc(100% - 40px) 24px,
+      calc(100% - 40px) 20px,
+      calc(100% - 44px) 20px,
+      calc(100% - 44px) 16px,
+      calc(100% - 48px) 16px,
+      calc(100% - 48px) 12px,
+      calc(100% - 56px) 12px,
+      calc(100% - 56px) 8px,
+      calc(100% - 64px) 8px,
+      calc(100% - 68px) 8px,
+      calc(100% - 68px) 4px,
+      calc(100% - 80px) 4px,
+      calc(100% - 80px) 0px,
+      80px 0px,
+      80px 4px,
+      68px 4px,
+      68px 8px,
+      64px 8px,
+      56px 8px,
+      56px 12px,
+      48px 12px,
+      48px 16px,
+      44px 16px,
+      44px 20px,
+      40px 20px,
+      40px 24px,
+      36px 24px,
+      32px 24px,
+      32px 28px,
+      28px 32px,
+      24px 32px,
+      24px 36px,
+      24px 40px,
+      20px 40px,
+      20px 44px,
+      16px 44px,
+      16px 48px,
+      12px 48px,
+      12px 56px,
+      8px 56px,
+      8px 64px,
+      8px 68px,
+      4px 68px,
+      4px 80px,
+      0px 80px);
+}
+
 @keyframes pomodoro-pop {
-  0% { transform: scale(0.7); opacity: 0; }
-  60% { transform: scale(1.15); opacity: 1; }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes timer-pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes timer-complete {
-  0% { transform: scale(1); filter: brightness(1); }
-  50% { transform: scale(1.2); filter: brightness(1.5); }
-  100% { transform: scale(1); filter: brightness(1); }
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+    filter: brightness(1.5);
+  }
+
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
 }
 
 @keyframes timer-pause {
-  0% { transform: scale(1); }
-  20% { transform: scale(0.8); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  20% {
+    transform: scale(0.8);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes timer-reset {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
+.pixel-corners,
+.pixel-corners--wrapper {
+  clip-path: polygon(0px calc(100% - 20px),
+      4px calc(100% - 20px),
+      4px calc(100% - 12px),
+      8px calc(100% - 12px),
+      8px calc(100% - 8px),
+      12px calc(100% - 8px),
+      12px calc(100% - 4px),
+      20px calc(100% - 4px),
+      20px 100%,
+      calc(100% - 20px) 100%,
+      calc(100% - 20px) calc(100% - 4px),
+      calc(100% - 12px) calc(100% - 4px),
+      calc(100% - 12px) calc(100% - 8px),
+      calc(100% - 8px) calc(100% - 8px),
+      calc(100% - 8px) calc(100% - 12px),
+      calc(100% - 4px) calc(100% - 12px),
+      calc(100% - 4px) calc(100% - 20px),
+      100% calc(100% - 20px),
+      100% 20px,
+      calc(100% - 4px) 20px,
+      calc(100% - 4px) 12px,
+      calc(100% - 8px) 12px,
+      calc(100% - 8px) 8px,
+      calc(100% - 12px) 8px,
+      calc(100% - 12px) 4px,
+      calc(100% - 20px) 4px,
+      calc(100% - 20px) 0px,
+      20px 0px,
+      20px 4px,
+      12px 4px,
+      12px 8px,
+      8px 8px,
+      8px 12px,
+      4px 12px,
+      4px 20px,
+      0px 20px);
+  position: relative;
+}
+
+.pixel-corners {
+  border: 8px solid transparent;
+}
+
+.pixel-corners--wrapper {
+  width: fit-content;
+  height: fit-content;
+}
+
+.pixel-corners--wrapper .pixel-corners {
+  display: block;
+  clip-path: polygon(8px 24px,
+      12px 24px,
+      12px 16px,
+      16px 16px,
+      16px 12px,
+      24px 12px,
+      24px 8px,
+      calc(100% - 24px) 8px,
+      calc(100% - 24px) 12px,
+      calc(100% - 16px) 12px,
+      calc(100% - 16px) 16px,
+      calc(100% - 12px) 16px,
+      calc(100% - 12px) 24px,
+      calc(100% - 8px) 24px,
+      calc(100% - 8px) calc(100% - 24px),
+      calc(100% - 12px) calc(100% - 24px),
+      calc(100% - 12px) calc(100% - 16px),
+      calc(100% - 16px) calc(100% - 16px),
+      calc(100% - 16px) calc(100% - 12px),
+      calc(100% - 24px) calc(100% - 12px),
+      calc(100% - 24px) calc(100% - 8px),
+      24px calc(100% - 8px),
+      24px calc(100% - 12px),
+      16px calc(100% - 12px),
+      16px calc(100% - 16px),
+      12px calc(100% - 16px),
+      12px calc(100% - 24px),
+      8px calc(100% - 24px));
+}
+
+.pixel-corners::after,
+.pixel-corners--wrapper::after {
+  content: "";
+  position: absolute;
+  clip-path: polygon(0px calc(100% - 20px),
+      4px calc(100% - 20px),
+      4px calc(100% - 12px),
+      8px calc(100% - 12px),
+      8px calc(100% - 8px),
+      12px calc(100% - 8px),
+      12px calc(100% - 4px),
+      20px calc(100% - 4px),
+      20px 100%,
+      calc(100% - 20px) 100%,
+      calc(100% - 20px) calc(100% - 4px),
+      calc(100% - 12px) calc(100% - 4px),
+      calc(100% - 12px) calc(100% - 8px),
+      calc(100% - 8px) calc(100% - 8px),
+      calc(100% - 8px) calc(100% - 12px),
+      calc(100% - 4px) calc(100% - 12px),
+      calc(100% - 4px) calc(100% - 20px),
+      100% calc(100% - 20px),
+      100% 20px,
+      calc(100% - 4px) 20px,
+      calc(100% - 4px) 12px,
+      calc(100% - 8px) 12px,
+      calc(100% - 8px) 8px,
+      calc(100% - 12px) 8px,
+      calc(100% - 12px) 4px,
+      calc(100% - 20px) 4px,
+      calc(100% - 20px) 0px,
+      20px 0px,
+      20px 4px,
+      12px 4px,
+      12px 8px,
+      8px 8px,
+      8px 12px,
+      4px 12px,
+      4px 20px,
+      0px 20px,
+      0px 50%,
+      8px 50%,
+      8px 24px,
+      12px 24px,
+      12px 16px,
+      16px 16px,
+      16px 12px,
+      24px 12px,
+      24px 8px,
+      calc(100% - 24px) 8px,
+      calc(100% - 24px) 12px,
+      calc(100% - 16px) 12px,
+      calc(100% - 16px) 16px,
+      calc(100% - 12px) 16px,
+      calc(100% - 12px) 24px,
+      calc(100% - 8px) 24px,
+      calc(100% - 8px) calc(100% - 24px),
+      calc(100% - 12px) calc(100% - 24px),
+      calc(100% - 12px) calc(100% - 16px),
+      calc(100% - 16px) calc(100% - 16px),
+      calc(100% - 16px) calc(100% - 12px),
+      calc(100% - 24px) calc(100% - 12px),
+      calc(100% - 24px) calc(100% - 8px),
+      24px calc(100% - 8px),
+      24px calc(100% - 12px),
+      16px calc(100% - 12px),
+      16px calc(100% - 16px),
+      12px calc(100% - 16px),
+      12px calc(100% - 24px),
+      8px calc(100% - 24px),
+      8px 50%,
+      0px 50%);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #303030;
+  display: block;
+  pointer-events: none;
+}
+
+.pixel-corners::after {
+  margin: -8px;
+}
+
+.pixel-corners-small {
+  clip-path: polygon(0px calc(100% - 6px),
+      3px calc(100% - 6px),
+      3px calc(100% - 3px),
+      6px calc(100% - 3px),
+      6px 100%,
+      calc(100% - 6px) 100%,
+      calc(100% - 6px) calc(100% - 3px),
+      calc(100% - 3px) calc(100% - 3px),
+      calc(100% - 3px) calc(100% - 6px),
+      100% calc(100% - 6px),
+      100% 6px,
+      calc(100% - 3px) 6px,
+      calc(100% - 3px) 3px,
+      calc(100% - 6px) 3px,
+      calc(100% - 6px) 0px,
+      6px 0px,
+      6px 3px,
+      3px 3px,
+      3px 6px,
+      0px 6px);
 }
 
 /* --- Bottom Navigation Bar --- */
@@ -543,6 +1265,7 @@ h2 {
   outline: none;
   height: 100%;
   position: relative;
+  text-decoration: none;
 }
 
 .nav-btn .nav-icon {
@@ -550,6 +1273,15 @@ h2 {
   margin-bottom: 2px;
   text-shadow: 1px 2px 0 #222, 0 0 8px #b0b0b0aa;
   pointer-events: none;
+}
+
+.nav-icon {
+  display: inline-block;
+  width: 1.4em;
+  height: 1.4em;
+  text-align: center;
+  line-height: 1em;
+  font-size: 1.7em;
 }
 
 .nav-btn .nav-label {
@@ -588,7 +1320,8 @@ h2 {
   box-shadow: 0 -2px 24px #b0b0b0cc;
 }
 
-.nav-leftmost, .nav-rightmost {
+.nav-leftmost,
+.nav-rightmost {
   flex: 1 1 0;
   border-radius: 16px 0 0 0;
   background: linear-gradient(180deg, #222 60%, #444 100%);
@@ -602,12 +1335,15 @@ h2 {
   .game-navbar {
     height: 56px;
   }
+
   .nav-btn .nav-icon {
     font-size: 1.2em;
   }
+
   .nav-btn .nav-label {
     font-size: 0.7em;
   }
+
   .nav-center {
     font-size: 1em;
     margin: 0 3px;
@@ -656,4 +1392,147 @@ h2 {
   font-family: 'Minecraft', 'PixelCraft', monospace;
   text-shadow: 1px 1px #000, 0 0 4px #ffd70099;
   border: 1.5px solid #ffde25;
+}
+
+
+/* Add these Market styles */
+body.market {
+  background: url('images/market_bg.jpg') no-repeat center center fixed;
+  background-size: cover;
+  min-height: 100vh;
+}
+
+body.market::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: -1;
+}
+
+.market-categories {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.market-tab {
+  font-family: 'Minecraft', sans-serif;
+  background: #939393;
+  color: #e4e4e4;
+  text-shadow: 1px 1px black;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-right: #242424 solid 1.5px;
+  border-bottom: #242424 solid 1.5px;
+  min-width: 100px;
+}
+
+.market-tab:hover {
+  background: #5e5e5e;
+  transform: scale(1.04) rotate(-2deg);
+}
+
+.market-tab.active {
+  background: #545454;
+  color: #ffffff;
+  border-color: #777;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.market-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.market-item {
+  background: #4f4f4fe5;
+  border: 2px solid #333;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+}
+
+.market-item:hover {
+  transform: translateY(-4px);
+  box-shadow: inset 0 7px 14px rgba(0, 0, 0, 0.3);
+}
+
+.item-image {
+  width: 70%;
+  height: auto;
+  image-rendering: pixelated;
+  margin-top: 20px;
+  ;
+}
+
+.item-name {
+  font-family: 'Minecraft', sans-serif;
+  font-size: 1.2em;
+  color: #f5f5f5;
+  text-shadow: 2px 1px #000;
+  text-align: center;
+  margin-top: 5px;
+  ;
+  text-decoration: none;
+  font-weight: lighter;
+}
+
+.item-description {
+  font-size: 0.75em;
+  text-align: center;
+  color: #d8d8d8;
+  text-shadow: 1px 1px #000;
+  margin: 4px 0;
+}
+
+
+.item-stats {
+  font-size: 0.75em;
+  color: #bcbcbc;
+  text-shadow: 1px 1px #000;
+}
+
+.buy-btn {
+  font-family: 'Minecraft', sans-serif;
+  background: #1e8721;
+  color: #e4e4e4;
+  text-shadow: 1px 1px black;
+  padding: 7px 16px;
+  cursor: pointer;
+  border-right: #242424 solid 1.5px;
+  border-bottom: #242424 solid 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 1em;
+}
+
+.buy-btn:hover {
+  background: #29982d;
+  transform: scale(1.04);
+}
+
+.buy-btn:disabled {
+  background: #666;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.price {
+  color: #ffd700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9em;
+  margin: 8px 0;
 }
