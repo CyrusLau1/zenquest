@@ -5,9 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>ZenQuest RPG</title>
         <link rel="stylesheet" href="styles.css">
-        <script defer src="app.js"></script>
-        <script defer src="market.js"></script>
         <script defer src="utilities.js"></script>
+        <script defer src="market.js"></script>
+        <script defer src="app.js"></script>
         <!-- Notyf -->
         <link rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
@@ -21,59 +21,59 @@
         <nav class="top-navbar">
             <div class="header-icon">
                 <a href="#">
-                    <img src="images/logo_zenquest.png" alt="ZenQuest Logo">
+                    <img src="images/icons/logo_zenquest.png" alt="ZenQuest Logo">
                 </a>
             </div>
             <div class="top-nav-buttons">
                 <button class="nav-btn nav-leftmost pixel-corners-small"
                     data-page="focus">
                     <span class="nav-icon"><img class="nav-icon"
-                            src="images/focus.png"></span>
+                            src="images/icons/focus.png"></span>
                     <span class="nav-label">Focus!</span>
                 </button>
                 <button class="nav-btn nav-left pixel-corners-small"
                     data-page="market">
                     <span class="nav-icon"><img class="nav-icon"
-                            src="images/shop.png"></span>
+                            src="images/icons/shop.png"></span>
                     <span class="nav-label">Market</span>
                 </button>
                 <button class="nav-btn nav-center pixel-corners-small"
                     data-page="index">
-                    <span><img class="nav-icon" src="images/quest.png"></span>
+                    <span><img class="nav-icon" src="images/icons/quest.png"></span>
                     <span class="nav-label">Quests</span>
                 </button>
                 <button class="nav-btn nav-right pixel-corners-small"
-                    data-page="items">
+                    data-page="inventory">
                     <span class="nav-icon"><img class="nav-icon"
-                            src="images/items.png"></span>
+                            src="images/icons/items.png"></span>
                     <span class="nav-label">Items</span>
                 </button>
                 <button class="nav-btn nav-rightmost pixel-corners-small"
                     data-page="user">
                     <span class="nav-icon"><img class="nav-icon"
-                            src="images/user.png"></span>
+                            src="images/icons/user.png"></span>
                     <span class="nav-label">User</span>
                 </button>
             </div>
         </nav>
 
-        <div class="game-container">
+        <div class="game-container market-container">
             <header class="game-header">
                 <a href="#">
-                    <img src="images/logo_zenquest.png" alt="ZenQuest Logo">
+                    <img src="images/icons/logo_zenquest.png" alt="ZenQuest Logo">
                 </a>
             </header>
             <!-- RPG HUD -->
             <div class="hud">
                 <div class="hud-item">
-                    <p><img class="hud-icon" src="images/hp.png"> Health:</p>
+                    <p><img class="hud-icon" src="images/icons/hp.png"> Health:</p>
                     <div class="health-bar pixel-corners-small">
                         <div id="health-progress" style="width: 100%;"
                             class="pixel-corners-small"></div>
                     </div>
                 </div>
                 <div class="hud-item">
-                    <p><img class="hud-icon" src="images/xp.png"> XP:</p>
+                    <p><img class="hud-icon" src="images/icons/xp.png"> XP:</p>
                     <div class="xp-bar pixel-corners-small">
                         <div id="xp-progress" style="width: 0%;"
                             class="pixel-corners-small"></div>
@@ -86,14 +86,14 @@
                 </div>
                 <div class="hud-item hud-item-right ">
                     <span class="zen-coins-bar pixel-corners-small">
-                        <img class="hud-icon" src="images/coin.png"> <span
+                        <img class="hud-icon" src="images/icons/coin.png"> <span
                             id="zen-coins-count">0</span>
                     </span>
                 </div>
             </div>
 
             <section id="market" class="game-section pixel-corners">
-                <h2><img class="icon" src="images/shop.png">Market</h2>
+                <h2><img class="icon" src="images/icons/shop.png">Market</h2>
 
                 <div class="market-categories">
                     <button class="market-tab active pixel-corners-small"
@@ -102,10 +102,51 @@
                         data-category="potions">Potions</button>
                     <button class="market-tab pixel-corners-small"
                         data-category="equipment">Equipment</button>
+                    <button class="market-tab pixel-corners-small"
+                        data-category="others">Others</button>
                 </div>
 
-                <div class="market-items">
-                    <!-- Items will be dynamically populated -->
+                <!-- Weapons Section -->
+                <div class="market-section" id="weapons">
+                    <div class="market-items">
+                        <!-- Weapons items -->
+                    </div>
+                </div>
+
+                <!-- Potions Section -->
+                <div class="market-section" id="potions" style="display: none;">
+                    <div class="market-items">
+                        <!-- Potions items -->
+                    </div>
+                </div>
+
+                <!-- Equipment Section -->
+                <div class="market-section" id="equipment"
+                    style="display: none;">
+                    <div class="market-items">
+                        <!-- Equipment items -->
+                    </div>
+                </div>
+
+                <!-- Custom Rewards Section -->
+                <div class="market-section" id="others" style="display: none;">
+                    <h2 class="custom">Custom Rewards</h2>
+                    <div class="custom-rewards-form pixel-corners-small">
+                        <input type="text" id="reward-name"
+                            class="pixel-input pixel-corners-small"
+                            placeholder="Reward name">
+                        <textarea id="reward-description"
+                            class="pixel-input pixel-corners-small"
+                            placeholder="Reward description"></textarea>
+                        <input type="number" id="reward-price"
+                            class="pixel-input pixel-corners-small"
+                            placeholder="Price in Zen Coins">
+                        <button class="add-reward-btn pixel-corners-small">Add
+                            Reward</button>
+                    </div>
+                    <div class="market-items custom-rewards-list">
+                        <!-- Custom rewards will be added here dynamically -->
+                    </div>
                 </div>
             </section>
 
@@ -115,30 +156,30 @@
             <button class="nav-btn nav-leftmost pixel-corners-small"
                 data-page="focus">
                 <span class="nav-icon"><img class="nav-icon"
-                        src="images/focus.png"></span>
+                        src="images/icons/focus.png"></span>
                 <span class="nav-label">Focus!</span>
             </button>
             <button class="nav-btn nav-left pixel-corners-small"
                 data-page="market">
                 <span class="nav-icon"><img class="nav-icon"
-                        src="images/shop.png"></span>
+                        src="images/icons/shop.png"></span>
                 <span class="nav-label">Market</span>
             </button>
             <button class="nav-btn nav-center pixel-corners-small"
                 data-page="index">
-                <span><img class="nav-icon" src="images/quest.png"></span>
+                <span><img class="nav-icon" src="images/icons/quest.png"></span>
                 <span class="nav-label">Quests</span>
             </button>
             <button class="nav-btn nav-right pixel-corners-small"
-                data-page="items">
+                data-page="inventory">
                 <span class="nav-icon"><img class="nav-icon"
-                        src="images/items.png"></span>
+                        src="images/icons/items.png"></span>
                 <span class="nav-label">Items</span>
             </button>
             <button class="nav-btn nav-rightmost pixel-corners-small"
                 data-page="user">
                 <span class="nav-icon"><img class="nav-icon"
-                        src="images/user.png"></span>
+                        src="images/icons/user.png"></span>
                 <span class="nav-label">User</span>
             </button>
         </nav>

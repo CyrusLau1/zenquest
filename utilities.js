@@ -1,20 +1,21 @@
 const gameStats = {
     loadStats() {
         return {
-            hp: Number(localStorage.getItem('hp')) || 100,
-            maxHp: Number(localStorage.getItem('maxHp')) || 100,
-            xp: Number(localStorage.getItem('xp')) || 0,
-            level: Number(localStorage.getItem('level')) || 1,
-            zenCoins: Number(localStorage.getItem('zenCoins')) || 0
+            health: parseInt(localStorage.getItem('health')) || 100,
+            maxHealth: parseInt(localStorage.getItem('maxHealth')) || 100,
+            xp: parseInt(localStorage.getItem('xp')) || 0,
+            level: parseInt(localStorage.getItem('level')) || 1,
+            zenCoins: parseInt(localStorage.getItem('zenCoins')) || 0
         };
     },
 
     saveStats(stats) {
-        localStorage.setItem('hp', stats.hp);
-        localStorage.setItem('maxHp', stats.maxHp);
+        localStorage.setItem('health', stats.health);
+        localStorage.setItem('maxHealth', stats.maxHealth);
         localStorage.setItem('xp', stats.xp);
         localStorage.setItem('level', stats.level);
         localStorage.setItem('zenCoins', stats.zenCoins);
+
     },
 
     updateHUD() {
@@ -23,16 +24,14 @@ const gameStats = {
         // Update health bar
         const healthProgress = document.getElementById('health-progress');
         if (healthProgress) {
-            const healthPercent = (stats.hp / stats.maxHp) * 100;
+            const healthPercent = (stats.health / stats.maxHealth) * 100;
             healthProgress.style.width = `${healthPercent}%`;
         }
 
         // Update XP bar
         const xpProgress = document.getElementById('xp-progress');
         if (xpProgress) {
-            const xpToNextLevel = stats.level * 100;
-            const xpPercent = (stats.xp / xpToNextLevel) * 100;
-            xpProgress.style.width = `${xpPercent}%`;
+            xpProgress.style.width = `${stats.xp}%`;
         }
 
         // Update level
@@ -74,7 +73,6 @@ function saveGameState() {
     const gameState = {
         timestamp: Date.now(),
         lastPage: window.location.pathname
-        // Add any other state you need to persist
     };
     
     localStorage.setItem('gameState', JSON.stringify(gameState));

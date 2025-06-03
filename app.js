@@ -1,8 +1,9 @@
 // Game Stats
-let xp = Number(localStorage.getItem("xp")) || 0;
-let level = Number(localStorage.getItem("level")) || 1;
-let health = Number(localStorage.getItem("health")) || 100;
-let zenCoins = Number(localStorage.getItem("zenCoins")) || 0;
+let xp = parseInt(localStorage.getItem("xp")) || 0;
+let level = parseInt(localStorage.getItem("level")) || 1;
+let health = parseInt(localStorage.getItem("health")) || 100;
+let zenCoins = parseInt(localStorage.getItem("zenCoins")) || 0;
+
 
 const xpProgress = document.querySelector("#xp-progress");
 const healthProgress = document.querySelector("#health-progress");
@@ -68,39 +69,84 @@ function updateHUD() {
 function saveQuests() {
   // Save the master list of daily quests
   if (dailyQuestList) {
-    const masterDailies = JSON.parse(localStorage.getItem("dailyQuestMaster")) || [
-      "Wash dishes",
-      "30 mins of physical activity",
-      "Drink enough water",
-      "15 mins of meditation",
-      "Make bed",
-    ];
-    // Only update master if a new quest was added
-    const currentDailies = [...dailyQuestList.querySelectorAll("span")].map(span => span.textContent);
-    if (currentDailies.length > masterDailies.length) {
-      localStorage.setItem("dailyQuestMaster", JSON.stringify(currentDailies));
-    }
+    const currentDailies = [...dailyQuestList.querySelectorAll("span")].map(span => {
+      const questText = span.textContent.trim();
+      const questId = span.closest('.quest-item').dataset.questId;
+      // Save questId mapping
+      localStorage.setItem(`daily_${questText}_id`, questId);
+      return questText;
+    }).filter(text => text !== "");
+
+    localStorage.setItem("dailyQuestMaster", JSON.stringify(currentDailies));
   }
-  localStorage.setItem("habitQuests", habitList.innerHTML);
+  // Save habits with their IDs and content
+  if (habitList) {
+    // Save full HTML content of habits
+    localStorage.setItem("habitQuests", habitList.innerHTML);
+
+    // Save habit IDs and completion counts separately
+    const habitData = [...habitList.querySelectorAll('.quest-item')].map(item => {
+      const questText = item.querySelector('span').textContent.trim();
+      const questId = item.dataset.questId;
+      const type = item.classList.contains('positive') ? 'positive' : 'negative';
+      return { questText, questId, type };
+    });
+    localStorage.setItem("habitData", JSON.stringify(habitData));
+  }
+
+  // Save main and side quests normally
   localStorage.setItem("mainQuests", mainQuestList.innerHTML);
   localStorage.setItem("sideQuests", sideQuestList.innerHTML);
 }
-
 // Load quests from localStorage
 function loadQuests() {
-  // Load daily quests from localStorage if present
-  const savedDaily = JSON.parse(localStorage.getItem("dailyQuests"));
-  if (savedDaily && Array.isArray(savedDaily)) {
-    dailyQuestList.innerHTML = savedDaily
-      .map(
-        quest =>
-          `<li class="quest-item pixel-corners-small"><span contenteditable="true">${quest}</span> <button class="complete-btn pixel-corners-small">✔</button></li>`
-      )
-      .join("");
+
+  // Load habits with their completion counts
+  if (localStorage.getItem("habitData")) {
+    const habitData = JSON.parse(localStorage.getItem("habitData"));
+
+    // Reconstruct habits HTML
+    habitList.innerHTML = habitData.map(habit => {
+      const count = getCompletionCount(null, 'habit', habit.questId);
+      return `
+                <li class="quest-item pixel-corners-small ${habit.type}" data-quest-id="${habit.questId}">
+                    <div class="quest-main">
+                        <span contenteditable="true">${habit.questText}</span>
+                        <small class="completion-counter">⇆ ${count}</small>
+                    </div>
+                    <button class="complete-btn pixel-corners-small">+</button>
+                </li>`;
+    }).join('');
   }
-  if (localStorage.getItem("habitQuests")) habitList.innerHTML = localStorage.getItem("habitQuests");
-  if (localStorage.getItem("mainQuests")) mainQuestList.innerHTML = localStorage.getItem("mainQuests");
-  if (localStorage.getItem("sideQuests")) sideQuestList.innerHTML = localStorage.getItem("sideQuests");
+
+  // Load main and side quests normally
+  if (localStorage.getItem("mainQuests")) {
+    mainQuestList.innerHTML = localStorage.getItem("mainQuests");
+  }
+  if (localStorage.getItem("sideQuests")) {
+    sideQuestList.innerHTML = localStorage.getItem("sideQuests");
+  }
+}
+
+// Count completions for quests
+function generateQuestId(questText, type) {
+  const timestamp = Date.now();
+  return `${type}_${questText}_${timestamp}`;
+}
+
+function getCompletionCount(questText, type, questId = null) {
+  const counts = JSON.parse(localStorage.getItem(`${type}CompletionCounts`) || '{}');
+  if (questId && counts[questId] !== undefined) {
+    return counts[questId];
+  }
+  return 0;
+}
+
+function incrementCompletionCount(questId, type) {
+  const counts = JSON.parse(localStorage.getItem(`${type}CompletionCounts`) || '{}');
+  counts[questId] = (counts[questId] || 0) + 1;
+  localStorage.setItem(`${type}CompletionCounts`, JSON.stringify(counts));
+  return counts[questId];
 }
 
 // Add New Quest
@@ -112,20 +158,39 @@ function addQuest(inputField, list, type = null, dueDate = null) {
   li.className = "quest-item pixel-corners-small";
   if (type) li.classList.add(type);
 
+  const questId = generateQuestId(questText, type || 'quest');
+  li.dataset.questId = questId;
+
   // Create a container for the quest text and due date
-  let questContent = `<span contenteditable="true">${questText}</span>`;
-  if (list === mainQuestList && dueDate) {
-    questContent += `<div class="due-date-label">📅 ${dueDate}</div>`;
+  if (type === "positive" || type === "negative") {
+    questContent = `
+            <div class="quest-main">
+                <span contenteditable="true">${questText}</span>
+                <small class="completion-counter">⇆ 0</small>
+            </div>
+            <button class="complete-btn pixel-corners-small">+</button>
+        `;
+  } else if (list === dailyQuestList) {
+    questContent = `
+            <div class="quest-main">
+                <span contenteditable="true" data-original-text="${questText}">${questText}</span>
+                <small class="completion-counter">⇆ 0</small>
+            </div>
+            <button class="complete-btn pixel-corners-small">✔</button>
+        `;
+  } else {
+    questContent = `
+            <div class="quest-main">
+                <span contenteditable="true">${questText}</span>
+                ${dueDate ? `<div class="due-date-label">📅 ${dueDate}</div>` : ''}
+            </div>
+            <button class="complete-btn pixel-corners-small">✔</button>
+        `;
   }
 
+  li.innerHTML = questContent;
+
   const buttonLabel = type === "positive" || type === "negative" ? "+" : "✔";
-  // Use a flex layout: left = text+date (column), right = button
-  li.innerHTML = `
-    <div class="quest-main">
-      ${questContent}
-    </div>
-    <button class="complete-btn pixel-corners-small">${buttonLabel}</button>
-  `;
 
   li.style.opacity = "0";
   li.style.transform = "translateY(-20px)";
@@ -145,9 +210,24 @@ function addQuest(inputField, list, type = null, dueDate = null) {
       filter: "brightness(1)",
       duration: 0.5,
       ease: "steps(30)",
-      clearProps: "all"
+      clearProps: "all",
+      onComplete: () => {
+        if (type === "positive" || type === "negative") {
+          notyf.open({
+            type: 'add-quest',
+            message: 'Habit added!'
+          });
+        } else {
+          notyf.open({
+            type: 'add-quest',
+            message: 'Quest added!'
+          });
+        }
+      }
     }
   );
+
+
 
 
   inputField.value = "";
@@ -155,6 +235,13 @@ function addQuest(inputField, list, type = null, dueDate = null) {
     const masterDailies = [...dailyQuestList.querySelectorAll("span")].map(span => span.textContent);
     localStorage.setItem("dailyQuestMaster", JSON.stringify(masterDailies));
   }
+  if (list === dailyQuestList) {
+    questContent = `<span contenteditable="true" data-original-text="${questText}">${questText}</span>`;
+  } else {
+    questContent = `<span contenteditable="true">${questText}</span>`;
+  }
+
+
   saveQuests();
 }
 
@@ -174,7 +261,17 @@ function renderDailyQuests(completed = []) {
   dailyQuestList.innerHTML = quests
     .map(quest => {
       const completedClass = completed.includes(quest) ? "completed" : "";
-      return `<li class="quest-item pixel-corners-small ${completedClass}"><span contenteditable="true">${quest}</span> <button class="complete-btn pixel-corners-small">✔</button></li>`;
+      const questId = localStorage.getItem(`daily_${quest}_id`) || generateQuestId(quest, 'daily');
+      const count = getCompletionCount(null, 'daily', questId);
+
+      return `
+        <li class="quest-item pixel-corners-small ${completedClass}" data-quest-id="${questId}">
+          <div class="quest-main">
+            <span contenteditable="true" data-original-text="${quest}">${quest}</span>
+            <small class="completion-counter">⇆ ${count}</small>
+          </div>
+          <button class="complete-btn pixel-corners-small">✔</button>
+        </li>`;
     })
     .join("");
 }
@@ -230,17 +327,56 @@ document.querySelector("#add-side-quest-btn").addEventListener("click", () => {
 
 // Allow removing quests by clearing the text and blurring the span
 document.addEventListener("blur", function (e) {
-  if (e.target.matches(".quest-item span[contenteditable]")) {
+  if (e.target.matches(".quest-item span")) {
+    const questItem = e.target.closest(".quest-item");
+    const questList = questItem.parentElement;
+
+    // If content is empty, remove the quest
     if (e.target.textContent.trim() === "") {
-      const li = e.target.closest(".quest-item");
-      if (li) {
-        li.remove();
-        saveQuests();
+      if (questList === dailyQuestList) {
+        // Remove from master list if it's a daily quest
+        const masterDailies = JSON.parse(localStorage.getItem("dailyQuestMaster") || "[]");
+        const originalText = questItem.querySelector("span").dataset.originalText;
+        const updatedMasterDailies = masterDailies.filter(quest => quest !== originalText);
+        localStorage.setItem("dailyQuestMaster", JSON.stringify(updatedMasterDailies));
+
+        // Also remove from completed if it exists there
+        const completed = getCompletedDailies();
+        const updatedCompleted = completed.filter(quest => quest !== originalText);
+        setCompletedDailies(updatedCompleted);
       }
+      questItem.remove();
+
+      if (questItem.classList.contains('positive') || questItem.classList.contains('negative')) {
+        notyf.open({
+          type: 'remove-quest',
+          message: 'Habit deleted'
+        });
+      } else {
+        notyf.open({
+          type: 'remove-quest',
+          message: 'Quest deleted'
+        });
+      }
+
+      saveQuests();
     } else {
-      // Save edits to quest text
+      // Update master list if text changed for daily quest
+      if (questList === dailyQuestList) {
+        const masterDailies = JSON.parse(localStorage.getItem("dailyQuestMaster") || "[]");
+        const originalText = questItem.querySelector("span").dataset.originalText;
+        const newText = e.target.textContent.trim();
+        const index = masterDailies.indexOf(originalText);
+        if (index !== -1) {
+          masterDailies[index] = newText;
+          localStorage.setItem("dailyQuestMaster", JSON.stringify(masterDailies));
+        }
+        // Update dataset for future reference
+        questItem.querySelector("span").dataset.originalText = newText;
+      }
       saveQuests();
     }
+
   }
 }, true);
 
@@ -248,24 +384,34 @@ document.addEventListener("blur", function (e) {
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("complete-btn")) {
     const item = e.target.parentElement;
+    const questId = item.dataset.questId;
+    const countDisplay = item.querySelector(".completion-counter");
 
     if (item.parentElement === dailyQuestList) {
       // Mark as completed for today
       item.classList.add("completed");
       const questText = item.querySelector("span").textContent;
       const completed = getCompletedDailies();
+      const newCount = incrementCompletionCount(questId, 'daily');
+      if (countDisplay) countDisplay.textContent = `⇆ ${newCount}`;
       if (!completed.includes(questText)) {
         completed.push(questText);
         setCompletedDailies(completed);
       }
       maybeAwardZenCoins();
       updateXP(15);
+
     }
     else if (item.classList.contains("positive")) {
+      const newCount = incrementCompletionCount(questId, 'habit');
+      if (countDisplay) countDisplay.textContent = `⇆ ${newCount}`;
       maybeAwardZenCoins();
       updateXP(5);
+
     }
     else if (item.classList.contains("negative")) {
+      const newCount = incrementCompletionCount(questId, 'habit');
+      if (countDisplay) countDisplay.textContent = `⇆ ${newCount}`;
       updateHealth(-15);
     }
     else {
@@ -295,26 +441,26 @@ function setBackgroundByTime() {
   const body = document.body;
   if (hour >= 6 && hour < 18) {
     // Daytime: 6am to 6pm
-    body.style.backgroundImage = "url('images/default_bg.jpg')";
+    body.style.backgroundImage = "url('images/backgrounds/default_bg.jpg')";
   } else {
     // Nighttime: 6pm to 6am
-    body.style.backgroundImage = "url('images/defaultnight_bg.jpg')";
+    body.style.backgroundImage = "url('images/backgrounds/defaultnight_bg.jpg')";
   }
 }
 
 // Pomodoro Timer Logic
 const POMODORO_STATES = {
   FOCUS: { time: 25, xp: 50 },
-  SHORT_BREAK: { time: 5, xp: 5 },
-  LONG_BREAK: { time: 15, xp: 15 }
+  SHORT_BREAK: { time: 5 },
+  LONG_BREAK: { time: 15 }
 };
 
 let currentState = 'FOCUS';
 let pomodoroTime = POMODORO_STATES[currentState].time * 60;
 let pomodoroInterval = null;
 let isPomodoroRunning = false;
-let totalFocusTime = Number(localStorage.getItem('totalFocusTime')) || 0;
-let sessionCount = Number(localStorage.getItem('sessionCount')) || 0;
+let totalFocusTime = parseInt(localStorage.getItem('totalFocusTime')) || 0;
+let sessionCount = parseInt(localStorage.getItem('sessionCount')) || 0;
 
 function updatePomodoroDisplay() {
   const min = String(Math.floor(pomodoroTime / 60)).padStart(2, '0');
@@ -333,13 +479,12 @@ function updatePomodoroDisplay() {
   circle.style.strokeDashoffset = offset;
 }
 
-function updateStats() {
-  const hours = Math.floor(totalFocusTime / 3600);
-  const minutes = Math.floor((totalFocusTime % 3600) / 60);
-  document.getElementById('focus-time').textContent = `${hours}h ${minutes}m`;
+function updatePomodoroStats() {
+  localStorage.setItem('totalFocusTime', totalFocusTime.toString());
+  localStorage.setItem('sessionCount', sessionCount.toString());
+  document.getElementById('focus-time').textContent =
+    `${Math.floor(totalFocusTime / 3600)}h ${Math.floor((totalFocusTime % 3600) / 60)}m`;
   document.getElementById('session-count').textContent = sessionCount;
-  localStorage.setItem('totalFocusTime', totalFocusTime);
-  localStorage.setItem('sessionCount', sessionCount);
 }
 
 // Add event listeners for timer type buttons
@@ -371,7 +516,7 @@ document.querySelectorAll('.pomodoro-type').forEach(btn => {
 
       // Update GIF to match new mode
       const gif = document.querySelector('.pomodoro-gif');
-      gif.src = currentState === 'FOCUS' ? 'images/work.gif' : 'images/sleep.gif';
+      gif.src = currentState === 'FOCUS' ? 'images/animations/work.gif' : 'images/animations/sleep.gif';
       gif.style.display = 'none';
 
       // Update timer display
@@ -393,7 +538,7 @@ function startPomodoro() {
     // Start GIF animation
     const currentMode = document.querySelector('.pomodoro-type.active').dataset.type;
     const gif = document.querySelector('.pomodoro-gif');
-    gif.src = currentMode === 'FOCUS' ? 'images/work.gif' : 'images/sleep.gif';
+    gif.src = currentMode === 'FOCUS' ? 'images/animations/work.gif' : 'images/animations/sleep.gif';
     gif.style.display = 'block';
 
     document.getElementById('pomodoro-start').textContent = '...';
@@ -402,10 +547,10 @@ function startPomodoro() {
     const message = document.getElementById('pomodoro-message');
 
     if (currentMode === 'FOCUS') {
-      message.textContent = 'FOCUS!';
+      message.textContent = 'FOCUS SPELL CASTED!';
       message.style.color = '#19A8E6';
     } else {
-      message.textContent = 'REST!';
+      message.textContent = 'REST SPELL CASTED!';
       message.style.color = '#4caf50';
     }
 
@@ -414,23 +559,42 @@ function startPomodoro() {
       updatePomodoroDisplay();
 
       if (pomodoroTime === 0) {
-        clearInterval(pomodoroInterval);
-        isPomodoroRunning = false;
-
-        // Complete animation
-        circle.style.animation = 'timer-complete 1s';
-
-        if (currentState === 'FOCUS') {
-          sessionCount++;
-          totalFocusTime += POMODORO_STATES.FOCUS.time * 60;
-          updateXP(POMODORO_STATES.FOCUS.xp);
-          maybeAwardZenCoins();
-        }
-        updateStats();
+        completePomodoro();
 
       }
     }, 1000);
   }
+}
+
+function completePomodoro() {
+  clearInterval(pomodoroInterval);
+  isPomodoroRunning = false;
+
+  // Remove running class to hide flame
+  document.querySelector('.pomodoro-timer').classList.remove('running');
+
+  const circle = document.querySelector('.pomodoro-circle');
+  circle.style.animation = 'timer-complete 1s';
+  setTimeout(() => circle.style.animation = '', 1000);
+
+  // Hide GIF when completed
+  const gif = document.querySelector('.pomodoro-gif');
+  gif.style.display = 'none';
+
+  const message = document.getElementById('pomodoro-message');
+  message.textContent = 'SPELL ENDED!';
+  message.style.color = '#4CAF50';
+
+  if (currentState === 'FOCUS') {
+    sessionCount++;
+    totalFocusTime += POMODORO_STATES.FOCUS.time * 60;
+
+    updatePomodoroStats();
+    updateXP(POMODORO_STATES.FOCUS.xp);
+    maybeAwardZenCoins();
+  }
+
+
 }
 
 function pausePomodoro() {
@@ -525,6 +689,7 @@ function maybeAwardZenCoins() {
 function showLevelUpMessage(level) {
   const msg = document.createElement("div");
   msg.textContent = `Level Up! You are now Level ${level}!`;
+  msg.classList.add('pixel-corners-small');
   msg.style.position = "fixed";
   msg.style.left = "50%";
   msg.style.top = "44%";
@@ -532,20 +697,19 @@ function showLevelUpMessage(level) {
   msg.style.background = "#232323";
   msg.style.color = "#fff";
   msg.style.padding = "12px 28px";
-  msg.style.borderRadius = "5px";
   msg.style.fontFamily = "'Minecraft', 'PixelCraft', monospace";
   msg.style.fontSize = "1.3em";
   msg.style.zIndex = 9999;
   msg.style.boxShadow = "0 2px 12px #000a";
   msg.style.opacity = "0.97";
-  msg.style.border = "2px rgb(190, 190, 190) solid";
+  msg.style.border = "4px rgb(190, 190, 190) solid";
   document.body.appendChild(msg);
   setTimeout(() => {
-    msg.style.transition = "all 0.8s";
+    msg.style.transition = "all 1.2s";
     msg.style.opacity = "0";
     msg.style.top = "10%";
   }, 900);
-  setTimeout(() => msg.remove(), 3000);
+  setTimeout(() => msg.remove(), 5000);
 }
 
 const notyf = new Notyf({
@@ -556,47 +720,62 @@ const notyf = new Notyf({
       type: 'xp',
       background: '#232323',
       icon: false,
-      className: 'notyf-xp'
+      className: 'notyf-xp pixel-corners-small'
     },
     {
       type: 'hp-plus',
       background: '#232323',
       icon: false,
-      className: 'notyf-hp-plus'
+      className: 'notyf-hp-plus pixel-corners-small'
     },
     {
       type: 'hp-minus',
       background: '#232323',
       icon: false,
-      className: 'notyf-hp-minus'
+      className: 'notyf-hp-minus pixel-corners-small'
     },
     {
       type: 'zen-coin',
       background: '#232323',
       icon: false,
-      className: 'notyf-zen-coin'
+      className: 'notyf-zen-coin pixel-corners-small'
+    },
+    {
+      type: 'add-quest',
+      background: '#232323',
+      icon: false,
+      className: 'notyf-success pixel-corners-small'
+    },
+    {
+      type: 'remove-quest',
+      background: '#232323',
+      icon: false,
+      className: 'notyf-error pixel-corners-small'
     }
   ]
 });
 
 function showXPMessage(amount) {
+  const iconImg = '<img src="images/icons/xp.png" style="height: 18px; width: 18px; vertical-align: middle; margin-right: 4px;">';
   notyf.open({
     type: 'xp',
-    message: (amount > 0 ? "⭐ +" : "⭐ ") + amount + " XP"
+    message: `${iconImg}${amount > 0 ? "+" : ""}${amount} XP`
   });
 }
 
 function showHPMessage(amount) {
+  const iconImg = '<img src="images/icons/hp.png" style="height: 18px; width: 18px; vertical-align: middle; margin-right: 4px;">';
   notyf.open({
     type: amount > 0 ? 'hp-plus' : 'hp-minus',
-    message: (amount > 0 ? "❤️ " : "💔 ") + amount + " HP"
+    message: `${iconImg}${amount} HP`
   });
 }
 
 function showZenCoinMessage(amount) {
+  const iconImg = '<img src="images/icons/coin.png" style="height: 18px; width: 18px; vertical-align: middle; margin-right: 4px;">';
   notyf.open({
     type: 'zen-coin',
-    message: `🪙 +${amount} Zen Coins!`
+    message: `${iconImg}+${amount} Zen Coins!`
   });
 }
 
@@ -608,4 +787,5 @@ window.addEventListener("DOMContentLoaded", () => {
   updateHUD();
   renderDailyQuests(getCompletedDailies());
   updatePomodoroDisplay();
+  updatePomodoroStats();
 });
