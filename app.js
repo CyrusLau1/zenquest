@@ -304,6 +304,7 @@ function checkDailyReset() {
   }
 }
 
+
 // Add Event Listeners for Adding Quests
 document.querySelector("#add-daily-quest-btn").addEventListener("click", () => {
   addQuest(document.querySelector("#daily-quest-input"), dailyQuestList);
@@ -395,6 +396,7 @@ document.addEventListener("click", (e) => {
       const newCount = incrementCompletionCount(questId, 'daily');
       if (countDisplay) countDisplay.textContent = `⇆ ${newCount}`;
       if (!completed.includes(questText)) {
+        
         completed.push(questText);
         setCompletedDailies(completed);
       }

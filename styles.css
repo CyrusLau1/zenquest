@@ -5,12 +5,12 @@
 
 /* Mobile-specific fixes */
 @media screen and (max-width: 768px) {
-    body {
-        background-position: center top;
-        background-size: 100vw 100vh;
-        height: 100vh;
-        width: 100vw;
-    }
+  body {
+    background-position: center top;
+    background-size: 100vw 100vh;
+    height: 100vh;
+    width: 100vw;
+  }
 }
 
 /* Tablet Layout (768px and up) */
@@ -92,7 +92,7 @@
   }
 
   .quest-list {
-    max-height:600px;
+    max-height: 600px;
     overflow-y: auto;
   }
 }
@@ -103,6 +103,7 @@
   body {
     padding: 0 7vw 0 7vw !important;
   }
+
   /* Create fixed wrapper */
   .fixed-top-wrapper {
     position: fixed;
@@ -196,11 +197,11 @@
   .top-navbar .nav-icon {
     margin: 0 5px 0 0;
     display: inline-block;
-  width: 0.7em;
-  height: 0.7em;
-  text-align: center;
-  line-height: 0.8em;
-  
+    width: 0.7em;
+    height: 0.7em;
+    text-align: center;
+    line-height: 0.8em;
+
   }
 
   .top-navbar .nav-label {
@@ -280,8 +281,9 @@
   .xp-bar {
     margin: 5px 0;
   }
-  
-  .market-container, .inventory-container {
+
+  .market-container,
+  .inventory-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -289,7 +291,8 @@
     margin-top: 20px;
   }
 
-  #market, #inventory {
+  #market,
+  #inventory {
     width: 80%;
   }
 }
@@ -311,6 +314,14 @@
     height: 60px;
   }
 }
+
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 
 
 .top-navbar {
@@ -356,6 +367,14 @@ p {
   box-sizing: border-box;
 }
 
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  image-rendering: pixelated;
+}
+
 header {
   width: 100%;
   text-align: center;
@@ -371,7 +390,7 @@ header img {
   width: auto;
   display: inline-block;
   margin: -4px auto auto auto;
-  
+
 }
 
 .game-container {
@@ -389,27 +408,28 @@ header img {
 
 
 .header-tagline {
-    font-family: 'Minecraft', sans-serif;
-    color: #e4e4e4;
-    text-shadow: 2px 2px #555;
-    text-align: center;
-    white-space: normal;
-    word-wrap: break-word;
-    max-width: 90%;
-    margin: 25px auto;
-    opacity: 0;
-    animation: fade-in 3s ease-out 0.5s forwards;
+  font-family: 'Minecraft', sans-serif;
+  color: #e4e4e4;
+  text-shadow: 2px 2px #555;
+  text-align: center;
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 90%;
+  margin: 25px auto;
+  opacity: 0;
+  animation: fade-in 3s ease-out 0.5s forwards;
 }
 
 @keyframes fade-in {
-    from {
-        opacity: 0.05;
-        transform: translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0.05;
+    transform: translateY(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 
@@ -584,6 +604,17 @@ h2 {
   margin-right: 10px;
 }
 
+.quest-item.completed span {
+  cursor: text;
+  pointer-events: auto !important;
+}
+
+.quest-item.completed .complete-btn {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .quest-item {
   background: linear-gradient(90deg, #363636, #2d2d2d);
   border-left: 7px solid #555;
@@ -679,6 +710,7 @@ h2 {
   background-color: #5e5e5e;
   transform: scale(1.04) rotate(-2deg);
   box-shadow: 0 1px #222;
+  cursor: pointer;
 }
 
 /* Positive and Negative Habits */
@@ -688,6 +720,14 @@ h2 {
 
 .quest-item.negative {
   border-left: 7px solid #a53d1d;
+}
+
+.quest-item.positive:hover {
+  border-left: 7px solid #27b82c;
+}
+
+.quest-item.negative:hover {
+  border-left: 7px solid #df481a;
 }
 
 .due-date {
@@ -782,22 +822,22 @@ h2 {
 }
 
 .flame-effect {
-    position: absolute;
-    top: 55%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.5);
-    width: 180px;
-    height: 180px;
-    z-index: -1;
-    opacity: 0;
-    transition: all 2s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;
-    filter: brightness(1) saturate(1.1);
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  width: 180px;
+  height: 180px;
+  z-index: -1;
+  opacity: 0;
+  transition: all 2s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  filter: brightness(1) saturate(1.1);
 }
 
 .pomodoro-timer.running .flame-effect {
-    opacity: 0.3;
-    transform: translate(-50%, -50%) scale(1.3);
+  opacity: 0.3;
+  transform: translate(-50%, -50%) scale(1.3);
 }
 
 .pomodoro-timer.running .pomodoro-type:not(.active) {
@@ -1456,21 +1496,21 @@ h2 {
 }
 
 .completion-counter {
-    display: block;
-    font-size: 0.65em;
-    color: #ffffff;
-    font-family: 'PixelCraft', sans-serif;
-    margin: 2px 0 0 0;
-    padding: 0;
-    background: none;
-    text-shadow: none;
-    line-height: 1.2;
-    opacity: 0.55;
+  display: block;
+  font-size: 0.65em;
+  color: #ffffff;
+  font-family: 'PixelCraft', sans-serif;
+  margin: 2px 0 0 0;
+  padding: 0;
+  background: none;
+  text-shadow: none;
+  line-height: 1.2;
+  opacity: 0.55;
 }
 
 .completion-counter:hover {
-    opacity: 0.85;
-    transform: scale(1.02);
+  opacity: 0.85;
+  transform: scale(1.02);
 }
 
 .notyf-xp,
@@ -1546,7 +1586,8 @@ body.market::before {
   flex-wrap: wrap;
 }
 
-.market-tab, .inventory-tab {
+.market-tab,
+.inventory-tab {
   font-family: 'Minecraft', sans-serif;
   background: #939393;
   color: #e4e4e4;
@@ -1558,12 +1599,14 @@ body.market::before {
   min-width: 100px;
 }
 
-.market-tab:hover, .inventory-tab:hover {
+.market-tab:hover,
+.inventory-tab:hover {
   background: #5e5e5e;
   transform: scale(1.04) rotate(-2deg);
 }
 
-.market-tab.active, .inventory-tab.active { 
+.market-tab.active,
+.inventory-tab.active {
   background: #545454;
   color: #ffffff;
   border-color: #777;
@@ -1615,7 +1658,7 @@ body.market::before {
   text-align: center;
   color: #d8d8d8;
   text-shadow: 1px 1px #000;
-  margin: 4px 0;
+  margin: 0;
   word-break: break-all;
 }
 
@@ -1665,80 +1708,80 @@ body.market::before {
 
 /* Custom Rewards Section */
 .custom-rewards-form {
-    background: #2a2a2a;
-    padding: 20px;
-    margin: 0 0 20px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  background: #2a2a2a;
+  padding: 20px;
+  margin: 0 0 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .custom {
-    color: #e4e4e4;
-    text-shadow: 1px 1px #000;
-    margin: -50px 0 10px 0;
-    font-size: 1.1em;
+  color: #e4e4e4;
+  text-shadow: 1px 1px #000;
+  margin: -50px 0 10px 0;
+  font-size: 1.1em;
 }
 
 .pixel-input {
-    background: #3a3a3a;
-    border: none;
-    padding: 10px;
-    color: #e4e4e4;
-    font-family: 'PixelCraft', sans-serif;
-    font-size: 0.7em;
+  background: #3a3a3a;
+  border: none;
+  padding: 10px;
+  color: #e4e4e4;
+  font-family: 'PixelCraft', sans-serif;
+  font-size: 0.7em;
 }
 
 .pixel-input::placeholder {
-    color: #888;
+  color: #888;
 }
 
 #reward-description {
-    min-height: 80px;
-    resize: vertical;
+  min-height: 80px;
+  resize: vertical;
 }
 
 .add-reward-btn {
-    background: #4a9450;
-    color: white;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    font-family: 'Minecraft', sans-serif;
-    text-shadow: 1px 1px #000;
+  background: #4a9450;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  font-family: 'Minecraft', sans-serif;
+  text-shadow: 1px 1px #000;
 }
 
 .add-reward-btn:hover {
-    background: #5aaf60;
+  background: #5aaf60;
 }
 
 .delete-reward {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #7a7a7a;
-    color: rgb(12, 4, 4);
-    border: none;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    font-size: 16px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #7a7a7a;
+  color: rgb(12, 4, 4);
+  border: none;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 16px;
 }
 
 .delete-reward:hover {
-    background: #a53d1d;
-    transform: scale(1.1);
+  background: #a53d1d;
+  transform: scale(1.1);
 }
 
 .notyf-success {
-    color: #4caf50 !important;
+  color: #4caf50 !important;
   font-family: 'Minecraft', 'PixelCraft', monospace;
   text-shadow: 1px 1px #000, 0 0 2px #4caf5099;
   border: 3px solid #4caf50;
 }
 
 .notyf-error {
-    color: #ff5252 !important;
+  color: #ff5252 !important;
   font-family: 'Minecraft', 'PixelCraft', monospace;
   text-shadow: 1px 1px #000, 0 0 2px #ff525299;
   border: 3px solid #ff5252;
@@ -1765,109 +1808,115 @@ body.inventory::before {
 }
 
 .inventory-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-    padding: 20px;
-    min-height: 200px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  min-height: 200px;
 }
 
 .inventory-item {
-    background: #4f4f4fe5;
-    border: 2px solid #333;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.2s;
-    position: relative;
+  background: #4f4f4fe5;
+  border: 2px solid #333;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+  position: relative;
 }
 
 .inventory-item:hover {
-    transform: translateY(-4px);
-    box-shadow: inset 0 7px 14px rgba(0,0,0,0.3);
+  transform: translateY(-4px);
+  box-shadow: inset 0 7px 14px rgba(0, 0, 0, 0.3);
 }
 
 .item-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: auto;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+  align-items: center;
 }
 
-.use-btn, .sell-btn {
-    font-family: 'Minecraft', sans-serif;
-    text-shadow: 1px 1px black;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s;
+.use-btn,
+.sell-btn {
+  font-family: 'Minecraft', sans-serif;
+  text-shadow: 1px 1px black;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
 }
 
 .use-btn {
-    background: #4a9450;
-    color: #e4e4e4;
-    padding: 9px 18px !important;
-    font-size: 1.1em; 
+  background: #4a9450;
+  color: #e4e4e4;
+  padding: 9px 18px !important;
+  font-size: 1.1em;
+  margin-top: 3px;
+  border-right: #242424 solid 2px;
+  border-bottom: #242424 solid 2px;
 }
 
 .sell-btn {
-    background: #a53d1d;
-    color: #e4e4e4;
-    padding: 7px 10px !important;
-    font-size: 0.8em;
-    width: 70%;
+  background: #a53d1d;
+  color: #e4e4e4;
+  padding: 7px 10px !important;
+  font-size: 0.8em;
+  width: 70%;
+  border-right: #242424 solid 1.5px;
+  border-bottom: #242424 solid 1.5px;
 }
 
 .use-btn:hover {
-    background: #5aaf60;
-    transform: scale(1.04);
+  background: #5aaf60;
+  transform: scale(1.04);
 }
 
 .sell-btn:hover {
-    background: #c44823;
-    transform: scale(1.04);
+  background: #c44823;
+  transform: scale(1.04);
 }
 
 .empty-inventory {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 40px;
-    color: #bcbcbc;
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: #bcbcbc;
 }
 
 .empty-inventory p {
-    font-size: 1.2em;
-    margin-bottom: 10px;
+  font-size: 1.2em;
+  margin-bottom: 10px;
 }
 
 .empty-inventory small {
-    font-size: 0.9em;
-    opacity: 0.7;
+  font-size: 0.9em;
+  opacity: 0.7;
 }
 
 .item-icon img {
-    height: 7em;
-    image-rendering: pixelated;
-    margin-top: 20px;
-    margin-bottom: 5px;
+  height: 7em;
+  image-rendering: pixelated;
+  margin-top: 20px;
+  margin-bottom: 5px;
 }
 
 .item-quantity {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #333;
-    color: #fff;
-    padding: 8px 8px;
-    font-size: 1em;
-    font-family: 'Minecraft', sans-serif;
-    text-shadow: 1px 1px #000;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #333;
+  color: #fff;
+  padding: 8px 8px;
+  font-size: 1em;
+  font-family: 'Minecraft', sans-serif;
+  text-shadow: 1px 1px #000;
 }
 
 .item-quantity:hover {
-    background: #2c2c2c;
-    transform: scale(1.2);
-    transition: all 0.4s;
+  background: #2c2c2c;
+  transform: scale(1.2);
+  transition: all 0.4s;
 }
