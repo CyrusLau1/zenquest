@@ -26,23 +26,26 @@ function saveStats() {
 function updateXP(amount) {
   showXPMessage(amount);
   xp += amount;
-  if (xp >= 100) {
-    xp = 0;
-    level++;
-    levelDisplay.textContent = level;
-    localStorage.setItem("level", level);
-    showLevelUpMessage(level);
-    health = 100;
-    healthProgress.style.width = `${health}%`;
-    localStorage.setItem("health", health);
-    showHPMessage("+100");
-  }
-  xpProgress.style.width = `${xp}%`;
-  localStorage.setItem("xp", xp);
-  let newLevel = Math.floor(xp / 100) + 1;
-  updateLevel(newLevel);
-  saveStats();
-  updateHUD();
+  const xpNeeded = Math.round(100 + (level-1) * (10 ** 1.2));
+    
+    // Check for level up
+    if (xp >= xpNeeded) {
+        xp = xp - xpNeeded; // Keep excess XP
+        level++;
+        levelDisplay.textContent = level;
+        localStorage.setItem("level", level);
+        showLevelUpMessage(level);
+        
+        // Heal on level up
+        health = 100;
+        healthProgress.style.width = `${health}%`;
+        localStorage.setItem("health", health);
+        showHPMessage("+100");
+    }
+  // Calculate percentage for XP bar
+    const xpPercent = (xp / xpNeeded) * 100;
+    xpProgress.style.width = `${xpPercent}%`;
+    localStorage.setItem("xp", xp);
 }
 
 // Update Health
@@ -57,13 +60,18 @@ function updateHealth(amount) {
   updateHUD();
 }
 
-// Update HUD on load
-function updateHUD() {
-  xpProgress.style.width = `${xp}%`;
-  healthProgress.style.width = `${health}%`;
-  levelDisplay.textContent = level;
-  if (zenCoinsDisplay) zenCoinsDisplay.textContent = zenCoins;
+function maybeAwardZenCoins() {
+    if (Math.random() < 0.5) { // 50% chance
+        const baseCoins = Math.floor(Math.random() * 6) + 3; // Base random between 3 and 8
+        const scaledCoins = Math.round(baseCoins * ((Math.log(level + 1)) ** 1.05));
+        zenCoins += scaledCoins;
+        showZenCoinMessage(scaledCoins);
+        saveStats();
+        updateHUD();
+        
+    }
 }
+
 
 // Save quests to localStorage
 function saveQuests() {
@@ -245,6 +253,22 @@ function addQuest(inputField, list, type = null, dueDate = null) {
   saveQuests();
 }
 
+const sortableLists = [
+  dailyQuestList,
+  habitList,
+  mainQuestList,
+  sideQuestList
+];
+
+sortableLists.forEach(listEl => {
+  Sortable.create(listEl, {
+    animation: 150,           // smooth animation
+    ghostClass: 'dragging',   // CSS class on the dragged item
+    onEnd: saveQuests         // re-save order on drop
+  });
+});
+
+
 function saveDailyQuestMaster() {
   const masterDailies = [...dailyQuestList.querySelectorAll("span")].map(span => span.textContent);
   localStorage.setItem("dailyQuestMaster", JSON.stringify(masterDailies));
@@ -407,8 +431,8 @@ document.addEventListener("click", (e) => {
     else if (item.classList.contains("positive")) {
       const newCount = incrementCompletionCount(questId, 'habit');
       if (countDisplay) countDisplay.textContent = `⇆ ${newCount}`;
-      maybeAwardZenCoins();
       updateXP(5);
+      maybeAwardZenCoins();
 
     }
     else if (item.classList.contains("negative")) {
@@ -441,14 +465,16 @@ document.addEventListener("click", (e) => {
 function setBackgroundByTime() {
   const hour = new Date().getHours();
   const body = document.body;
+      const isDesktop = window.innerWidth >= 1200;
   if (hour >= 6 && hour < 18) {
     // Daytime: 6am to 6pm
-    body.style.backgroundImage = "url('images/backgrounds/default_bg.jpg')";
+    body.style.backgroundImage = `url('images/backgrounds/${isDesktop ? 'default_bg_desktop.png' : 'default_bg.jpg'}')`;
   } else {
     // Nighttime: 6pm to 6am
-    body.style.backgroundImage = "url('images/backgrounds/defaultnight_bg.jpg')";
+    body.style.backgroundImage = `url('images/backgrounds/${isDesktop ? 'defaultnight_bg_desktop.png' : 'defaultnight_bg.jpg'}')`;
   }
 }
+
 
 // Pomodoro Timer Logic
 const POMODORO_STATES = {
@@ -677,16 +703,6 @@ function updateDailyResetTimer() {
 setInterval(updateDailyResetTimer, 1000);
 updateDailyResetTimer();
 
-function maybeAwardZenCoins() {
-  if (Math.random() < 0.5) { // 50% chance
-    const coins = Math.floor(Math.random() * 16) + 5; // random between 5 and 20
-    zenCoins += coins;
-    saveStats();
-    updateHUD();
-    showZenCoinMessage(coins);
-  }
-}
-
 // Show level up message
 function showLevelUpMessage(level) {
   const msg = document.createElement("div");
@@ -781,13 +797,15 @@ function showZenCoinMessage(amount) {
   });
 }
 
+
+
 // On page load
 window.addEventListener("DOMContentLoaded", () => {
   setBackgroundByTime();
   loadQuests();
   checkDailyReset();
-  updateHUD();
   renderDailyQuests(getCompletedDailies());
   updatePomodoroDisplay();
   updatePomodoroStats();
+
 });

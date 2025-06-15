@@ -7,15 +7,25 @@
     <link rel="stylesheet" href="styles.css">
     <script defer src="app.js"></script>
     <script defer src="utilities.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
     <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/CustomEase.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/CustomEase.min.js"></script>
   </head>
   <body>
+
     <div class="border-shadow"></div>
 
     <nav class="top-navbar">
@@ -41,7 +51,8 @@
           <span><img class="nav-icon" src="images/icons/quest.png"></span>
           <span class="nav-label">Quests</span>
         </button>
-        <button class="nav-btn nav-right pixel-corners-small" data-page="inventory">
+        <button class="nav-btn nav-right pixel-corners-small"
+          data-page="inventory">
           <span class="nav-icon"><img class="nav-icon"
               src="images/icons/items.png"></span>
           <span class="nav-label">Items</span>
@@ -66,14 +77,16 @@
       <!-- RPG HUD -->
       <div class="hud pixel-corners-small">
         <div class="hud-item">
-          <p><img class="hud-icon" src="images/icons/hp.png"> Health:</p>
+          <p><img class="hud-icon" src="images/icons/hp.png"> Health: <span
+              class="health-text">[100/100]</span></p>
           <div class="health-bar pixel-corners-small">
             <div id="health-progress" style="width: 100%;"
               class="pixel-corners-small"></div>
           </div>
         </div>
         <div class="hud-item">
-          <p><img class="hud-icon" src="images/icons/xp.png"> XP:</p>
+          <p><img class="hud-icon" src="images/icons/xp.png"> XP: <span
+              class="xp-text">[0/100]</span></p>
           <div class="xp-bar pixel-corners-small">
             <div id="xp-progress" style="width: 0%;"
               class="pixel-corners-small"></div>
@@ -154,7 +167,8 @@
 
       <!-- Pomodoro Timer -->
       <section id="pomodoro" class="game-section pixel-corners">
-        <h2><img class="icon" src="images/icons/pomodoro.png">Pomodoro Timer</h2>
+        <h2><img class="icon" src="images/icons/pomodoro.png">Pomodoro
+          Timer</h2>
         <div class="pomodoro-timer">
           <div class="pomodoro-types">
             <button class="pomodoro-type active pixel-corners-small"
@@ -165,7 +179,8 @@
               data-type="LONG_BREAK">Long Break</button>
           </div>
           <div class="pomodoro-circle pixel-corners-pomodoro">
-            <img src="images/animations/blue-flame.gif" class="flame-effect" alt="">
+            <img src="images/animations/blue-flame.gif" class="flame-effect"
+              alt>
             <svg width="200" height="200">
               <defs>
                 <lineargradient id="progressGradient" x1="0%" y1="0%" x2="100%"
@@ -219,7 +234,8 @@
           <span><img class="nav-icon" src="images/icons/quest.png"></span>
           <span class="nav-label">Quests</span>
         </button>
-        <button class="nav-btn nav-right pixel-corners-small" data-page="inventory">
+        <button class="nav-btn nav-right pixel-corners-small"
+          data-page="inventory">
           <span class="nav-icon"><img class="nav-icon"
               src="images/icons/items.png"></span>
           <span class="nav-label">Items</span>

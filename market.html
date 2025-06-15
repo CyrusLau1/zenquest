@@ -13,6 +13,12 @@
             href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
         <script
             src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     </head>
 
     <body class="market">
@@ -21,7 +27,8 @@
         <nav class="top-navbar">
             <div class="header-icon">
                 <a href="#">
-                    <img src="images/icons/logo_zenquest.png" alt="ZenQuest Logo">
+                    <img src="images/icons/logo_zenquest.png"
+                        alt="ZenQuest Logo">
                 </a>
             </div>
             <div class="top-nav-buttons">
@@ -39,7 +46,8 @@
                 </button>
                 <button class="nav-btn nav-center pixel-corners-small"
                     data-page="index">
-                    <span><img class="nav-icon" src="images/icons/quest.png"></span>
+                    <span><img class="nav-icon"
+                            src="images/icons/quest.png"></span>
                     <span class="nav-label">Quests</span>
                 </button>
                 <button class="nav-btn nav-right pixel-corners-small"
@@ -60,20 +68,23 @@
         <div class="game-container market-container">
             <header class="game-header">
                 <a href="#">
-                    <img src="images/icons/logo_zenquest.png" alt="ZenQuest Logo">
+                    <img src="images/icons/logo_zenquest.png"
+                        alt="ZenQuest Logo">
                 </a>
             </header>
             <!-- RPG HUD -->
             <div class="hud">
                 <div class="hud-item">
-                    <p><img class="hud-icon" src="images/icons/hp.png"> Health:</p>
+                    <p><img class="hud-icon" src="images/icons/hp.png"> Health:
+                        <span class="health-text">[100/100]</span></p>
                     <div class="health-bar pixel-corners-small">
                         <div id="health-progress" style="width: 100%;"
                             class="pixel-corners-small"></div>
                     </div>
                 </div>
                 <div class="hud-item">
-                    <p><img class="hud-icon" src="images/icons/xp.png"> XP:</p>
+                    <p><img class="hud-icon" src="images/icons/xp.png"> XP:
+                        <span class="xp-text">[0/100]</span></p>
                     <div class="xp-bar pixel-corners-small">
                         <div id="xp-progress" style="width: 0%;"
                             class="pixel-corners-small"></div>
@@ -133,13 +144,13 @@
                     <h2 class="custom">Custom Rewards</h2>
                     <div class="custom-rewards-form pixel-corners-small">
                         <input type="text" id="reward-name"
-                            class="pixel-input pixel-corners-small"
+                            class="input pixel-corners-small"
                             placeholder="Reward name">
                         <textarea id="reward-description"
-                            class="pixel-input pixel-corners-small"
+                            class="input pixel-corners-small"
                             placeholder="Reward description"></textarea>
                         <input type="number" id="reward-price"
-                            class="pixel-input pixel-corners-small"
+                            class="input pixel-corners-small"
                             placeholder="Price in Zen Coins">
                         <button class="add-reward-btn pixel-corners-small">Add
                             Reward</button>

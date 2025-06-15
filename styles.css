@@ -282,6 +282,14 @@
     margin: 5px 0;
   }
 
+  body.market {
+    background: url('images/backgrounds/market_bg_desktop.png') no-repeat center center fixed !important;
+  }
+
+  body.inventory {
+    background: url('images/backgrounds/inventory_bg2.jpg') no-repeat center center fixed !important;
+  }
+
   .market-container,
   .inventory-container {
     display: flex;
@@ -296,6 +304,8 @@
     width: 80%;
   }
 }
+
+
 
 /* Additional tweaks for extra large screens */
 @media screen and (min-width: 1600px) {
@@ -324,8 +334,30 @@
 
 
 
+
+
+
+
+
 .top-navbar {
   display: none;
+}
+
+.scroll-effect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -10;
+  background: inherit;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+  transition: all 0.3s ease;
+  filter: blur(0px);
+  transform: scale(1);
 }
 
 
@@ -344,8 +376,19 @@ body {
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
+  transition: background-size 0.3s ease;
 }
 
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #4e443774;
+  z-index: -5;
+}
 
 p {
   cursor: default;
@@ -396,8 +439,7 @@ header img {
 .game-container {
   margin: 0 auto;
   padding: 25px;
-  background: rgba(5, 5, 5, 0.33) !important;
-
+  
 }
 
 ::-webkit-scrollbar {
@@ -501,7 +543,7 @@ header img {
   height: 18px;
   margin: 15px auto;
   background: #393939;
-  border: solid rgb(96, 96, 96);
+  border: solid 3px rgb(96, 96, 96);
   margin-top: -8px;
 }
 
@@ -531,13 +573,122 @@ header img {
   box-shadow: 0 1px 2px #000a, 0 0 0 1px #444 inset;
 }
 
+.mini-hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #222222f1;
+  padding: 8px 15px;
+  z-index: 1001;
+  border-bottom: 2px solid #444;
+  opacity: 0.3;
+  transform: translateY(-100%);
+  transition: all 0.5s ease;
+}
+
+.mini-hud.visible {
+  opacity: 1;
+  transform: translateY(0);
+  box-shadow: 0 2px 18px #000c
+}
+
+.mini-hud .hud-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.8em;
+  padding: 4px;
+}
+
+.mini-hud .hud-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.mini-hud .health-bar,
+.mini-hud .xp-bar {
+  width: 100%;
+  height: 8px;
+  margin: 0;
+  background: #393939;
+  border: 2px solid rgb(96, 96, 96);
+}
+
+.mini-hud #mini-health-progress {
+  background: linear-gradient(to right, #d83f3c, #ff6f00);
+  height: 100%;
+  width: 100%;
+  transition: width 0.5s ease;
+}
+
+.mini-hud #mini-xp-progress {
+  background: linear-gradient(to right, #ff9800, #ffd700);
+  height: 100%;
+  width: 100%;
+  transition: width 0.5s ease;
+}
+
+.mini-hud .level-badge {
+  margin: 0;
+  font-size: 1.1em;
+}
+
+.mini-hud .level-number {
+  padding: 2px 4px 3px 5px;
+
+}
+
+.mini-hud .zen-coins-bar {
+  padding: 4px 6px;
+  margin: 0;
+  font-size: 1.1em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+  .mini-hud {
+    padding: 1px 4px;
+  }
+
+  .mini-hud .hud-item {
+    font-size: 0.8em;
+    gap: 4px;
+  }
+
+  .mini-hud .health-bar,
+  .mini-hud .xp-bar {
+    height: 7px;
+  }
+
+  .mini-hud .hud-icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .mini-hud .level-badge,
+  .mini-hud .zen-coins-bar {
+    padding: 3px 5px;
+    font-size: 1em;
+  }
+}
+
 /* Game Sections */
 .game-section {
   margin: 7vh 0;
   padding: 5px 25px 20px 25px;
-  background: #222222f1;
+  background: #222222de;
   border-radius: 10px;
+  backdrop-filter: blur(3px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.616);
 }
+
 
 .game-section:hover {
   transform: translateY(-2px);
@@ -585,6 +736,7 @@ h2 {
   overflow-y: scroll;
 }
 
+
 .quest-item {
   display: flex;
   justify-content: space-between;
@@ -597,12 +749,24 @@ h2 {
   align-items: center;
   gap: 8px;
   min-height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: grab;
 }
 
 .quest-item span {
   flex: 1;
   margin-right: 10px;
+  cursor:auto
 }
+
+
+.dragging {
+  opacity: 0.8;
+  transform: rotate(-3deg);
+  border: 2px dashed #5e5e5e;
+}
+
+
 
 .quest-item.completed span {
   cursor: text;
@@ -656,6 +820,7 @@ h2 {
   background: #327935;
   transform: scale(1.08) rotate(4deg);
 }
+
 
 .quest-item.negative .complete-btn:hover {
   background: #c0392b;
@@ -1337,7 +1502,7 @@ h2 {
   bottom: 0;
   left: 0;
   right: 0;
-  background: #303030;
+  background: #3a3a3a;
   display: block;
   pointer-events: none;
 }
@@ -1513,6 +1678,7 @@ h2 {
   transform: scale(1.02);
 }
 
+
 .notyf-xp,
 .notyf-hp-plus,
 .notyf-hp-minus,
@@ -1575,15 +1741,17 @@ body.market::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.1);
+  background: #dfd0b855;
   z-index: -1;
 }
+
 
 .market-categories {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
   flex-wrap: wrap;
+
 }
 
 .market-tab,
@@ -1741,6 +1909,13 @@ body.market::before {
   resize: vertical;
 }
 
+#reward-description::-webkit-resizer {
+  border-width: 10px;
+  border-style: double;
+  border-color: transparent #666 #666 transparent;
+  background-color: transparent;
+}
+
 .add-reward-btn {
   background: #4a9450;
   color: white;
@@ -1790,7 +1965,7 @@ body.market::before {
 
 /* Inventory Styles */
 body.inventory {
-  background: url('images/backgrounds/inventory_bg.jpg') no-repeat center center fixed;
+  background: url('images/backgrounds/inventory_bg2.jpg') no-repeat center center fixed;
   background-size: cover;
   min-height: 100vh;
   image-rendering: pixelated;
@@ -1803,7 +1978,7 @@ body.inventory::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.1);
+  background: #dfd0b855;
   z-index: -1;
 }
 
