@@ -23,6 +23,11 @@
       src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/CustomEase.min.js"></script>
+      
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <script src="crt-effects.js"></script>
+      
+      
   </head>
   <body>
 
@@ -67,12 +72,17 @@
     </nav>
 
     <div class="game-container">
-      <header class="game-header">
+      <button id="toggleHeader" class="header-toggle-btn pixel-corners-small">
+  <span class="toggle-icon">▼</span>
+</button>
+      <div class="main-header">
+        <header class="game-header">
         <a href="#">
           <img src="images/icons/logo_zenquest.png" alt="ZenQuest Logo">
         </a>
         <p class="header-tagline">EMBARK ON YOUR PRODUCTIVITY QUEST!</p>
-      </header>
+
+        </header>
 
       <!-- RPG HUD -->
       <div class="hud pixel-corners-small">
@@ -103,6 +113,9 @@
           </span>
         </div>
       </div>
+      </div>
+
+      
 
       <!-- Daily Quests -->
       <section id="daily-quests" class="game-section pixel-corners">
@@ -128,8 +141,8 @@
           <input class="input pixel-corners-small" type="text" id="habit-input"
             placeholder="Add a new habit">
           <select class="add-btn pixel-corners-small" id="habit-type">
-            <option value="positive">Positive</option>
-            <option value="negative">Negative</option>
+            <option class="pixel-corners-small" value="positive">Positive</option>
+            <option class="pixel-corners-small" value="negative">Negative</option>
           </select>
           <button class="add-btn pixel-corners-small"
             id="add-habit-btn">Add</button>
@@ -145,7 +158,7 @@
           <input class="input pixel-corners-small" id="main-quest-input"
             type="text" placeholder="Add a new main quest">
           <input class="due-date pixel-corners-small" id="main-quest-date"
-            type="date">
+            type="date" name="dueDate" min="" required>
           <button class="add-btn pixel-corners-small"
             id="add-main-quest-btn">Add</button>
         </div>

@@ -341,7 +341,8 @@ const notyf = new Notyf({
             background: '#222',
             icon: false,
             className: 'notyf-success pixel-corners-small',
-            duration: 5000
+            duration: 5000,
+            dismissible: true
         },
         {
             type: 'error',

@@ -26,33 +26,36 @@ function saveStats() {
 function updateXP(amount) {
   showXPMessage(amount);
   xp += amount;
-  const xpNeeded = Math.round(100 + (level-1) * (10 ** 1.2));
-    
-    // Check for level up
-    if (xp >= xpNeeded) {
-        xp = xp - xpNeeded; // Keep excess XP
-        level++;
-        levelDisplay.textContent = level;
-        localStorage.setItem("level", level);
-        showLevelUpMessage(level);
-        
-        // Heal on level up
-        health = 100;
-        healthProgress.style.width = `${health}%`;
-        localStorage.setItem("health", health);
-        showHPMessage("+100");
-    }
+  const xpNeeded = Math.round(100 + (level - 1) * (10 ** 1.2));
+
+  // Check for level up
+  if (xp >= xpNeeded) {
+    xp = xp - xpNeeded; // Keep excess XP
+    level++;
+    levelDisplay.textContent = level;
+    localStorage.setItem("level", level);
+    showLevelUpMessage(level);
+
+    // Heal on level up
+    health = 100;
+    healthProgress.style.width = `${health}%`;
+    localStorage.setItem("health", health);
+    showHPMessage("+100");
+  }
   // Calculate percentage for XP bar
-    const xpPercent = (xp / xpNeeded) * 100;
-    xpProgress.style.width = `${xpPercent}%`;
-    localStorage.setItem("xp", xp);
+  const xpPercent = (xp / xpNeeded) * 100;
+  xpProgress.style.width = `${xpPercent}%`;
+  localStorage.setItem("xp", xp);
 }
 
 // Update Health
 function updateHealth(amount) {
   health += amount;
   if (health > 100) health = 100;
-  if (health < 0) health = 0;
+  if (health <= 0) {
+    handleDeath();
+    return;
+  }
   healthProgress.style.width = `${health}%`;
   localStorage.setItem("health", health);
   showHPMessage(amount);
@@ -60,16 +63,41 @@ function updateHealth(amount) {
   updateHUD();
 }
 
+function handleDeath() {
+  // Calculate penalties
+  level = Math.max(1, level - 1); // Prevent level from going below 1
+  const coinPenalty = Math.floor(zenCoins * 0.1); // 10% coin loss
+  zenCoins = Math.max(0, zenCoins - coinPenalty);
+  health = 100; // Reset health to max
+
+  // Update displays
+  levelDisplay.textContent = level;
+  healthProgress.style.width = '100%';
+
+  // Create death notification using Notyf
+  const iconImg = '<img src="images/icons/death.png" style="height: 40px; width: 40px; vertical-align: middle;">';
+  notyf.open({
+    type: 'death',
+    message: `${iconImg}\nYOU DIED!\nLevel -1\n-${coinPenalty} Zen Coins`,
+  });
+
+  // Save updated stats
+  saveStats();
+  updateHUD();
+}
+
 function maybeAwardZenCoins() {
-    if (Math.random() < 0.5) { // 50% chance
-        const baseCoins = Math.floor(Math.random() * 6) + 3; // Base random between 3 and 8
-        const scaledCoins = Math.round(baseCoins * ((Math.log(level + 1)) ** 1.05));
-        zenCoins += scaledCoins;
-        showZenCoinMessage(scaledCoins);
-        saveStats();
-        updateHUD();
-        
-    }
+  const baseChance = 0.5; // 50% base chance
+  const levelBonus = Math.min(level * 0.01, 0.5); // 1% per level, max 50% bonus
+  const totalChance = baseChance + levelBonus;
+  if (Math.random() < totalChance) { // 50% chance
+    const baseCoins = Math.floor(Math.random() * 6) + 3; // Base random between 3 and 8
+    const scaledCoins = Math.round(baseCoins * ((Math.log(level + 1)) ** 1.05));
+    zenCoins += scaledCoins;
+    showZenCoinMessage(scaledCoins);
+    saveStats();
+
+  }
 }
 
 
@@ -253,6 +281,139 @@ function addQuest(inputField, list, type = null, dueDate = null) {
   saveQuests();
 }
 
+
+/**
+ * Quest Due Date Validation
+ * Ensures due dates can only be today or in the future
+ */
+document.addEventListener('DOMContentLoaded', function() {
+  // Find all due date inputs
+  const dueDateInputs = document.querySelectorAll('input[type="date"][id*="due"], input[type="date"][name*="due"]');
+  
+  // Apply validation to each date input
+  dueDateInputs.forEach(input => {
+    // Set the minimum date to today
+    setMinimumDate(input);
+    
+    // Update min date if the page stays open for multiple days
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        setMinimumDate(input);
+      }
+    });
+    
+    // Add validation on change/input
+    input.addEventListener('change', validateDueDate);
+    input.addEventListener('input', validateDueDate);
+    
+    // Also validate any parent form before submission
+    const form = input.closest('form');
+    if (form) {
+      form.addEventListener('submit', function(event) {
+        if (!validateDueDate({target: input})) {
+          event.preventDefault();
+        }
+      });
+    }
+  });
+});
+
+/**
+ * Sets the minimum date attribute to today's date
+ */
+function setMinimumDate(inputElement) {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const formattedDate = `${year}-${month}-${day}`;
+  
+  inputElement.setAttribute('min', formattedDate);
+  
+  // If input already has a value, validate it
+  if (inputElement.value) {
+    validateDueDate({target: inputElement});
+  }
+}
+
+/**
+ * Validates that the selected date is today or in the future
+ */
+function validateDueDate(event) {
+  const input = event.target;
+  const selectedDate = new Date(input.value);
+  const today = new Date();
+  
+  // Reset time portion for accurate date comparison
+  today.setHours(0, 0, 0, 0);
+  
+  if (selectedDate < today) {
+    input.setCustomValidity('Due date must be today or a future date');
+    addErrorMessage(input);
+    return false;
+  } else {
+    input.setCustomValidity('');
+    removeErrorMessage(input);
+    return true;
+  }
+}
+
+
+/**
+ * Adds an error message after the input
+ */
+function addErrorMessage(input) {
+  // Remove any existing error message
+  removeErrorMessage(input);
+  
+  // Create and add the error message
+  const errorMessage = document.createElement('div');
+  errorMessage.className = 'date-error-message';
+  errorMessage.textContent = 'Please select a future date';
+  errorMessage.style.color = '#ff6b6b';
+  errorMessage.style.fontSize = '0.7em';
+  errorMessage.style.marginTop = '2px';
+  
+  input.parentNode.insertBefore(errorMessage, input.nextSibling);
+  
+  // Highlight the input field
+  input.style.borderColor = '#ff6b6b';
+}
+
+/**
+ * Removes the error message if it exists
+ */
+function removeErrorMessage(input) {
+  const existingError = input.parentNode.querySelector('.date-error-message');
+  if (existingError) {
+    existingError.remove();
+  }
+  
+  // Remove highlight
+  input.style.borderColor = '';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const addButton = document.getElementById('add-main-quest-btn');
+    
+    // Watch for error messages
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            // If error message exists, disable button
+            const errorMsg = document.querySelector('.date-error-message');
+            addButton.disabled = !!errorMsg;
+            addButton.style.opacity = errorMsg ? '0.5' : '1';
+        });
+    });
+    
+    // Watch the entire document for added/removed error messages
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+});
+
+
 const sortableLists = [
   dailyQuestList,
   habitList,
@@ -420,7 +581,7 @@ document.addEventListener("click", (e) => {
       const newCount = incrementCompletionCount(questId, 'daily');
       if (countDisplay) countDisplay.textContent = `⇆ ${newCount}`;
       if (!completed.includes(questText)) {
-        
+
         completed.push(questText);
         setCompletedDailies(completed);
       }
@@ -461,11 +622,12 @@ document.addEventListener("click", (e) => {
   }
 });
 
+
 // Set background image based on time of day
 function setBackgroundByTime() {
   const hour = new Date().getHours();
   const body = document.body;
-      const isDesktop = window.innerWidth >= 1200;
+  const isDesktop = window.innerWidth >= 1200;
   if (hour >= 6 && hour < 18) {
     // Daytime: 6am to 6pm
     body.style.backgroundImage = `url('images/backgrounds/${isDesktop ? 'default_bg_desktop.png' : 'default_bg.jpg'}')`;
@@ -705,29 +867,11 @@ updateDailyResetTimer();
 
 // Show level up message
 function showLevelUpMessage(level) {
-  const msg = document.createElement("div");
-  msg.textContent = `Level Up! You are now Level ${level}!`;
-  msg.classList.add('pixel-corners-small');
-  msg.style.position = "fixed";
-  msg.style.left = "50%";
-  msg.style.top = "44%";
-  msg.style.transform = "translate(-50%, 0)";
-  msg.style.background = "#232323";
-  msg.style.color = "#fff";
-  msg.style.padding = "12px 28px";
-  msg.style.fontFamily = "'Minecraft', 'PixelCraft', monospace";
-  msg.style.fontSize = "1.3em";
-  msg.style.zIndex = 9999;
-  msg.style.boxShadow = "0 2px 12px #000a";
-  msg.style.opacity = "0.97";
-  msg.style.border = "4px rgb(190, 190, 190) solid";
-  document.body.appendChild(msg);
-  setTimeout(() => {
-    msg.style.transition = "all 1.2s";
-    msg.style.opacity = "0";
-    msg.style.top = "10%";
-  }, 900);
-  setTimeout(() => msg.remove(), 5000);
+  const iconImg = '<img src="images/icons/levelup.png" style="height: 40px; width: 40px; vertical-align: middle;">';
+  notyf.open({
+    type: 'levelup',
+    message: `${iconImg}\nLevel Up!\nYou are now level ${level}!\nZen Coin gain increased.`
+  });
 }
 
 const notyf = new Notyf({
@@ -769,6 +913,21 @@ const notyf = new Notyf({
       background: '#232323',
       icon: false,
       className: 'notyf-error pixel-corners-small'
+    },
+    {
+      type: 'levelup',
+      background: '#232323',
+      className: 'notyf-levelup pixel-corners-small',
+      dismissible: true,
+      duration: 100000
+    },
+    {
+      type: 'death',
+      background: '#232323',
+      icon: false,
+      className: 'notyf-death pixel-corners-small',
+      duration: 100000,
+      dismissible: true
     }
   ]
 });
@@ -809,3 +968,4 @@ window.addEventListener("DOMContentLoaded", () => {
   updatePomodoroStats();
 
 });
+

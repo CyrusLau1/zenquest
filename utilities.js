@@ -145,6 +145,8 @@ function saveGameState() {
     localStorage.setItem('gameState', JSON.stringify(gameState));
 }
 
+
+
 // Create the scroll effect element
 const scrollEffect = document.createElement('div');
 scrollEffect.className = 'scroll-effect';
@@ -164,6 +166,7 @@ window.addEventListener('scroll', () => {
   scrollEffect.style.transform = `scale(${scale})`;
 });
 
+
 // Copy the current background image to the effect layer
 window.addEventListener('load', () => {
   const bg = getComputedStyle(document.body).backgroundImage;
@@ -171,20 +174,21 @@ window.addEventListener('load', () => {
 });
 
 
+
 // Background particle effects
 function initParticleEffects() {
   const particlesConfig = {
     particles: {
-      number: { value: 40, density: { enable: true, value_area: 500 } },
+      number: { value: 40, density: { enable: true, value_area: 400 } },
       line_linked: {
         enable: false
       },
       color: { value: "#ffffff" },
-      shape: { type: "circle" },
+      shape: { type: ["edge","polygon"] },
       opacity: {
-        value: 0.5,
+        value: 0.55,
         random: true,
-        animation: { enable: true, speed: 0.8 }
+        animation: { enable: true, speed: 0.55, sync: false }
       },
       size: {
         value: 3,
@@ -227,7 +231,7 @@ function initProgressiveLoading() {
   sections.forEach((section, i) => {
     gsap.fromTo(section, 
       { 
-        opacity: 0.5, 
+        opacity: 0.1, 
         y: 30 
       },
       {
@@ -237,13 +241,65 @@ function initProgressiveLoading() {
         ease: "power2.out",
         scrollTrigger: {
           trigger: section,
-          start: "top 80%",
-          toggleActions: "play none none reverse"
+          start: "top 110%",
+          end: "top 50%",
+          toggleActions: "play none none reverse",
+          once: true
         }
       }
     );
   });
 }
+
+
+// Simple and reliable header state management
+(function() {
+  // Immediately apply header state on page load (before DOM is fully ready)
+  const headerHidden = localStorage.getItem('headerHidden') === 'true';
+  if (headerHidden) {
+    document.documentElement.classList.add('header-hidden');
+  }
+  
+  // Set up toggle functionality when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    const mainHeader = document.querySelector('.main-header');
+    const toggleBtn = document.getElementById('toggleHeader');
+    
+    if (!mainHeader || !toggleBtn) {
+      console.error('Header elements not found');
+      return;
+    }
+    
+    // Apply initial state
+    if (headerHidden) {
+      mainHeader.classList.add('hidden');
+      updateButtonState(toggleBtn, true);
+    }
+    
+    // Set up toggle click handler
+    toggleBtn.addEventListener('click', function() {
+      // Toggle state
+      const isNowHidden = !mainHeader.classList.contains('hidden');
+      
+      // Update UI
+      mainHeader.classList.toggle('hidden');
+      updateButtonState(toggleBtn, isNowHidden);
+      
+      // Save state - use a simple boolean value for reliability
+      localStorage.setItem('headerHidden', isNowHidden);
+      console.log('Header hidden state saved:', isNowHidden);
+    });
+  });
+  
+  // Helper function to update button appearance
+  function updateButtonState(button, isHidden) {
+    const icon = button.querySelector('.toggle-icon');
+    const text = button.querySelector('.toggle-text');
+    
+    if (icon) icon.textContent = isHidden ? '▲' : '▼';
+    if (text) text.textContent = isHidden ? 'Show Header' : 'Hide Header';
+  }
+})();
 
 
 // Initialize mini HUD on page load
@@ -254,3 +310,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initParticleEffects();
     initProgressiveLoading();
 });
+
+
