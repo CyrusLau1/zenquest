@@ -15,7 +15,7 @@
 }
 
 /* Tablet Layout (768px and up) */
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 768px) and (max-width: 1200px){
   .game-container {
     padding: 30px;
     display: grid;
@@ -102,7 +102,13 @@
 @media screen and (min-width: 1200px) {
 
   body {
-    padding: 0 7vw 0 7vw !important;
+    padding: 0 2vw !important;
+  }
+
+  /* Fix centering for market and inventory pages */
+  body.market,
+  body.inventory {
+    padding: 0 !important;
   }
 
   /* Create fixed wrapper */
@@ -120,40 +126,162 @@
     gap: 15px;
   }
 
-  /* HUD modifications */
-  .hud {
-    background: #222222f1;
+  /* HUD modifications - Professional structured layout for desktop (main HUD only) */
+  .hud:not(.mini-hud) {
+    background: linear-gradient(135deg, #222222f1, #1a1a1af8);
     margin: 0;
-    padding: 15px 25px;
-    border-radius: 8px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    grid-area: hud;
-  }
-
-  /* Navigation modifications */
-  .top-navbar {
-    display: flex !important;
-    position: fixed;
-    top: 0;
-    left: 20;
-    width: 80vw;
-    background: #222222f8;
-    z-index: 1000;
-    height: 50px;
-    border-bottom: 2px solid #b0b0b0;
-    box-shadow: 0 2px 18px #000c;
-    padding: 0 40px;
+    padding: 20px 30px;
+    border-radius: 0;
+    display: flex;
+    flex-direction: row;
     justify-content: space-between;
-
+    align-items: stretch;
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 0 0 1px #444;
+    grid-area: hud;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    gap: 15px;
   }
 
+  /* Add subtle overlay effect (main HUD only) */
+  .hud:not(.mini-hud)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, 
+      rgba(255, 255, 255, 0.02) 0%, 
+      rgba(255, 255, 255, 0.05) 50%, 
+      rgba(255, 255, 255, 0.02) 100%);
+    pointer-events: none;
+  }
+
+  /* Health section - left (main HUD only) */
+  .hud:not(.mini-hud) .hud-item:first-child {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.15);
+    padding: 12px 16px;
+    border-radius: 0;
+    border: 1px solid #333;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    flex: 0 0 200px;
+    position: relative;
+  }
+
+  /* XP section - center (main HUD only) */
+  .hud:not(.mini-hud) .hud-item:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.15);
+    padding: 12px 16px;
+    border-radius: 0;
+    border: 1px solid #333;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    flex: 1;
+    position: relative;
+  }
+
+  /* Coins section - right (main HUD only) */
+  .hud:not(.mini-hud) .hud-item:nth-child(3) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.15);
+    padding: 12px 16px;
+    border-radius: 0;
+    border: 1px solid #333;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    flex: 0 0 140px;
+    position: relative;
+  }
+
+  /* Enhanced label styling (main HUD only) */
+  .hud:not(.mini-hud) .stat-label,
+  .hud:not(.mini-hud) label {
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #ccc;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    margin-bottom: 4px;
+  }
+
+  /* Value text styling (main HUD only) */
+  .hud:not(.mini-hud) .stat-value,
+  .hud:not(.mini-hud) .level-display {
+    font-weight: 700;
+    font-size: 16px;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Currency display styling (main HUD only) */
+  .hud:not(.mini-hud) .currency {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 18px;
+    color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Level display enhancement (main HUD only) */
+  .hud:not(.mini-hud) .level-display {
+    font-size: 20px;
+    color: #87ceeb;
+    text-shadow: 
+      0 0 10px rgba(135, 206, 235, 0.3),
+      2px 2px 4px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Remove extra styling from coins container */
+  .hud .hud-item-right {
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid #333;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Remove extra styling from coins container (main HUD only) */
+  .hud:not(.mini-hud) .hud-item-right {
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid #333;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
 
   .game-navbar {
     display: none !important;
     /* Hide bottom navbar on larger screens */
+  }
+
+  /* Show and style top navbar for desktop */
+  .top-navbar {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: linear-gradient(135deg, #1a1a1af8, #222222f1);
+    padding: 0 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid #333;
   }
 
   .top-nav-buttons {
@@ -209,20 +337,25 @@
     font-size: 0.8em;
   }
 
-
   /* Adjust main content container */
   .game-container {
-    padding: 40px;
+    padding: 40px 20px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     grid-template-areas:
-      "hud    hud    hud"
-      "daily habits main"
-      "side  pomo  pomo";
-    gap: 30px;
-    row-gap: 0;
-    max-width: 1400px;
-    margin: 180px auto 100px auto;
+      "hud    hud    hud    hud"
+      "daily  habits main   side"
+      "pomo   pomo   pomo   pomo";
+    gap: 15px;
+    row-gap: 10px;
+    max-width: 98%;
+    width: 100%;
+    margin: 45px auto 50px auto !important; /* Match market and inventory spacing - use !important to override global rule */
+    box-sizing: border-box;
+  }
+
+  #hud {
+    grid-area: hud;
   }
 
   #daily-quests {
@@ -243,6 +376,25 @@
 
   #pomodoro {
     grid-area: pomo;
+  }
+
+  /* Main header styling for desktop */
+  .main-header {
+    grid-area: hud;
+    display: block;
+    max-height: none;
+    opacity: 1;
+    transform: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+
+  /* Ensure HUD takes full width and proper sizing */
+  .main-header .hud {
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
   }
 
   .game-section {
@@ -291,38 +443,52 @@
     background: url('images/backgrounds/inventory_bg2.jpg') no-repeat center center fixed !important;
   }
 
+  /* Market and Inventory Layout - No Grid, 90% Width, PERFECTLY CENTERED */
   .market-container,
   .inventory-container {
+    width: 90vw;
+    max-width: 90vw;
+    margin: 100px auto 50px auto !important;
+    padding: 0 !important;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
+    box-sizing: border-box;
+    position: relative;
+    left: 0 !important;
+    right: 0 !important;
+    transform: translateX(0) !important;
   }
 
+  /* Market and Inventory Content Sections */
   #market,
   #inventory {
-    width: 80%;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: left;
+    box-sizing: border-box;
   }
+
+
 }
 
 
 
 /* Additional tweaks for extra large screens */
 @media screen and (min-width: 1600px) {
-  .fixed-top-wrapper {
-    padding: 20px 60px;
-  }
-
   .game-container {
-    margin-top: 200px;
-    max-width: 1800px;
+    margin-top: 120px;
+    max-width: 1600px;
     gap: 40px;
-    padding: 50px;
+    padding: 60px;
   }
 
-  .game-header img {
-    height: 60px;
+  .market-container,
+  .inventory-container {
+    margin-top: 100px;
+    max-width: 98%;
+    gap: 20px;
+    padding: 60px 40px;
   }
 }
 
@@ -415,6 +581,24 @@ img {
   image-rendering: pixelated;
 }
 
+
+img[src*="icons/"], 
+.nav-icon img, 
+.item-image,
+.header-icon img,
+.pomodoro-gif,
+.flame-effect {
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.2));
+  transition: filter 0.3s ease;
+}
+
+img[src*="icons/"]:hover,
+.nav-icon img:hover,
+.item-image:hover,
+.header-icon img:hover {
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.4));
+}
+
 header {
   width: 100%;
   text-align: center;
@@ -432,7 +616,6 @@ header img {
   margin: -4px auto auto auto;
 
 }
-
 
 
 
@@ -472,6 +655,50 @@ header img {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+hr {
+  height: 4px;
+  border: none;
+  background: linear-gradient(to right, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.5) 20%, 
+    rgba(255, 255, 255, 0.5) 80%, 
+    transparent 100%);
+  margin: 0.5vh 10px 3vh 10px;
+  position: relative;
+  image-rendering: pixelated;
+  opacity: 0.55;
+}
+
+hr::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-image: linear-gradient(to right, 
+    transparent, 
+    rgba(255, 255, 255, 0.4) 20%, 
+    rgba(255, 255, 255, 0.1) 30%,
+    rgba(255, 255, 255, 0.4) 40%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.4) 60%,
+    rgba(255, 255, 255, 0.1) 70%,
+    rgba(255, 255, 255, 0.4) 80%,
+    transparent);
+  background-size: 40px 4px;
+  animation: shimmer 5s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 40px 0;
   }
 }
 
@@ -552,12 +779,50 @@ header img {
   background: linear-gradient(to right, #d83f3c, #ff6f00);
   height: 100%;
   transition: width 0.5s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+#health-progress::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.4), 
+    transparent);
+  animation: shine 2s infinite ease-in-out;
 }
 
 #xp-progress {
   background: linear-gradient(to right, #ff9800, #ffd700);
   height: 100%;
   transition: width 0.5s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+#xp-progress::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.4), 
+    transparent);
+  animation: shine 2.5s infinite ease-in-out;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
 }
 
 #health-progress::after,
@@ -600,12 +865,36 @@ header img {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   background: #222222f1;
-  padding: 8px 15px;
+  padding: 12px 15px 2px 15px;
   z-index: 1001;
   border-bottom: 2px solid #444;
   opacity: 0.3;
   transform: translateY(-100%);
   transition: all 0.5s ease;
+
+}
+
+/* Desktop layout adjustments for mini-hud */
+@media screen and (min-width: 1200px) {
+  .mini-hud {
+    top: 50px; /* Position below the top navbar */
+    z-index: 999; /* Lower than navbar but higher than other content */
+    padding-top: 0 !important;
+  }
+  
+  .mini-hud .hud-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 3px 8px;
+  }
+  
+  .mini-hud .health-bar,
+  .mini-hud .xp-bar {
+    flex: 1;
+    min-width: 60px;
+  }
 }
 
 .mini-hud.visible {
@@ -618,20 +907,20 @@ header img {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-size: 0.8em;
-  padding: 4px;
+  gap: 6px;
+  font-size: 0.75em;
+  padding: 2px;
 }
 
 .mini-hud .hud-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
 }
 
 .mini-hud .health-bar,
 .mini-hud .xp-bar {
   width: 100%;
-  height: 8px;
+  height: 6px;
   margin: 0;
   background: #393939;
   border: 2px solid rgb(96, 96, 96);
@@ -662,12 +951,12 @@ header img {
 }
 
 .mini-hud .zen-coins-bar {
-  padding: 4px 6px;
+  padding: 2px 4px;
   margin: 0;
-  font-size: 1.1em;
+  font-size: 1em;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 /* Mobile adjustments */
@@ -712,8 +1001,8 @@ header img {
 .game-section:hover {
   transform: translateY(-2px);
   box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.1),
-    0 7px 16px rgba(0, 0, 0, 0.3);
+    inset 0 1px 1px rgba(255, 255, 255, 0.01),
+    0 7px 16px rgba(0, 0, 0, 0.5);
 }
 
 h2 {
@@ -729,6 +1018,7 @@ h2 {
   margin-right: 12px;
   vertical-align: middle;
   image-rendering: pixelated;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
 }
 
 .hud-icon {
@@ -738,7 +1028,9 @@ h2 {
   background-size: cover;
   vertical-align: middle;
   image-rendering: pixelated;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.2));
 }
+
 
 .note {
   font-size: 0.7em;
@@ -759,17 +1051,22 @@ h2 {
 .quest-item {
   display: flex;
   justify-content: space-between;
-  background: #4f4f4fe5;
-  padding: 5px 10px;
-  margin: 5px 0;
-  border-radius: 5px;
-  font-size: 0.7em;
-  box-shadow: inset 1px 1px 0 rgb(47, 47, 47);
+  background: linear-gradient(135deg, #4f4f4fe5 0%, #3a3a3ae5 100%);
+  padding: 8px 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  font-size: 0.75em;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   align-items: center;
-  gap: 8px;
-  min-height: 38px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 10px;
+  min-height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   cursor: grab;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
 .quest-item span {
@@ -810,15 +1107,21 @@ h2 {
 }
 
 .quest-item.completed {
-  opacity: 0.5;
-  filter: brightness(0.7);
-  transition: all 0.3s steps(5);
+  opacity: 0.6;
+  filter: brightness(0.65) saturate(0.7);
+  transition: all 0.4s ease-out;
+  transform: scale(0.98);
+  background: linear-gradient(135deg, #333333e5 0%, #2a2a2ae5 100%);
 }
 
 .quest-item:hover {
-  border-left-color: #666;
-  background: linear-gradient(90deg, #3a3a3a, #313131);
-  transform: scale(1.01) translateY(-1px);
+  border-left-color: #777;
+  background: linear-gradient(135deg, 
+    #5a5a5a 0%, #404040 50%, #4a4a4a 100%);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 
@@ -934,6 +1237,59 @@ h2 {
   flex-direction: column;
   flex: 1 1 auto;
   min-width: 0;
+  position: relative;
+}
+
+/* Quest Progress Indicator */
+.quest-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #4caf50, #45a049);
+  transition: width 0.3s ease;
+  border-radius: 1px;
+}
+
+/* Daily Quest Progress Bar */
+.daily-progress {
+  margin: 10px 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  height: 8px;
+}
+
+/* Quest Priority and Difficulty Indicators */
+.quest-priority {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.priority-low { background: #4caf50; }
+.priority-medium { background: #ff9800; }
+.priority-high { background: #f44336; }
+
+.quest-difficulty {
+  display: flex;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.difficulty-star {
+  width: 8px;
+  height: 8px;
+  background: #333;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.difficulty-star.filled {
+  background: #ffd700;
 }
 
 .due-date-label {
@@ -1517,17 +1873,6 @@ h2 {
       8px calc(100% - 24px),
       8px 50%,
       0px 50%);
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #3a3a3a;
-  display: block;
-  pointer-events: none;
-}
-
-.pixel-corners::after {
-  margin: -8px;
 }
 
 .pixel-corners-small {
@@ -1701,11 +2046,13 @@ h2 {
 .notyf-xp,
 .notyf-hp-plus,
 .notyf-hp-minus,
-.notyf-zen-coin {
+.notyf-zen-coin,
+.notyf-critical-xp,
+.notyf-critical-coin {
   font-size: 0.9em !important;
   padding: 0 3px 0 15px !important;
   max-width: fit-content !important;
-  opacity: 0.95 !important;
+  opacity: 0.85 !important;
   margin: 3px !important;
 }
 
@@ -1714,7 +2061,8 @@ h2 {
   font-size: 0.9em !important;
   padding: 0 3px 0 15px !important;
   max-width: 50vw !important;
-  opacity: 0.95 !important;
+  opacity: 0.85 !important;
+  max-width: fit-content !important;
 }
 
 .notyf-xp {
@@ -1745,12 +2093,26 @@ h2 {
   border: 3px solid #f0d01c;
 }
 
+.notyf-critical-xp {
+  color: #2196f3 !important;
+  font-family: 'Minecraft', 'PixelCraft', monospace;
+  text-shadow: 1px 1px #000, 0 0 2px #2196f399;
+  border: 3px solid #2196f3;
+}
+
+.notyf-critical-coin {
+  color: #03a9f4 !important;
+  font-family: 'Minecraft', 'PixelCraft', monospace;
+  text-shadow: 1px 1px #000, 0 0 2px #03a9f499;
+  border: 3px solid #03a9f4;
+}
+
 
 /* Toggle button styles */
 .header-toggle-btn {
-  position: absolute;
-  top: 50px;
-  right: 10px;
+  position: fixed !important;
+  top: 40px !important;
+  right: 10px !important;
   background: #39393980;
   color: #e4e4e4;
   border: 1px solid #555;
@@ -1758,11 +2120,26 @@ h2 {
   font-family: 'Minecraft', sans-serif;
   font-size: 0.8em;
   cursor: pointer;
-  z-index: 1001;
-  display: flex;
+  z-index: 1002;
+  display: flex !important;
   align-items: center;
   gap: 5px;
   transition: all 0.3s ease;
+}
+
+/* Desktop layout adjustments for toggle button */
+@media screen and (min-width: 1200px) {
+  .header-toggle-btn {
+    top: 80px !important;
+    right: 20px !important;
+    background: #393939;
+    color: #e4e4e4;
+    padding: 5px 7px;
+    font-size: 0.9em;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
 }
 
 .header-toggle-btn:hover {
@@ -1915,6 +2292,8 @@ body.market::before {
   margin-top: 5px;
   text-decoration: none;
   font-weight: lighter;
+  word-wrap: break-word;
+  width: 100%;
 }
 
 .item-description {
@@ -1923,7 +2302,8 @@ body.market::before {
   color: #d8d8d8;
   text-shadow: 1px 1px #000;
   margin: 0;
-  word-break: break-all;
+  word-wrap: break-word;
+  width: 100%;
 }
 
 
@@ -1978,12 +2358,13 @@ body.market::before {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  align-items: center;
 }
 
 .custom {
   color: #e4e4e4;
   text-shadow: 1px 1px #000;
-  margin: -50px 0 10px 0;
+  margin: -10px 0 10px 0;
   font-size: 1.1em;
 }
 
@@ -2020,6 +2401,7 @@ body.market::before {
   cursor: pointer;
   font-family: 'Minecraft', sans-serif;
   text-shadow: 1px 1px #000;
+  width: 50%;
 }
 
 .add-reward-btn:hover {
@@ -2053,7 +2435,7 @@ body.market::before {
   white-space: pre-line !important;
   width: fit-content !important;
   max-width: 70vw !important;
-  opacity: 0.95 !important;
+  opacity: 0.85 !important;
 
 }
 
@@ -2067,7 +2449,7 @@ body.market::before {
   white-space: pre-line;
   width: fit-content !important;
   max-width: 70vw !important;
-  opacity: 0.95 !important;
+  opacity: 0.85 !important;
 }
 
 .notyf-success {
@@ -2108,97 +2490,29 @@ body.inventory::before {
 .inventory-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
+  gap: 1rem;
+  margin-top: 1rem;
   padding: 20px;
   min-height: 200px;
 }
 
-.inventory-item {
-  background: #4f4f4fe5;
-  border: 2px solid #333;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  transition: all 0.2s;
-  position: relative;
-}
+/* Remove old inventory-item styles since we're using item-card now */
 
-.inventory-item:hover {
-  transform: translateY(-4px);
-  box-shadow: inset 0 7px 14px rgba(0, 0, 0, 0.3);
-}
-
-.item-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: auto;
-  align-items: center;
-}
-
-.use-btn,
-.sell-btn {
-  font-family: 'Minecraft', sans-serif;
-  text-shadow: 1px 1px black;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s;
-}
-
-.use-btn {
-  background: #4a9450;
-  color: #e4e4e4;
-  padding: 9px 18px !important;
-  font-size: 1.1em;
-  margin-top: 3px;
-  border-right: #242424 solid 2px;
-  border-bottom: #242424 solid 2px;
-}
-
-.sell-btn {
-  background: #a53d1d;
-  color: #e4e4e4;
-  padding: 7px 10px !important;
-  font-size: 0.8em;
-  width: 70%;
-  border-right: #242424 solid 1.5px;
-  border-bottom: #242424 solid 1.5px;
-}
-
-.use-btn:hover {
-  background: #5aaf60;
-  transform: scale(1.04);
-}
-
-.sell-btn:hover {
-  background: #c44823;
-  transform: scale(1.04);
-}
-
-.empty-inventory {
+.empty-state {
   grid-column: 1 / -1;
   text-align: center;
   padding: 40px;
   color: #bcbcbc;
 }
 
-.empty-inventory p {
+.empty-state p {
   font-size: 1.2em;
   margin-bottom: 10px;
 }
 
-.empty-inventory small {
+.empty-state small {
   font-size: 0.9em;
   opacity: 0.7;
-}
-
-.item-icon img {
-  height: 7em;
-  image-rendering: pixelated;
-  margin-top: 20px;
-  margin-bottom: 5px;
 }
 
 .item-quantity {
@@ -2217,4 +2531,550 @@ body.inventory::before {
   background: #2c2c2c;
   transform: scale(1.2);
   transition: all 0.4s;
+}
+
+/* Enhanced Item Display for Market and Inventory */
+.market-items,
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.item-card {
+  position: relative;
+  border: 2px solid #444;
+  border-radius: 3px;
+  padding: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Item card border effect */
+.item-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    transparent 0%, #555 25%, 
+    transparent 50%, #555 75%, 
+    transparent 100%);
+  z-index: -1;
+  border-radius: 8px;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.item-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.item-card:hover::before {
+  opacity: 0.8;
+}
+
+.item-image-container {
+  position: relative;
+  height: 80px;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  padding: 1rem;
+  
+}
+
+.item-image {
+  max-height: 100%;
+  max-width: 100%;
+  transition: transform 0.3s ease;
+  object-fit: contain;
+}
+
+.item-card:hover .item-image {
+  transform: scale(1.1);
+}
+
+.item-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.item-description {
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  flex-grow:  1;
+}
+
+.item-price {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.item-price img {
+  margin-right: 0.3rem;
+  width: 16px;
+  height: 16px;
+}
+
+/* Item button styling (preserving original colors) */
+.buy-btn, .use-btn, .sell-btn {
+  margin-bottom: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.buy-btn::after, .use-btn::after, .sell-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transition: left 0.5s ease;
+}
+
+.buy-btn:hover::after, .use-btn:hover::after, .sell-btn:hover::after {
+  left: 100%;
+}
+
+.item-quantity {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  border: 2px solid #444;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  z-index: 3;
+}
+
+/* Pixel corners for item card */
+.item-card {
+  position: relative;
+}
+
+.item-card::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  pointer-events: none;
+}
+
+/* Empty state styling */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+  font-style: italic;
+  grid-column: 1 / -1;
+}
+
+/* Item action buttons container */
+ .item-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Inner shadow effect for item cards */
+.item-card {
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .market-items,
+  .inventory-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+  
+  .item-name {
+    font-size: 1rem;
+  }
+  
+  .item-description {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .market-items,
+  .inventory-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
+}
+
+/* INVENTORY-SPECIFIC BUTTON STYLING - DO NOT AFFECT MARKET */
+.inventory-grid .use-btn {
+  background: #4a9450;
+  color: #e4e4e4;
+  padding: 9px 18px !important;
+  font-size: 1.1em;
+  font-family: 'Minecraft', sans-serif;
+  text-shadow: 1px 1px black;
+  cursor: pointer;
+  border: none;
+  border-right: #242424 solid 2px;
+  border-bottom: #242424 solid 2px;
+  transition: all 0.2s;
+}
+
+.inventory-grid .sell-btn {
+  background: #a53d1d;
+  color: #e4e4e4;
+  padding: 7px 10px !important;
+  font-size: 0.8em;
+  font-family: 'Minecraft', sans-serif;
+  text-shadow: 1px 1px black;
+  cursor: pointer;
+  border: none;
+  border-right: #242424 solid 1.5px;
+  border-bottom: #242424 solid 1.5px;
+  transition: all 0.2s;
+}
+
+.inventory-grid .use-btn:hover {
+  background: #5aaf60;
+  transform: scale(1.04);
+}
+
+.inventory-grid .sell-btn:hover {
+  background: #c44823;
+  transform: scale(1.04);
+}
+
+/* INVENTORY-SPECIFIC QUANTITY LABEL STYLING */
+.inventory-grid .item-quantity {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #666;
+  color: #fff;
+  padding: 6px 10px;
+  font-size: 1em;
+  font-family: 'Minecraft', sans-serif;
+  text-shadow: 1px 1px #000;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.inventory-grid .item-quantity:hover {
+  background: #2c2c2c;
+  transform: scale(1.2);
+  transition: all 0.4s;
+}
+
+/* Item action buttons container for inventory */
+.inventory-grid .item-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+  align-items: center;
+}
+
+/* Enhanced Item Stats Styling */
+.item-stats {
+  font-size: 0.75em;
+  color: #e4e4e4;
+  text-shadow: 1px 1px #000;
+  margin: 10px 0;
+  text-align: left;
+}
+
+.stats-section {
+  margin-bottom: 12px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.stats-section h4 {
+  margin: 0 0 6px 0;
+  font-size: 0.85em;
+  color: #ffd700;
+  text-shadow: 1px 1px #000;
+}
+
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.8em;
+  color: #e4e4e4;
+  text-shadow: 1px 1px #000;
+}
+
+.stat-item.equipped-active {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.owned-stats .stat-item {
+  color: #87ceeb;
+}
+
+.equipped-stats .stat-item {
+  color: #ffa500;
+}
+
+.equipped-active-stats .stat-item {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.potion-stats .stat-item {
+  color: #ff69b4;
+}
+
+/* Item Level Badge */
+.item-level {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #666666;
+  color: #ffffff;
+  font-size: 0.7em;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 2px;
+  text-shadow: none;
+  z-index: 2;
+  border: 1px solid #888888;
+}
+
+/* Equipped Badge */
+.equipped-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #4caf50;
+  color: #fff;
+  font-size: 0.6em;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 2px;
+  text-shadow: 1px 1px #000;
+  z-index: 2;
+}
+
+/* Level Required Badge */
+.level-required {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: #ff4444;
+  color: #fff;
+  font-size: 0.6em;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 2px;
+  text-shadow: 1px 1px #000;
+  z-index: 2;
+}
+
+/* Level Capped Badge */
+.level-capped {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: #ff9800;
+  color: #fff;
+  font-size: 0.6em;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 2px;
+  text-shadow: 1px 1px #000;
+  z-index: 2;
+}
+
+/* Enhanced Buy/Use Buttons */
+.buy-btn.equipped {
+  background: #ff6b35;
+}
+
+.buy-btn.equipped:hover {
+  background: #ff7a4a;
+}
+
+.buy-btn.disabled {
+  background: #666666 !important;
+  color: #999999 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+.buy-btn.disabled:hover {
+  background: #666666 !important;
+  color: #999999 !important;
+}
+
+.use-btn.equipped {
+  background: #ff6b35;
+}
+
+.use-btn.equipped:hover {
+  background: #ff7a4a;
+}
+
+/* Market Item Stats Styling */
+.market-items .item-stats {
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #666 #333;
+}
+
+.market-items .item-stats::-webkit-scrollbar {
+  width: 4px;
+}
+
+.market-items .item-stats::-webkit-scrollbar-track {
+  background: #333;
+}
+
+.market-items .item-stats::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 2px;
+}
+
+/* Inventory Stats Styling */
+.inventory-stats .stats-section {
+  margin-bottom: 8px;
+  padding: 6px;
+}
+
+.total-owned-stats h4 {
+  color: #87ceeb;
+}
+
+.equipped-active-stats h4 {
+  color: #4caf50;
+}
+
+/* Responsive adjustments for stats */
+@media (max-width: 768px) {
+  .item-stats {
+    font-size: 0.7em;
+  }
+  
+  .stats-section {
+    padding: 6px;
+    margin-bottom: 8px;
+  }
+  
+  .stats-section h4 {
+    font-size: 0.8em;
+  }
+  
+  .stat-item {
+    font-size: 0.75em;
+  }
+}
+
+/* Global Shining Effect for All Buttons */
+@keyframes shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Add shining effect to all buttons on hover */
+button:hover:not(:disabled)::before,
+.buy-btn:hover:not(:disabled)::before,
+.use-btn:hover:not(:disabled)::before,
+.sell-btn:hover:not(:disabled)::before,
+.complete-btn:hover:not(:disabled)::before,
+.add-btn:hover:not(:disabled)::before,
+.pomodoro-btn:hover:not(:disabled)::before,
+.nav-btn:hover:not(:disabled)::before,
+.header-toggle-btn:hover:not(:disabled)::before,
+.add-reward-btn:hover:not(:disabled)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: shine 0.8s ease-in-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ensure buttons have relative positioning for the shine effect */
+button:not(:disabled),
+.buy-btn:not(:disabled),
+.use-btn:not(:disabled),
+.sell-btn:not(:disabled),
+.complete-btn:not(:disabled),
+.add-btn:not(:disabled),
+.pomodoro-btn:not(:disabled),
+.nav-btn:not(:disabled),
+.header-toggle-btn:not(:disabled),
+.add-reward-btn:not(:disabled) {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ensure button text stays above the shine effect */
+button:not(:disabled) *,
+.buy-btn:not(:disabled) *,
+.use-btn:not(:disabled) *,
+.sell-btn:not(:disabled) *,
+.complete-btn:not(:disabled) *,
+.add-btn:not(:disabled) *,
+.pomodoro-btn:not(:disabled) *,
+.nav-btn:not(:disabled) *,
+.header-toggle-btn:not(:disabled) *,
+.add-reward-btn:not(:disabled) * {
+  position: relative;
+  z-index: 2;
 }

@@ -1,21 +1,135 @@
 const gameStats = {
     loadStats() {
+        const level = parseInt(localStorage.getItem('level')) || 1;
+        const xp = parseInt(localStorage.getItem('xp')) || 0;
+        const xpToNext = Math.round(100 + (level - 1) * (10 ** 1.2));
+        
         return {
-            health: parseInt(localStorage.getItem('health')) || 100,
-            maxHealth: parseInt(localStorage.getItem('maxHealth')) || 100,
-            xp: parseInt(localStorage.getItem('xp')) || 0,
-            level: parseInt(localStorage.getItem('level')) || 1,
-            zenCoins: parseInt(localStorage.getItem('zenCoins')) || 0
+            currentHP: parseInt(localStorage.getItem('health')) || 100,
+            maxHP: parseInt(localStorage.getItem('maxHP')) || 100,
+            xp: xp,
+            level: level,
+            zenCoins: parseInt(localStorage.getItem('zenCoins')) || 0,
+            xpToNext: xpToNext
         };
     },
 
     saveStats(stats) {
-        localStorage.setItem('health', stats.health);
-        localStorage.setItem('maxHealth', stats.maxHealth);
+        localStorage.setItem('health', stats.currentHP);
+        localStorage.setItem('maxHP', stats.maxHP);
         localStorage.setItem('xp', stats.xp);
         localStorage.setItem('level', stats.level);
         localStorage.setItem('zenCoins', stats.zenCoins);
         this.updateHUD();
+    },
+
+    // Get total stats including bonuses from equipment
+    getTotalStats() {
+        const baseStats = this.loadStats();
+        const ownedBonuses = JSON.parse(localStorage.getItem('totalOwnedBonuses') || '{}');
+        const equippedBonuses = JSON.parse(localStorage.getItem('totalEquippedBonuses') || '{}');
+        const activeBoosts = this.getActiveBoosts();
+        
+        return {
+            ...baseStats,
+            maxHP: baseStats.maxHP + (ownedBonuses.maxHP || 0) + (equippedBonuses.maxHP || 0),
+            xpGainBonus: (ownedBonuses.xpGain || 0) + (equippedBonuses.xpGain || 0) + (activeBoosts.xpBoost || 0),
+            coinGainBonus: (ownedBonuses.coinGain || 0) + (equippedBonuses.coinGain || 0) + (activeBoosts.coinBoost || 0),
+            criticalChance: (ownedBonuses.criticalChance || 0) + (equippedBonuses.criticalChance || 0)
+        };
+    },
+
+    // Get active temporary boosts
+    getActiveBoosts() {
+        const boosts = JSON.parse(localStorage.getItem('activeBoosts') || '{}');
+        const now = Date.now();
+        const activeBoosts = {};
+        
+        Object.entries(boosts).forEach(([type, boost]) => {
+            if (boost.endTime > now) {
+                activeBoosts[type] = boost.value;
+            }
+        });
+        
+        // Clean expired boosts
+        const validBoosts = {};
+        Object.entries(boosts).forEach(([type, boost]) => {
+            if (boost.endTime > now) {
+                validBoosts[type] = boost;
+            }
+        });
+        localStorage.setItem('activeBoosts', JSON.stringify(validBoosts));
+        
+        return activeBoosts;
+    },
+
+    // Award XP with bonuses and critical chance
+    awardXP(baseAmount) {
+        const totalStats = this.getTotalStats();
+        let finalAmount = baseAmount;
+        
+        // Apply XP gain bonus
+        if (totalStats.xpGainBonus > 0) {
+            finalAmount = Math.floor(baseAmount * (1 + totalStats.xpGainBonus / 100));
+        }
+        
+        // Check for critical hit
+        if (totalStats.criticalChance > 0) {
+            const random = Math.random() * 100;
+            if (random < totalStats.criticalChance) {
+                finalAmount *= 2;
+                if (typeof notyf !== 'undefined') {
+                    notyf.open({
+                        type: 'critical-xp',
+                        message: `💥 CRITICAL! +${finalAmount} XP`
+                    });
+                }
+            }
+        }
+        
+        // Use the original app.js updateXP function for proper level calculations
+        if (typeof updateXP === 'function') {
+            updateXP(finalAmount);
+        } else {
+            // Fallback: just add the XP
+            const stats = this.loadStats();
+            stats.xp += finalAmount;
+            this.saveStats(stats);
+        }
+        
+        return finalAmount;
+    },
+
+    // Award coins with bonuses and critical chance
+    awardCoins(baseAmount) {
+        const totalStats = this.getTotalStats();
+        let finalAmount = baseAmount;
+        
+        // Apply coin gain bonus
+        if (totalStats.coinGainBonus > 0) {
+            finalAmount = Math.floor(baseAmount * (1 + totalStats.coinGainBonus / 100));
+        }
+        
+        // Check for critical hit
+        if (totalStats.criticalChance > 0) {
+            const random = Math.random() * 100;
+            if (random < totalStats.criticalChance) {
+                finalAmount *= 2;
+                if (typeof notyf !== 'undefined') {
+                    notyf.open({
+                        type: 'critical-coin',
+                        message: `💥 CRITICAL! +${finalAmount} Zen Coins`
+                    });
+                }
+            }
+        }
+        
+        // Update using original localStorage system
+        let zenCoins = parseInt(localStorage.getItem("zenCoins")) || 0;
+        zenCoins += finalAmount;
+        localStorage.setItem("zenCoins", zenCoins);
+        this.updateHUD();
+        return finalAmount;
     },
 
     initMiniHUD() {
@@ -60,16 +174,16 @@ const gameStats = {
     },
 
     updateHUD() {
-        const stats = this.loadStats();
+        const stats = this.getTotalStats(); // Use total stats including bonuses
         
         // Update main health bar and text
         const healthProgress = document.getElementById('health-progress');
         const healthText = document.querySelector('.health-text');
         if (healthProgress) {
-            const healthPercent = (stats.health / stats.maxHealth) * 100;
+            const healthPercent = (stats.currentHP / stats.maxHP) * 100;
             healthProgress.style.width = `${healthPercent}%`;
             if (healthText) {
-                healthText.textContent = `[${stats.health}/${stats.maxHealth}]`;
+                healthText.textContent = `[${stats.currentHP}/${stats.maxHP}]`;
             }
         }
 
@@ -77,25 +191,23 @@ const gameStats = {
         const xpProgress = document.getElementById('xp-progress');
         const xpText = document.querySelector('.xp-text');
         if (xpProgress) {
-            const xpNeeded = Math.round(100+(stats.level-1)*(10 ** 1.2));
-            const xpPercent = (stats.xp / xpNeeded) * 100;
+            const xpPercent = (stats.xp / stats.xpToNext) * 100;
             xpProgress.style.width = `${xpPercent}%`;
             if (xpText) {
-                xpText.textContent = `[${stats.xp}/${xpNeeded}]`;
+                xpText.textContent = `[${stats.xp}/${stats.xpToNext}]`;
             }
         }
 
         // Update mini HUD stats
         const miniHealthProgress = document.getElementById('mini-health-progress');
         if (miniHealthProgress) {
-            const healthPercent = (stats.health / stats.maxHealth) * 100;
+            const healthPercent = (stats.currentHP / stats.maxHP) * 100;
             miniHealthProgress.style.width = `${healthPercent}%`;
         }
 
         const miniXpProgress = document.getElementById('mini-xp-progress');
         if (miniXpProgress) {
-            const xpNeeded = Math.round(100+(stats.level-1)*(10 ** 1.2));
-            const xpPercent = (stats.xp / xpNeeded) * 100;
+            const xpPercent = (stats.xp / stats.xpToNext) * 100;
             miniXpProgress.style.width = `${xpPercent}%`;
         }
 

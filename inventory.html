@@ -25,7 +25,7 @@
     <nav class="top-navbar">
       <div class="header-icon">
         <a href="#">
-          <img src="images/icons/logo_zenquest.png" alt="ZenQuest Logo">
+          <img src="images/icons/logo_zenquest_desktop.png" alt="ZenQuest Logo">
         </a>
       </div>
       <div class="top-nav-buttons">
@@ -59,19 +59,21 @@
         </button>
       </div>
     </nav>
-
-    <div class="game-container inventory-container">
-      <button id="toggleHeader" class="header-toggle-btn pixel-corners-small">
+    <button id="toggleHeader" class="header-toggle-btn pixel-corners-small">
         <span class="toggle-icon">▼</span>
       </button>
-      <div class="main-header">
+    <div class="game-container inventory-container">
+      
+
+      <!-- RPG HUD - Moved to be direct child -->
+      <div id="hud" class="main-header">
       <header class="game-header">
         <a href="#">
           <img src="images/icons/logo_zenquest.png" alt="ZenQuest Logo">
         </a>
       </header>
-      <!-- RPG HUD -->
-      <div class="hud">
+  
+      <div class="hud pixel-corners-small">
         <div class="hud-item">
           <p><img class="hud-icon" src="images/icons/hp.png"> Health: <span
               class="health-text">[100/100]</span></p>
@@ -101,9 +103,11 @@
         </div>
       </div>
       </div>
+
       
       <section id="inventory" class="game-section pixel-corners">
         <h2><img class="icon" src="images/icons/items.png">Inventory</h2>
+        <hr>
 
         <div class="inventory-categories">
           <button class="inventory-tab active pixel-corners-small"

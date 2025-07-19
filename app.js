@@ -1,8 +1,24 @@
-// Game Stats
-let xp = parseInt(localStorage.getItem("xp")) || 0;
-let level = parseInt(localStorage.getItem("level")) || 1;
-let health = parseInt(localStorage.getItem("health")) || 100;
-let zenCoins = parseInt(localStorage.getItem("zenCoins")) || 0;
+// Game Stats - now using centralized gameStats system
+// These functions get current values from the centralized system
+function getCurrentStats() {
+    return gameStats.loadStats();
+}
+
+function getCurrentXP() {
+    return gameStats.loadStats().xp;
+}
+
+function getCurrentLevel() {
+    return gameStats.loadStats().level;
+}
+
+function getCurrentHealth() {
+    return gameStats.loadStats().currentHP;
+}
+
+function getCurrentZenCoins() {
+    return gameStats.loadStats().zenCoins;
+}
 
 
 const xpProgress = document.querySelector("#xp-progress");
@@ -16,15 +32,19 @@ const mainQuestList = document.querySelector("#main-quest-list");
 const sideQuestList = document.querySelector("#side-quest-list");
 
 function saveStats() {
-  localStorage.setItem("xp", xp);
-  localStorage.setItem("level", level);
-  localStorage.setItem("health", health);
-  localStorage.setItem("zenCoins", zenCoins);
+  // This function keeps the original variable names for compatibility
+  gameStats.updateHUD();
 }
 
-// Update XP
+// Update XP - with bonuses applied
 function updateXP(amount) {
   showXPMessage(amount);
+  
+  // Get current stats (but don't use centralized level calculation)
+  let xp = parseInt(localStorage.getItem("xp")) || 0;
+  let level = parseInt(localStorage.getItem("level")) || 1;
+  let health = parseInt(localStorage.getItem("health")) || 100;
+  
   xp += amount;
   const xpNeeded = Math.round(100 + (level - 1) * (10 ** 1.2));
 
@@ -32,47 +52,79 @@ function updateXP(amount) {
   if (xp >= xpNeeded) {
     xp = xp - xpNeeded; // Keep excess XP
     level++;
-    levelDisplay.textContent = level;
+    if (levelDisplay) levelDisplay.textContent = level;
     localStorage.setItem("level", level);
     showLevelUpMessage(level);
 
-    // Heal on level up
-    health = 100;
-    healthProgress.style.width = `${health}%`;
+    // Heal to max HP on level up (use actual maxHP, not hardcoded 100)
+    const currentStats = gameStats.loadStats();
+    const totalStats = gameStats.getTotalStats(); // Get stats with equipment bonuses
+    health = totalStats.maxHP; // Heal to actual max HP including bonuses
+    if (healthProgress) {
+      const healthPercent = (health / totalStats.maxHP) * 100;
+      healthProgress.style.width = `${healthPercent}%`;
+    }
     localStorage.setItem("health", health);
-    showHPMessage("+100");
+    showHPMessage(`+${totalStats.maxHP - currentStats.currentHP}`); // Show actual healing amount
   }
+  
   // Calculate percentage for XP bar
   const xpPercent = (xp / xpNeeded) * 100;
-  xpProgress.style.width = `${xpPercent}%`;
+  if (xpProgress) xpProgress.style.width = `${xpPercent}%`;
   localStorage.setItem("xp", xp);
+  
+  // Also update the centralized system for compatibility
+  const stats = gameStats.loadStats();
+  stats.xp = xp;
+  stats.level = level;
+  stats.currentHP = health;
+  // Don't override maxHP here - let it be calculated properly with equipment bonuses
+  gameStats.saveStats(stats);
 }
 
 // Update Health
 function updateHealth(amount) {
-  health += amount;
-  if (health > 100) health = 100;
-  if (health <= 0) {
+  const stats = gameStats.loadStats();
+  const totalStats = gameStats.getTotalStats(); // Get stats with equipment bonuses
+  const newHealth = stats.currentHP + amount;
+  
+  // Use the actual total maxHP including bonuses instead of base maxHP
+  stats.currentHP = Math.max(0, Math.min(newHealth, totalStats.maxHP));
+  
+  if (stats.currentHP <= 0) {
     handleDeath();
     return;
   }
-  healthProgress.style.width = `${health}%`;
-  localStorage.setItem("health", health);
+  
+  gameStats.saveStats(stats);
   showHPMessage(amount);
-  saveStats();
-  updateHUD();
+  gameStats.updateHUD();
 }
 
 function handleDeath() {
   // Calculate penalties
+  let level = parseInt(localStorage.getItem("level")) || 1;
+  let zenCoins = parseInt(localStorage.getItem("zenCoins")) || 0;
+  
   level = Math.max(1, level - 1); // Prevent level from going below 1
   const coinPenalty = Math.floor(zenCoins * 0.1); // 10% coin loss
   zenCoins = Math.max(0, zenCoins - coinPenalty);
-  health = 100; // Reset health to max
+
+  // Restore to full HP (use actual maxHP including bonuses)
+  const totalStats = gameStats.getTotalStats();
+  const health = totalStats.maxHP;
 
   // Update displays
-  levelDisplay.textContent = level;
-  healthProgress.style.width = '100%';
+  if (levelDisplay) levelDisplay.textContent = level;
+  if (healthProgress) {
+    const healthPercent = (health / totalStats.maxHP) * 100;
+    healthProgress.style.width = `${healthPercent}%`;
+  }
+  
+  // Save to localStorage
+  localStorage.setItem("level", level);
+  localStorage.setItem("zenCoins", zenCoins);
+  localStorage.setItem("health", health);
 
   // Create death notification using Notyf
   const iconImg = '<img src="images/icons/death.png" style="height: 40px; width: 40px; vertical-align: middle;">';
@@ -83,20 +135,19 @@ function handleDeath() {
 
   // Save updated stats
   saveStats();
-  updateHUD();
+  gameStats.updateHUD();
 }
 
 function maybeAwardZenCoins() {
   const baseChance = 0.5; // 50% base chance
-  const levelBonus = Math.min(level * 0.01, 0.5); // 1% per level, max 50% bonus
+  const stats = gameStats.loadStats();
+  const levelBonus = Math.min(stats.level * 0.01, 0.5); // 1% per level, max 50% bonus
   const totalChance = baseChance + levelBonus;
   if (Math.random() < totalChance) { // 50% chance
     const baseCoins = Math.floor(Math.random() * 6) + 3; // Base random between 3 and 8
-    const scaledCoins = Math.round(baseCoins * ((Math.log(level + 1)) ** 1.05));
-    zenCoins += scaledCoins;
+    const scaledCoins = Math.round(baseCoins * ((Math.log(stats.level + 1)) ** 1.05));
+    gameStats.awardCoins(scaledCoins);
     showZenCoinMessage(scaledCoins);
-    saveStats();
-
   }
 }
 
@@ -279,6 +330,47 @@ function addQuest(inputField, list, type = null, dueDate = null) {
 
 
   saveQuests();
+}
+
+// Update daily quest progress indicator
+function updateDailyProgress() {
+  const completed = getCompletedDailies();
+  const total = dailyQuestList.children.length;
+  const completedCount = completed.length;
+  const progressPercent = total > 0 ? (completedCount / Math.max(total, 5)) * 100 : 0;
+  
+  const progressFill = document.getElementById('daily-progress-fill');
+  const progressText = document.getElementById('daily-progress-text');
+  
+  if (progressFill) {
+    progressFill.style.width = `${Math.min(progressPercent, 100)}%`;
+  }
+  
+  if (progressText) {
+    progressText.textContent = `${completedCount}/${Math.max(total, 5)} daily quests completed`;
+    if (completedCount >= 5) {
+      progressText.textContent += ' ✨ Bonus achieved!';
+      progressText.style.color = '#4caf50';
+    } else {
+      progressText.style.color = '';
+    }
+  }
+}
+
+// Add quest analytics
+function getQuestStats() {
+  const dailyCompleted = getCompletedDailies().length;
+  const dailyTotal = dailyQuestList.children.length;
+  const habitsCompleted = document.querySelectorAll('#habit-list .quest-item').length;
+  const mainQuests = mainQuestList.children.length;
+  const sideQuests = sideQuestList.children.length;
+  
+  return {
+    daily: { completed: dailyCompleted, total: dailyTotal },
+    habits: { total: habitsCompleted },
+    main: { total: mainQuests },
+    side: { total: sideQuests }
+  };
 }
 
 
@@ -573,6 +665,17 @@ document.addEventListener("click", (e) => {
     const questId = item.dataset.questId;
     const countDisplay = item.querySelector(".completion-counter");
 
+    // Add completion animation
+    gsap.to(e.target, {
+      scale: 1.3,
+      rotation: 360,
+      duration: 0.3,
+      ease: "back.out(1.7)",
+      onComplete: () => {
+        gsap.to(e.target, { scale: 1, rotation: 0, duration: 0.2 });
+      }
+    });
+
     if (item.parentElement === dailyQuestList) {
       // Mark as completed for today
       item.classList.add("completed");
@@ -585,14 +688,15 @@ document.addEventListener("click", (e) => {
         completed.push(questText);
         setCompletedDailies(completed);
       }
+      updateDailyProgress();
       maybeAwardZenCoins();
-      updateXP(15);
+      gameStats.awardXP(15);
 
     }
     else if (item.classList.contains("positive")) {
       const newCount = incrementCompletionCount(questId, 'habit');
       if (countDisplay) countDisplay.textContent = `⇆ ${newCount}`;
-      updateXP(5);
+      gameStats.awardXP(5);
       maybeAwardZenCoins();
 
     }
@@ -613,7 +717,7 @@ document.addEventListener("click", (e) => {
           item.remove();
           saveQuests();
           maybeAwardZenCoins();
-          updateXP(15);
+          gameStats.awardXP(15);
         }
       });
       return;
@@ -780,7 +884,7 @@ function completePomodoro() {
     totalFocusTime += POMODORO_STATES.FOCUS.time * 60;
 
     updatePomodoroStats();
-    updateXP(POMODORO_STATES.FOCUS.xp);
+    gameStats.awardXP(POMODORO_STATES.FOCUS.xp);
     maybeAwardZenCoins();
   }
 
@@ -903,6 +1007,18 @@ const notyf = new Notyf({
       className: 'notyf-zen-coin pixel-corners-small'
     },
     {
+      type: 'critical-xp',
+      background: '#232323',
+      icon: false,
+      className: 'notyf-critical-xp pixel-corners-small'
+    },
+    {
+      type: 'critical-coin',
+      background: '#232323',
+      icon: false,
+      className: 'notyf-critical-coin pixel-corners-small'
+    },
+    {
       type: 'add-quest',
       background: '#232323',
       icon: false,
@@ -966,6 +1082,67 @@ window.addEventListener("DOMContentLoaded", () => {
   renderDailyQuests(getCompletedDailies());
   updatePomodoroDisplay();
   updatePomodoroStats();
-
+  updateDailyProgress();
+  setupRandomSideQuestGenerator();
+  initializeQuestSystem();
 });
+
+// Initialize quest system with enhanced features
+function initializeQuestSystem() {
+  // Auto-save every 30 seconds
+  setInterval(saveQuests, 30000);
+}
+
+// Generate random side quest functionality
+function generateRandomSideQuest() {
+  const sideQuestPrompts = [
+    "Organize one drawer or closet space",
+    "Call or text a friend I haven't spoken to in a while",
+    "Try a new recipe or cooking technique",
+    "Take photos of something beautiful I notice today",
+    "Write in a journal for 10 minutes",
+    "Do a random act of kindness for someone",
+    "Learn one new fact about a topic that interests me",
+    "Clean and organize your digital desktop/photos",
+    "Spend 15 minutes outdoors without my phone",
+    "Practice a skill I want to improve for 20 minutes",
+    "Declutter 5 items I no longer need",
+    "Listen to a new song or album from a different genre",
+    "Do 50 jumping jacks or quick exercise",
+    "Send an appreciation message to someone important",
+    "Research and plan a future trip or activity",
+    "Try a 5-minute breathing or mindfulness exercise",
+    "Rearrange or decorate a small space in my room",
+    "Watch an educational video about something new",
+    "Write down 3 things I'm grateful for today",
+    "Explore a new walking route in my neighborhood",
+    "Practice drawing or sketching for 15 minutes",
+    "Create a playlist for different moods or activities",
+    "Read one article about current events or science",
+    "Do a puzzle, brain teaser, or play a strategy game",
+    "Plan and prep healthy snacks for tomorrow"
+  ];
+  
+  const randomIndex = Math.floor(Math.random() * sideQuestPrompts.length);
+  return sideQuestPrompts[randomIndex];
+}
+
+function setupRandomSideQuestGenerator() {
+  const randomBtn = document.getElementById('random-side-quest-btn');
+  const sideQuestInput = document.getElementById('side-quest-input');
+  
+  if (randomBtn && sideQuestInput) {
+    randomBtn.addEventListener('click', () => {
+      const randomQuest = generateRandomSideQuest();
+      sideQuestInput.value = randomQuest;
+      sideQuestInput.focus();
+      
+      // Add a subtle animation to indicate the quest was generated
+      randomBtn.style.transform = 'scale(0.9)';
+      setTimeout(() => {
+        randomBtn.style.transform = 'scale(1)';
+      }, 150);
+    });
+  }
+}
 

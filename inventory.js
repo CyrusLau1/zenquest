@@ -1,15 +1,16 @@
 function renderInventory(category) {
     const inventoryGrid = document.querySelector('.inventory-grid');
     const inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+    const equipped = JSON.parse(localStorage.getItem('equippedItems')) || {};
     
     // Filter items by category
     const categoryItems = inventory.filter(item => item.category === category);
     
     if (categoryItems.length === 0) {
         inventoryGrid.innerHTML = `
-            <div class="empty-inventory">
-                <p>No ${category} found in inventory</p>
-                <small>Visit the market to purchase items</small>
+            <div class="empty-state">
+                <p>No ${category} found in inventory :(</p>
+                <small>Visit the market to purchase items!</small>
             </div>
         `;
         return;
@@ -18,33 +19,248 @@ function renderInventory(category) {
     // Clear grid before adding new items
     inventoryGrid.innerHTML = '';
 
-    // Add items one by one
+    // Add items using item card layout
     categoryItems.forEach(item => {
-        const itemElement = document.createElement('div');
-        itemElement.className = 'inventory-item pixel-corners';
-        itemElement.dataset.id = item.id;
+        const itemCard = document.createElement('div');
+        itemCard.className = 'item-card';
+        itemCard.dataset.id = item.id;
 
-        itemElement.innerHTML = `
-            <div class="item-icon">
-                <img src="${item.image}"  alt="${item.name}">
+        // Get player level for level capping
+        const stats = gameStats.loadStats();
+        const rawLevel = item.quantity || 1;
+        const level = (category === 'weapons' || category === 'equipment') ? 
+                     Math.min(rawLevel, stats.level) : rawLevel;
+        const isLevelCapped = (category === 'weapons' || category === 'equipment') && rawLevel > stats.level;
+        const isEquipped = equipped[item.category] && equipped[item.category].id === item.id;
+        
+        // Calculate proper sell/downgrade price
+        let sellPrice;
+        let buttonText;
+        if ((category === 'weapons' || category === 'equipment') && level > 1) {
+            // For weapons/equipment above level 1, calculate downgrade refund (half of current level cost)
+            const currentLevelPrice = calculateItemPrice(item, level - 1); // Price to get to current level
+            sellPrice = Math.floor(currentLevelPrice * 0.5);
+            buttonText = 'Downgrade';
+        } else {
+            // Normal sell for level 1 items and potions
+            sellPrice = Math.floor((item.price || 10) / 2);
+            buttonText = 'Sell';
+        }
+
+        // Generate stats display
+        let statsHTML = '';
+        if (category === 'potions') {
+            statsHTML = formatPotionStats(item);
+        } else {
+            statsHTML = generateInventoryStatsHTML(item, level, isEquipped);
+        }
+
+        itemCard.innerHTML = `
+            ${level > 1 ? 
+                (category === 'potions' ? 
+                    `<div class="item-level pixel-corners-small">x${level}</div>` : 
+                    `<div class="item-level pixel-corners-small">LV ${level}</div>`
+                ) : ''
+            }
+            ${isLevelCapped ? 
+                `<div class="level-capped pixel-corners-small">CAPPED AT LV ${stats.level}</div>` : ''
+            }
+            ${isEquipped ? `<div class="equipped-badge pixel-corners-small">EQUIPPED</div>` : ''}
+            <div class="item-image-container">
+                <img src="${item.image || `images/items/${category}/${item.id}.png`}" alt="${item.name}" class="item-image">
             </div>
             <h3 class="item-name">${item.name}</h3>
-            ${item.quantity > 1 ? `<div class="item-quantity pixel-corners-small">x${item.quantity}</div>` : ''}
             <p class="item-description">${item.description || ''}</p>
-            ${item.stats ? `<p class="item-stats">${item.stats}</p>` : ''}
-            <div class="item-buttons">
-                <button class="use-btn pixel-corners-small" onclick="useItem('${item.id}')">
-                    ${getButtonText(item.category)}
+            ${statsHTML}
+            <div class="item-price">
+                <img src="images/icons/coin.png" alt="Sell price">
+                ${sellPrice}
+            </div>
+            <div class="item-actions">
+                <button class="use-btn pixel-corners-small ${isEquipped ? 'equipped' : ''}" data-id="${item.id}">
+                    ${getButtonText(item.category, isEquipped)}
                 </button>
-                <button class="sell-btn pixel-corners-small" onclick="sellItem('${item.id}')">
-                    Sell
+                <button class="sell-btn pixel-corners-small" data-id="${item.id}">
+                    ${buttonText}
                 </button>
             </div>
         `;
         
-        inventoryGrid.appendChild(itemElement);
+        inventoryGrid.appendChild(itemCard);
+
+        // Add event listeners
+        const useBtn = itemCard.querySelector('.use-btn');
+        useBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            useItem(item.id);
+        });
+        
+        const sellBtn = itemCard.querySelector('.sell-btn');
+        sellBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sellItem(item.id);
+        });
+
+        // Add animation with GSAP if available
+        if (typeof gsap !== 'undefined') {
+            gsap.from(itemCard, {
+                y: 20,
+                opacity: 0,
+                duration: 0.5,
+                delay: 0.05 * categoryItems.indexOf(item),
+                ease: "power2.out",
+                clearProps: "all"
+            });
+        }
     });
+
+    // Add hover animations for item cards
+    if (typeof gsap !== 'undefined') {
+        const itemCards = document.querySelectorAll('.item-card');
+        itemCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                gsap.to(card.querySelector('.item-image'), {
+                    scale: 1.1,
+                    duration: 0.3,
+                    ease: "power1.out"
+                });
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                gsap.to(card.querySelector('.item-image'), {
+                    scale: 1,
+                    duration: 0.3,
+                    ease: "power1.out"
+                });
+            });
+        });
+    }
+}
+
+// Generate stats HTML for inventory display
+function generateInventoryStatsHTML(item, level, isEquipped) {
+    let html = '<div class="item-stats inventory-stats">';
     
+    if (item.ownedStats) {
+        html += '<div class="stats-section total-owned-stats">';
+        html += '<h4><img src="images/icons/stats.png" alt="Total Owned Stats" style="width: 18px; height: 18px; vertical-align: middle;"> Total Owned Stats</h4>';
+        html += '<div class="stats-list">';
+        
+        Object.entries(item.ownedStats).forEach(([stat, value]) => {
+            const totalValue = value * level;
+            html += `<div class="stat-item">
+                ${getStatIcon(stat)} ${formatStatName(stat)}: +${totalValue}${getStatUnit(stat)}
+            </div>`;
+        });
+        
+        html += '</div></div>';
+    }
+    
+    if (item.equippedStats && isEquipped) {
+        html += '<div class="stats-section equipped-active-stats">';
+        html += '<h4><img src="images/icons/equipstats.png" alt="Active Equipped Stats" style="width: 18px; height: 18px; vertical-align: middle;"> Active Equipped Stats</h4>';
+        html += '<div class="stats-list">';
+        
+        Object.entries(item.equippedStats).forEach(([stat, value]) => {
+            html += `<div class="stat-item equipped-active">
+                ${getStatIcon(stat)} ${formatStatName(stat)}: +${value}${getStatUnit(stat)}
+            </div>`;
+        });
+        
+        html += '</div></div>';
+    } else if (item.equippedStats) {
+        html += '<div class="stats-section equipped-stats">';
+        html += '<h4><img src="images/icons/equipstats.png" alt="Equipped Stats" style="width: 18px; height: 18px; vertical-align: middle;"> Equipped Stats (when equipped)</h4>';
+        html += '<div class="stats-list">';
+        
+        Object.entries(item.equippedStats).forEach(([stat, value]) => {
+            html += `<div class="stat-item">
+                ${getStatIcon(stat)} ${formatStatName(stat)}: +${value}${getStatUnit(stat)}
+            </div>`;
+        });
+        
+        html += '</div></div>';
+    }
+    
+    html += '</div>';
+    return html;
+}
+
+// Format potion stats display (same as in market.js)
+function formatPotionStats(item) {
+    let html = '<div class="item-stats potion-stats">';
+    html += '<div class="stats-section">';
+    html += '<h4><img src="images/icons/potstats.png" alt="Effect" style="width: 18px; height: 18px; vertical-align: middle;"> Effect</h4>';
+    html += '<div class="stats-list">';
+    
+    switch(item.effect) {
+        case 'heal':
+            html += `<div class="stat-item"><img src="images/icons/hp.png" alt="HP" style="width: 16px; height: 16px; vertical-align: middle;"> Restores ${item.value} HP</div>`;
+            break;
+        case 'xp':
+            html += `<div class="stat-item"><img src="images/icons/xp.png" alt="XP" style="width: 16px; height: 16px; vertical-align: middle;"> Grants ${item.value} XP</div>`;
+            break;
+        case 'maxHP':
+            html += `<div class="stat-item"><img src="images/icons/hp.png" alt="HP" style="width: 16px; height: 16px; vertical-align: middle;"> Increases Max HP by ${item.value}</div>`;
+            break;
+        case 'xpBoost':
+            html += `<div class="stat-item"><img src="images/icons/xp.png" alt="XP" style="width: 16px; height: 16px; vertical-align: middle;"> +${item.value}% XP Gain</div>`;
+            if (item.duration) {
+                html += `<div class="stat-item"><img src="images/icons/pomodoro.png" alt="Duration" style="width: 16px; height: 16px; vertical-align: middle;"> Duration: ${item.duration / 60000} minutes</div>`;
+            }
+            break;
+        case 'coinBoost':
+            html += `<div class="stat-item"><img src="images/icons/coin.png" alt="Coin" style="width: 16px; height: 16px; vertical-align: middle;"> +${item.value}% Coin Gain</div>`;
+            if (item.duration) {
+                html += `<div class="stat-item"><img src="images/icons/pomodoro.png" alt="Duration" style="width: 16px; height: 16px; vertical-align: middle;"> Duration: ${item.duration / 60000} minutes</div>`;
+            }
+            break;
+    }
+    
+    html += '</div></div></div>';
+    return html;
+}
+
+// Helper functions for stat formatting (same as in market.js)
+function getStatIcon(stat) {
+    const icons = {
+        xpGain: '<img src="images/icons/xp.png" alt="XP" style="width: 16px; height: 16px; vertical-align: middle;">',
+        coinGain: '<img src="images/icons/coin.png" alt="Coin" style="width: 16px; height: 16px; vertical-align: middle;">',
+        maxHP: '<img src="images/icons/hp.png" alt="HP" style="width: 16px; height: 16px; vertical-align: middle;">',
+        criticalChance: '<img src="images/icons/critical.png" alt="Critical" style="width: 16px; height: 16px; vertical-align: middle;">'
+    };
+    return icons[stat] || '<img src="images/icons/stats.png" alt="Stat" style="width: 16px; height: 16px; vertical-align: middle;">';
+}
+
+function formatStatName(stat) {
+    const names = {
+        xpGain: 'XP Gain',
+        coinGain: 'Coin Gain',
+        maxHP: 'Max HP',
+        criticalChance: 'Critical Chance'
+    };
+    return names[stat] || stat;
+}
+
+function getStatUnit(stat) {
+    const units = {
+        xpGain: '%',
+        coinGain: '%',
+        maxHP: '',
+        criticalChance: '%'
+    };
+    return units[stat] || '';
+}
+
+// Calculate item price based on level (same as in market.js)
+function calculateItemPrice(item, currentLevel) {
+    if (item.category === 'potions') {
+        return item.price; // Potions don't increase in price
+    }
+    
+    // For weapons and equipment, price increases by 10% per level
+    const basePrice = item.price;
+    return Math.floor(basePrice * Math.pow(1.1, currentLevel));
 }
 
 async function sellItem(itemId) {
@@ -54,25 +270,45 @@ async function sellItem(itemId) {
     if (itemIndex === -1) return;
     
     const item = inventory[itemIndex];
-    const sellPrice = Math.floor(item.price * 0.5); // Sell for 50% of purchase price
+    const currentLevel = item.quantity || 1;
+    const category = item.category;
+    
+    let sellPrice;
+    let actionText;
+    
+    // Determine if this is a downgrade or a sell
+    if ((category === 'weapons' || category === 'equipment') && currentLevel > 1) {
+        // Downgrade: refund half of what was paid to reach current level
+        const currentLevelPrice = calculateItemPrice(item, currentLevel - 1);
+        sellPrice = Math.floor(currentLevelPrice * 0.5);
+        actionText = 'downgraded';
+    } else {
+        // Sell: traditional sell for 50% of base price
+        sellPrice = Math.floor(item.price * 0.5);
+        actionText = 'sold';
+    }
     
     try {
         // Update zen coins
-        const stats = gameStats.loadStats();
-        stats.zenCoins += sellPrice;
-        gameStats.saveStats(stats);
+        gameStats.awardCoins(sellPrice);
 
-        // Remove item or decrease quantity
-        if (item.quantity > 1) {
-            item.quantity--;
+        // Handle downgrade vs sell
+        if ((category === 'weapons' || category === 'equipment') && currentLevel > 1) {
+            // Downgrade: reduce level by 1
+            item.quantity = currentLevel - 1;
             localStorage.setItem('inventory', JSON.stringify(inventory));
+            notyf.success(`Downgraded ${item.name} to LV ${item.quantity} for ${sellPrice} Zen Coins!`);
         } else {
-            inventory.splice(itemIndex, 1);
-            localStorage.setItem('inventory', JSON.stringify(inventory));
+            // Sell: remove item completely or decrease quantity
+            if (item.quantity > 1) {
+                item.quantity--;
+                localStorage.setItem('inventory', JSON.stringify(inventory));
+            } else {
+                inventory.splice(itemIndex, 1);
+                localStorage.setItem('inventory', JSON.stringify(inventory));
+            }
+            notyf.success(`Sold ${item.name} for ${sellPrice} Zen Coins!`);
         }
-        
-        // Show success message
-        notyf.success(`Sold ${item.name} for ${sellPrice} Zen Coins!`);
         
         // Re-render inventory immediately
         renderInventory(document.querySelector('.inventory-tab.active').dataset.category);
@@ -81,17 +317,21 @@ async function sellItem(itemId) {
         gameStats.updateHUD();
         
     } catch (error) {
-        notyf.error('Error selling item');
-        console.error('Error selling item:', error);
+        notyf.error('Error processing item');
+        console.error('Error processing item:', error);
     }
 }
 
-function getButtonText(category) {
+function getButtonText(category, isEquipped = false) {
     switch(category) {
-        case 'weapons': return 'Equip';
-        case 'potions': return 'Use';
-        case 'equipment': return 'Equip';
-        default: return 'Use';
+        case 'weapons': 
+            return isEquipped ? 'Unequip' : 'Equip';
+        case 'potions': 
+            return 'Use';
+        case 'equipment': 
+            return isEquipped ? 'Unequip' : 'Equip';
+        default: 
+            return 'Use';
     }
 }
 
@@ -105,48 +345,163 @@ function useItem(itemId) {
     
     switch(item.category) {
         case 'potions':
-            usePotion(item);
-            if (item.quantity > 1) {
-                item.quantity--;
-            } else {
-                inventory.splice(itemIndex, 1);
+            const potionUsed = usePotion(item); // Check if potion was actually used
+            if (potionUsed !== false) { // Only consume if potion was used
+                if (item.quantity > 1) {
+                    item.quantity--;
+                } else {
+                    inventory.splice(itemIndex, 1);
+                }
+                localStorage.setItem('inventory', JSON.stringify(inventory));
             }
+            renderInventory(item.category);
             break;
         case 'weapons':
         case 'equipment':
-            equipItem(item);
+            toggleEquipItem(item);
+            renderInventory(item.category);
             break;
     }
+}
+
+function toggleEquipItem(item) {
+    const equipped = JSON.parse(localStorage.getItem('equippedItems')) || {};
     
-    localStorage.setItem('inventory', JSON.stringify(inventory));
-    renderInventory(item.category);
+    // Check if this item is currently equipped
+    const isCurrentlyEquipped = equipped[item.category] && equipped[item.category].id === item.id;
+    
+    if (isCurrentlyEquipped) {
+        // Unequip the item
+        delete equipped[item.category];
+        localStorage.setItem('equippedItems', JSON.stringify(equipped));
+        notyf.success(`Unequipped ${item.name}`);
+    } else {
+        // Unequip current item in same slot if exists
+        if (equipped[item.category]) {
+            const oldItem = equipped[item.category];
+            notyf.success(`Unequipped ${oldItem.name}`);
+        }
+        
+        // Equip the new item
+        equipped[item.category] = item;
+        localStorage.setItem('equippedItems', JSON.stringify(equipped));
+        notyf.success(`Equipped ${item.name}`);
+    }
+    
+    // Update game stats to reflect new equipment bonuses
+    updateEquippedStats();
+}
+
+// Calculate and apply all equipped item bonuses
+function updateEquippedStats() {
+    const equipped = JSON.parse(localStorage.getItem('equippedItems')) || {};
+    const inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+    
+    // Reset equipped bonuses (this would need to be integrated with your game stats system)
+    let totalEquippedBonuses = {
+        xpGain: 0,
+        coinGain: 0,
+        maxHP: 0,
+        criticalChance: 0
+    };
+    
+    // Calculate owned stats bonuses from all items
+    let totalOwnedBonuses = {
+        xpGain: 0,
+        coinGain: 0,
+        maxHP: 0,
+        criticalChance: 0
+    };
+    
+    // Add owned stats from all items in inventory
+    inventory.forEach(item => {
+        if (item.ownedStats) {
+            const level = item.quantity || 1;
+            Object.entries(item.ownedStats).forEach(([stat, value]) => {
+                totalOwnedBonuses[stat] = (totalOwnedBonuses[stat] || 0) + (value * level);
+            });
+        }
+    });
+    
+    // Add equipped stats from equipped items
+    Object.values(equipped).forEach(item => {
+        if (item.equippedStats) {
+            Object.entries(item.equippedStats).forEach(([stat, value]) => {
+                totalEquippedBonuses[stat] = (totalEquippedBonuses[stat] || 0) + value;
+            });
+        }
+    });
+    
+    // Store the bonuses for use by the game system
+    localStorage.setItem('totalOwnedBonuses', JSON.stringify(totalOwnedBonuses));
+    localStorage.setItem('totalEquippedBonuses', JSON.stringify(totalEquippedBonuses));
+    
+    // Update HUD if gameStats is available
+    if (typeof gameStats !== 'undefined') {
+        gameStats.updateHUD();
+    }
 }
 
 function usePotion(item) {
     const stats = gameStats.loadStats();
+    const totalStats = gameStats.getTotalStats(); // Get stats with equipment bonuses
     
-    if (item.effect.health) {
-        const newHealth = Math.min(stats.health + item.effect.health, stats.maxHealth);
-        const healedAmount = newHealth - stats.health;
-        stats.health = newHealth;
-        gameStats.saveStats(stats);
-        notyf.success(`Restored ${healedAmount} HP!`);
-        removeFromInventory(item.id);
+    // Handle different potion effects
+    switch(item.effect) {
+        case 'heal':
+            const newHealth = Math.min(stats.currentHP + item.value, totalStats.maxHP);
+            const healedAmount = newHealth - stats.currentHP;
+            
+            if (healedAmount > 0) {
+                stats.currentHP = newHealth;
+                gameStats.saveStats(stats);
+                notyf.success(`Restored ${healedAmount} HP!`);
+            } else {
+                notyf.error(`Already at full health!`);
+                return false; // Return false to indicate potion was not consumed
+            }
+            break;
+        case 'xp':
+            // Use the proper award system that handles bonuses and critical hits
+            gameStats.awardXP(item.value);
+            notyf.success(`Gained ${item.value} XP!`);
+            break;
+        case 'maxHP':
+            stats.maxHP += item.value;
+            stats.currentHP += item.value; // Also heal for the amount gained
+            gameStats.saveStats(stats);
+            notyf.success(`Max HP increased by ${item.value}!`);
+            break;
+        case 'xpBoost':
+        case 'coinBoost':
+            applyTempBoost(item.effect, item.value, item.duration);
+            break;
     }
+    
+    // Always update HUD after using any potion
+    gameStats.updateHUD();
+    return true; // Return true to indicate potion was consumed
 }
 
-function equipItem(item) {
-    const equipped = JSON.parse(localStorage.getItem('equippedItems')) || {};
+// Apply temporary boosts (same as in market.js)
+function applyTempBoost(type, value, duration) {
+    const boosts = JSON.parse(localStorage.getItem('activeBoosts') || '{}');
+    const endTime = Date.now() + duration;
     
-    // Unequip current item in same slot if exists
-    if (equipped[item.category]) {
-        const oldItem = equipped[item.category];
-        notyf.success(`Unequipped ${oldItem.name}`);
-    }
+    boosts[type] = {
+        value: value,
+        endTime: endTime
+    };
     
-    equipped[item.category] = item;
-    localStorage.setItem('equippedItems', JSON.stringify(equipped));
-    notyf.success(`Equipped ${item.name}`);
+    localStorage.setItem('activeBoosts', JSON.stringify(boosts));
+    
+    const minutes = duration / 60000;
+    notyf.success(`${type === 'xpBoost' ? 'XP' : 'Coin'} boost active for ${minutes} minutes!`);
+    
+    // Set timeout to notify when boost expires
+    setTimeout(() => {
+        notyf.error(`${type === 'xpBoost' ? 'XP' : 'Coin'} boost expired!`);
+    }, duration);
 }
 
 function removeFromInventory(itemId) {
@@ -190,6 +545,9 @@ const notyf = new Notyf({
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize inventory display
     renderInventory('weapons'); // Show weapons by default
+    
+    // Update equipped stats on page load
+    updateEquippedStats();
     
     gameStats.updateHUD();
 
