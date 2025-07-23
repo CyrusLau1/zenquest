@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZenQuest RPG - User Profile</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="utilities.js"></script>
+    <script defer src="user.js"></script>
+    <script defer src="app.js"></script>
+    
+    <!-- Notyf -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+</head>
+<body class="user-page">
+    <div class="border-shadow"></div>
+
+    <nav class="top-navbar">
+        <div class="header-icon">
+            <a href="#">
+                <img src="images/icons/logo_zenquest_desktop.png" alt="ZenQuest Logo">
+            </a>
+        </div>
+        <div class="top-nav-buttons">
+            <button class="nav-btn nav-leftmost pixel-corners-small" data-page="focus">
+                <span class="nav-icon"><img class="nav-icon" src="images/icons/focus.png"></span>
+                <span class="nav-label">Focus!</span>
+            </button>
+            <button class="nav-btn nav-left pixel-corners-small" data-page="market">
+                <span class="nav-icon"><img class="nav-icon" src="images/icons/shop.png"></span>
+                <span class="nav-label">Market</span>
+            </button>
+            <button class="nav-btn nav-center pixel-corners-small" data-page="index">
+                <span><img class="nav-icon" src="images/icons/quest.png"></span>
+                <span class="nav-label">Quests</span>
+            </button>
+            <button class="nav-btn nav-right pixel-corners-small" data-page="inventory">
+                <span class="nav-icon"><img class="nav-icon" src="images/icons/items.png"></span>
+                <span class="nav-label">Items</span>
+            </button>
+            <button class="nav-btn nav-rightmost pixel-corners-small active" data-page="user">
+                <span class="nav-icon"><img class="nav-icon" src="images/icons/user.png"></span>
+                <span class="nav-label">User</span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="game-container">
+
+        <div id="hud" class="main-header hidden" style="display: none !important;">
+            <header class="game-header">
+                <a href="#">
+                    <img src="images/icons/logo_zenquest.png" alt="ZenQuest Logo">
+                </a>
+                <p class="header-tagline">YOUR PRODUCTIVITY PROFILE!</p>
+            </header>
+
+            <!-- RPG HUD -->
+            <div class="hud pixel-corners-small">
+                <div class="hud-item">
+                    <p><img class="hud-icon" src="images/icons/hp.png"> Health: <span class="health-text">[100/100]</span></p>
+                    <div class="health-bar pixel-corners-small">
+                        <div id="health-progress" style="width: 100%;" class="pixel-corners-small"></div>
+                    </div>
+                </div>
+                <div class="hud-item">
+                    <p><img class="hud-icon" src="images/icons/xp.png"> XP: <span class="xp-text">[0/100]</span></p>
+                    <div class="xp-bar pixel-corners-small">
+                        <div id="xp-progress" style="width: 0%;" class="pixel-corners-small"></div>
+                    </div>
+                    <div class="level-badge pixel-corners-small">
+                        <span class="level-label">Level</span>
+                        <span id="level" class="level-number pixel-corners-small">1</span>
+                    </div>
+                </div>
+                <div class="hud-item hud-item-right">
+                    <span class="zen-coins-bar pixel-corners-small">
+                        <img class="hud-icon" src="images/icons/coin.png"> <span id="zen-coins-count">0</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Stats Section -->
+        <section id="user-stats" class="game-section pixel-corners">
+            <h2><img class="icon" src="images/icons/stats.png">Character Statistics</h2>
+            
+            <div class="stats-grid">
+                <!-- Base Stats -->
+                <div class="stat-category pixel-corners-small">
+                    <h3><img class="icon-small" src="images/icons/user.png">Base Stats</h3>
+                    <div class="stat-list">
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/xp.png" class="stat-icon">Level:</span>
+                            <span class="stat-value" id="user-level">1</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/hp.png" class="stat-icon">Base Max HP:</span>
+                            <span class="stat-value" id="base-max-hp">100</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/hp.png" class="stat-icon">Current HP:</span>
+                            <span class="stat-value" id="current-hp">100</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/coin.png" class="stat-icon">Zen Coins:</span>
+                            <span class="stat-value" id="user-zen-coins">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item Bonuses -->
+                <div class="stat-category pixel-corners-small">
+                    <h3><img class="icon-small" src="images/icons/equipstats.png">Equipment Bonuses</h3>
+                    <div class="stat-list">
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/xp.png" class="stat-icon">XP Gain:</span>
+                            <span class="stat-value" id="equipment-xp-gain">+0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/coin.png" class="stat-icon">Coin Gain:</span>
+                            <span class="stat-value" id="equipment-coin-gain">+0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/hp.png" class="stat-icon">Max HP Bonus:</span>
+                            <span class="stat-value" id="equipment-max-hp">+0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/critical.png" class="stat-icon">Critical Chance:</span>
+                            <span class="stat-value" id="equipment-critical">+0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Level Bonuses -->
+                <div class="stat-category pixel-corners-small">
+                    <h3><img class="icon-small" src="images/icons/levelup.png">Level Bonuses</h3>
+                    <div class="stat-list">
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/coin.png" class="stat-icon">Coin Gain (Level):</span>
+                            <span class="stat-value" id="level-coin-gain">+0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/coin.png" class="stat-icon">Coin Chance (Level):</span>
+                            <span class="stat-value" id="level-coin-chance">50%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Stats -->
+                <div class="stat-category pixel-corners-small total-stats">
+                    <h3><img class="icon-small" src="images/icons/potstats.png">Total Stats</h3>
+                    <div class="stat-list">
+                        <div class="stat-item highlight">
+                            <span class="stat-label"><img src="images/icons/hp.png" class="stat-icon">Total Max HP:</span>
+                            <span class="stat-value" id="total-max-hp">100</span>
+                        </div>
+                        <div class="stat-item highlight">
+                            <span class="stat-label"><img src="images/icons/xp.png" class="stat-icon">Total XP Gain:</span>
+                            <span class="stat-value" id="total-xp-gain">+0%</span>
+                        </div>
+                        <div class="stat-item highlight">
+                            <span class="stat-label"><img src="images/icons/coin.png" class="stat-icon">Total Coin Gain:</span>
+                            <span class="stat-value" id="total-coin-gain">+0% (Equipment: +0% + Level: +0%)</span>
+                        </div>
+                        <div class="stat-item highlight">
+                            <span class="stat-label"><img src="images/icons/critical.png" class="stat-icon">Total Critical Chance:</span>
+                            <span class="stat-value" id="total-critical">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quest Statistics Section -->
+        <section id="quest-stats" class="game-section pixel-corners">
+            <h2><img class="icon" src="images/icons/quest.png">Quest Statistics</h2>
+            
+            <div class="stats-grid">
+                <!-- Daily Quest Stats -->
+                <div class="stat-category pixel-corners-small">
+                    <h3><img class="icon-small" src="images/icons/main.png">Daily Quests</h3>
+                    <div class="stat-list">
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/quest.png" class="stat-icon">Today Completed :</span>
+                            <span class="stat-value" id="daily-completed-today">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/quest.png" class="stat-icon">Total Daily Quests:</span>
+                            <span class="stat-value" id="daily-total">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/xp.png" class="stat-icon">Total Daily Completions:</span>
+                            <span class="stat-value" id="daily-all-time">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/levelup.png" class="stat-icon">Daily Completion Rate:</span>
+                            <span class="stat-value" id="daily-completion-rate">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Habit Stats -->
+                <div class="stat-category pixel-corners-small">
+                    <h3><img class="icon-small" src="images/icons/habits.png">Habits</h3>
+                    <div class="stat-list">
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/habits.png" class="stat-icon">Total Habits:</span>
+                            <span class="stat-value" id="habits-total">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/habits.png" class="stat-icon">Positive Habits:</span>
+                            <span class="stat-value" id="habits-positive">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/death.png" class="stat-icon">Negative Habits:</span>
+                            <span class="stat-value" id="habits-negative">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/xp.png" class="stat-icon">Total Habit Completions:</span>
+                            <span class="stat-value" id="habits-all-time">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Quest Stats -->
+                <div class="stat-category pixel-corners-small">
+                    <h3><img class="icon-small" src="images/icons/main.png">Main Quests</h3>
+                    <div class="stat-list">
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/main.png" class="stat-icon">Active Main Quests:</span>
+                            <span class="stat-value" id="main-active">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/levelup.png" class="stat-icon">Completed Main Quests:</span>
+                            <span class="stat-value" id="main-completed">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/quest.png" class="stat-icon">Main Quest XP Earned:</span>
+                            <span class="stat-value" id="main-xp-earned">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side Quest Stats -->
+                <div class="stat-category pixel-corners-small">
+                    <h3><img class="icon-small" src="images/icons/side.png">Side Quests</h3>
+                    <div class="stat-list">
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/side.png" class="stat-icon">Active Side Quests:</span>
+                            <span class="stat-value" id="side-active">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/levelup.png" class="stat-icon">Completed Side Quests:</span>
+                            <span class="stat-value" id="side-completed">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label"><img src="images/icons/quest.png" class="stat-icon">Side Quest XP Earned:</span>
+                            <span class="stat-value" id="side-xp-earned">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overall Quest Stats -->
+                <div class="stat-category pixel-corners-small total-stats">
+                    <h3><img class="icon-small" src="images/icons/potstats.png">Overall Quest Stats</h3>
+                    <div class="stat-list">
+                        <div class="stat-item highlight">
+                            <span class="stat-label"><img src="images/icons/quest.png" class="stat-icon">Total Quests Completed:</span>
+                            <span class="stat-value" id="total-quests-completed">0</span>
+                        </div>
+                        <div class="stat-item highlight">
+                            <span class="stat-label"><img src="images/icons/xp.png" class="stat-icon">Total Quest XP Earned:</span>
+                            <span class="stat-value" id="total-quest-xp">0</span>
+                        </div>
+                        <div class="stat-item highlight">
+                            <span class="stat-label"><img src="images/icons/pomodoro.png" class="stat-icon">Pomodoro Sessions:</span>
+                            <span class="stat-value" id="pomodoro-completed">0</span>
+                        </div>
+                        <div class="stat-item highlight">
+                            <span class="stat-label"><img src="images/icons/focus.png" class="stat-icon">Focus XP Earned:</span>
+                            <span class="stat-value" id="focus-xp-earned">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Instructions Section -->
+        <section id="instructions" class="game-section pixel-corners">
+            <h2><img class="icon" src="images/icons/quest.png">ZenQuest Guide</h2>
+            
+            <div class="instructions-grid">
+                <!-- Quest System -->
+                <div class="instruction-category pixel-corners-small">
+                    <h3><img class="icon-small" src="images/icons/quest.png">Quest System</h3>
+                    <div class="instruction-content">
+                        <h4><img class="icon-tiny" src="images/icons/main.png">Daily Quests</h4>
+                        <p>Complete daily tasks to earn XP and maintain your productivity streak. Complete 5+ daily quests to earn bonus rewards and avoid HP penalties.</p>
+                        
+                        <h4><img class="icon-tiny" src="images/icons/habits.png">Habits</h4>
+                        <p><strong>Positive Habits:</strong> Earn 5 XP and potential Zen Coins when completed.</p>
+                        <p><strong>Negative Habits:</strong> Lose 15 HP when marked (use for bad habits you want to avoid).</p>
+                        
+                        <h4><img class="icon-tiny" src="images/icons/main.png">Main & Side Quests</h4>
+                        <p>Long-term objectives that give 15 XP and potential Zen Coins when completed. Set due dates to stay organized.</p>
+                    </div>
+                </div>
+
+                <!-- Pomodoro Timer -->
+                <div class="instruction-category pixel-corners-small">
+                    <h3><img class="icon-small" src="images/icons/pomodoro.png">Focus System</h3>
+                    <div class="instruction-content">
+                        <h4>Pomodoro Timer</h4>
+                        <p><strong>Focus Sessions (25 min):</strong> Earn 50 XP and potential Zen Coins when completed.</p>
+                        <p><strong>Short Break (5 min):</strong> Rest period between focus sessions.</p>
+                        <p><strong>Long Break (15 min):</strong> Extended rest after multiple focus sessions.</p>
+                        <p>Track your total focus time and session count to monitor productivity.</p>
+                    </div>
+                </div>
+
+                <!-- RPG Mechanics -->
+                <div class="instruction-category pixel-corners-small">
+                    <h3><img class="icon-small" src="images/icons/levelup.png">RPG Mechanics</h3>
+                    <div class="instruction-content">
+                        <h4><img class="icon-tiny" src="images/icons/xp.png">Experience & Leveling</h4>
+                        <p>Gain XP from completing quests and focus sessions. Level up to unlock higher tier equipment and increase Zen Coin rewards.</p>
+                        
+                        <h4><img class="icon-tiny" src="images/icons/hp.png">Health System</h4>
+                        <p>Maintain your health by completing daily quests. Failing to complete 5+ daily quests will result in HP penalties. Death causes level loss and coin penalties.</p>
+                        
+                        <h4><img class="icon-tiny" src="images/icons/critical.png">Critical Hits</h4>
+                        <p>Equipment can provide critical hit chances, doubling XP and Zen Coin rewards from activities (except XP potions).</p>
+                    </div>
+                </div>
+
+                <!-- Market & Items -->
+                <div class="instruction-category pixel-corners-small">
+                    <h3><img class="icon-small" src="images/icons/shop.png">Market & Equipment</h3>
+                    <div class="instruction-content">
+                        <h4><img class="icon-tiny" src="images/icons/items.png">Equipment System</h4>
+                        <p><strong>Owned Stats:</strong> Permanent bonuses that scale with item level.</p>
+                        <p><strong>Equipped Stats:</strong> Active bonuses only when the item is equipped.</p>
+                        <p>Items can be upgraded by purchasing multiple times, but equipment level is capped by your character level.</p>
+                        
+                        <h4><img class="icon-tiny" src="images/icons/potstats.png">Potions</h4>
+                        <p><strong>Health Potions:</strong> Restore HP instantly.</p>
+                        <p><strong>XP Potions:</strong> Grant XP (affected by XP gain bonuses, but no critical hits).</p>
+                        <p><strong>Max HP Potions:</strong> Permanently increase maximum health.</p>
+                        <p><strong>Boost Potions:</strong> Temporary XP or Coin gain increases.</p>
+                    </div>
+                </div>
+
+                <!-- Tips & Strategies -->
+                <div class="instruction-category pixel-corners-small">
+                    <h3><img class="icon-small" src="images/icons/focus.png">Tips & Strategies</h3>
+                    <div class="instruction-content">
+                        <h4>Optimization Tips</h4>
+                        <p>• Focus on completing 5+ daily quests every day for bonus rewards</p>
+                        <p>• Use the Pomodoro timer for deep work sessions</p>
+                        <p>• Invest in equipment that matches your playstyle (XP vs Coin focus)</p>
+                        <p>• Level up equipment gradually as your character level increases</p>
+                        <p>• Set realistic main quest due dates to avoid overwhelming yourself</p>
+                        <p>• Use negative habits sparingly for accountability on bad behaviors</p>
+                        <p>• Save Zen Coins for higher-tier equipment that provides better bonuses</p>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="instruction-category pixel-corners-small">
+                    <h3><img class="icon-small" src="images/icons/logo_zenquest.png">Navigation</h3>
+                    <div class="instruction-content">
+                        <h4>Page Overview</h4>
+                        <p><strong>Focus:</strong> Access the Pomodoro timer for focused work sessions</p>
+                        <p><strong>Market:</strong> Buy equipment, potions, and create custom rewards</p>
+                        <p><strong>Quests:</strong> Manage daily tasks, habits, and long-term objectives</p>
+                        <p><strong>Items:</strong> View inventory, equip items, and use potions</p>
+                        <p><strong>User:</strong> View your stats and read this comprehensive guide</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Boost Indicator -->
+        <div id="boost-indicator" class="boost-indicator pixel-corners-small" style="display: none;">
+          <div class="boost-content" id="boost-content">
+            <!-- Boost items will be added here dynamically -->
+          </div>
+        </div>
+
+        <nav class="game-navbar">
+      <button class="nav-btn nav-leftmost pixel-corners-small" data-page="focus">
+        <span class="nav-icon"><img class="nav-icon" src="images/icons/focus.png"></span>
+        <span class="nav-label">Focus!</span>
+      </button>
+      <button class="nav-btn nav-left pixel-corners-small" data-page="market">
+        <span class="nav-icon"><img class="nav-icon" src="images/icons/shop.png"></span>
+        <span class="nav-label">Market</span>
+      </button>
+      <button class="nav-btn nav-center pixel-corners-small" data-page="index">
+        <span><img class="nav-icon" src="images/icons/quest.png"></span>
+        <span class="nav-label">Quests</span>
+      </button>
+      <button class="nav-btn nav-right pixel-corners-small" data-page="inventory">
+        <span class="nav-icon"><img class="nav-icon" src="images/icons/items.png"></span>
+        <span class="nav-label">Items</span>
+      </button>
+      <button class="nav-btn nav-rightmost pixel-corners-small" data-page="user">
+        <span class="nav-icon"><img class="nav-icon" src="images/icons/user.png"></span>
+        <span class="nav-label">User</span>
+      </button>
+    </nav>
+    </div>
+</body>
+</html>

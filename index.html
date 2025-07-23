@@ -19,7 +19,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/CustomEase.min.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
-  <script src="crt-effects.js"></script>
 
 
 </head>
@@ -105,9 +104,6 @@
       <hr>
       <p class="note">Complete at least 5 daily quests for extra rewards and
         to avoid HP loss! Resets daily.</p>
-      <div class="daily-progress">
-        <div class="daily-progress-fill" id="daily-progress-fill" style="width: 0%"></div>
-      </div>
       <p class="tiny-note" id="daily-progress-text">0/5 daily quests completed</p>
       <p class="tiny-note" id="daily-reset-timer"></p>
       <div class="quest-input">
@@ -203,6 +199,13 @@
         </div>
       </div>
     </section>
+
+    <!-- Boost Indicator -->
+    <div id="boost-indicator" class="boost-indicator pixel-corners-small" style="display: none;">
+      <div class="boost-content" id="boost-content">
+        <!-- Boost items will be added here dynamically -->
+      </div>
+    </div>
 
     <nav class="game-navbar">
       <button class="nav-btn nav-leftmost pixel-corners-small" data-page="focus">

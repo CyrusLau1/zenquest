@@ -148,8 +148,11 @@ function generateInventoryStatsHTML(item, level, isEquipped) {
         
         Object.entries(item.ownedStats).forEach(([stat, value]) => {
             const totalValue = value * level;
+            const displayValue = stat === 'criticalChance' ? 
+                (totalValue % 1 === 0 ? totalValue : totalValue.toFixed(3).replace(/\.?0+$/, '')) : 
+                totalValue;
             html += `<div class="stat-item">
-                ${getStatIcon(stat)} ${formatStatName(stat)}: +${totalValue}${getStatUnit(stat)}
+                ${getStatIcon(stat)} ${formatStatName(stat)}: +${displayValue}${getStatUnit(stat)}
             </div>`;
         });
         
@@ -162,8 +165,11 @@ function generateInventoryStatsHTML(item, level, isEquipped) {
         html += '<div class="stats-list">';
         
         Object.entries(item.equippedStats).forEach(([stat, value]) => {
+            const displayValue = stat === 'criticalChance' ? 
+                (value % 1 === 0 ? value : value.toFixed(3).replace(/\.?0+$/, '')) : 
+                value;
             html += `<div class="stat-item equipped-active">
-                ${getStatIcon(stat)} ${formatStatName(stat)}: +${value}${getStatUnit(stat)}
+                ${getStatIcon(stat)} ${formatStatName(stat)}: +${displayValue}${getStatUnit(stat)}
             </div>`;
         });
         
@@ -174,8 +180,11 @@ function generateInventoryStatsHTML(item, level, isEquipped) {
         html += '<div class="stats-list">';
         
         Object.entries(item.equippedStats).forEach(([stat, value]) => {
+            const displayValue = stat === 'criticalChance' ? 
+                (value % 1 === 0 ? value : value.toFixed(3).replace(/\.?0+$/, '')) : 
+                value;
             html += `<div class="stat-item">
-                ${getStatIcon(stat)} ${formatStatName(stat)}: +${value}${getStatUnit(stat)}
+                ${getStatIcon(stat)} ${formatStatName(stat)}: +${displayValue}${getStatUnit(stat)}
             </div>`;
         });
         
@@ -462,9 +471,27 @@ function usePotion(item) {
             }
             break;
         case 'xp':
-            // Use the proper award system that handles bonuses and critical hits
-            gameStats.awardXP(item.value);
-            notyf.success(`Gained ${item.value} XP!`);
+            // For XP potions, apply bonuses but no critical hits
+            const totalStats = gameStats.getTotalStats();
+            let finalXPAmount = item.value;
+            
+            // Apply XP gain bonus
+            if (totalStats.xpGainBonus > 0) {
+                finalXPAmount = Math.floor(item.value * (1 + totalStats.xpGainBonus / 100));
+            }
+            
+            // Use the regular updateXP function to handle level ups
+            const originalShowXPMessage = typeof showXPMessage !== 'undefined' ? showXPMessage : null;
+            if (originalShowXPMessage) {
+                window.showXPMessage = () => {}; // Temporarily disable to prevent duplicate notification
+            }
+            updateXP(finalXPAmount);
+            // Restore original function
+            if (originalShowXPMessage) {
+                window.showXPMessage = originalShowXPMessage;
+            }
+            
+            notyf.success(`Gained ${finalXPAmount} XP!`);
             break;
         case 'maxHP':
             stats.maxHP += item.value;
@@ -498,9 +525,18 @@ function applyTempBoost(type, value, duration) {
     const minutes = duration / 60000;
     notyf.success(`${type === 'xpBoost' ? 'XP' : 'Coin'} boost active for ${minutes} minutes!`);
     
+    // Update boost indicator immediately
+    if (typeof BoostIndicator !== 'undefined' && BoostIndicator.updateBoostIndicator) {
+        BoostIndicator.updateBoostIndicator();
+    }
+    
     // Set timeout to notify when boost expires
     setTimeout(() => {
         notyf.error(`${type === 'xpBoost' ? 'XP' : 'Coin'} boost expired!`);
+        // Update boost indicator when boost expires
+        if (typeof BoostIndicator !== 'undefined' && BoostIndicator.updateBoostIndicator) {
+            BoostIndicator.updateBoostIndicator();
+        }
     }, duration);
 }
 

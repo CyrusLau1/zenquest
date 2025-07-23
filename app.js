@@ -128,9 +128,11 @@ function handleDeath() {
 
   // Create death notification using Notyf
   const iconImg = '<img src="images/icons/death.png" style="height: 40px; width: 40px; vertical-align: middle;">';
+  const xpIcon = '<img src="images/icons/xp.png" style="height: 20px; width: 20px; vertical-align: middle; margin-right: 4px;">';
+  const coinIcon = '<img src="images/icons/coin.png" style="height: 20px; width: 20px; vertical-align: middle; margin-right: 4px;">';
   notyf.open({
     type: 'death',
-    message: `${iconImg}\nYOU DIED!\nLevel -1\n-${coinPenalty} Zen Coins`,
+    message: `${iconImg}\nYOU DIED!\n${xpIcon}Level -1\n${coinIcon}-${coinPenalty} Zen Coins`,
   });
 
   // Save updated stats
@@ -146,8 +148,8 @@ function maybeAwardZenCoins() {
   if (Math.random() < totalChance) { // 50% chance
     const baseCoins = Math.floor(Math.random() * 6) + 3; // Base random between 3 and 8
     const scaledCoins = Math.round(baseCoins * ((Math.log(stats.level + 1)) ** 1.05));
-    gameStats.awardCoins(scaledCoins);
-    showZenCoinMessage(scaledCoins);
+    const result = gameStats.awardCoins(scaledCoins);
+    // Don't show normal message since awardCoins handles both normal and critical notifications
   }
 }
 
@@ -166,7 +168,7 @@ function saveQuests() {
 
     localStorage.setItem("dailyQuestMaster", JSON.stringify(currentDailies));
   }
-  // Save habits with their IDs and content
+  // Save habits with IDs and content
   if (habitList) {
     // Save full HTML content of habits
     localStorage.setItem("habitQuests", habitList.innerHTML);
@@ -188,11 +190,11 @@ function saveQuests() {
 // Load quests from localStorage
 function loadQuests() {
 
-  // Load habits with their completion counts
+  // Load habits with completion counts
   if (localStorage.getItem("habitData")) {
     const habitData = JSON.parse(localStorage.getItem("habitData"));
 
-    // Reconstruct habits HTML
+    // Reconstruct habits
     habitList.innerHTML = habitData.map(habit => {
       const count = getCompletionCount(null, 'habit', habit.questId);
       return `
@@ -206,7 +208,7 @@ function loadQuests() {
     }).join('');
   }
 
-  // Load main and side quests normally
+  // Load main and side quests 
   if (localStorage.getItem("mainQuests")) {
     mainQuestList.innerHTML = localStorage.getItem("mainQuests");
   }
@@ -371,6 +373,50 @@ function getQuestStats() {
     main: { total: mainQuests },
     side: { total: sideQuests }
   };
+}
+
+// Quest statistics tracking functions
+function initializeQuestStatistics() {
+  if (!localStorage.getItem('questStatistics')) {
+    const initialStats = {
+      mainCompleted: 0,
+      sideCompleted: 0,
+      mainXPEarned: 0,
+      sideXPEarned: 0,
+      pomodoroCompleted: 0,
+      focusXPEarned: 0
+    };
+    localStorage.setItem('questStatistics', JSON.stringify(initialStats));
+  }
+}
+
+// Function to increment quest completion statistics
+function incrementQuestStatistic(type, xpEarned = 0) {
+  const stats = JSON.parse(localStorage.getItem('questStatistics')) || {
+    mainCompleted: 0,
+    sideCompleted: 0,
+    mainXPEarned: 0,
+    sideXPEarned: 0,
+    pomodoroCompleted: 0,
+    focusXPEarned: 0
+  };
+  
+  switch(type) {
+    case 'main':
+      stats.mainCompleted++;
+      stats.mainXPEarned += xpEarned;
+      break;
+    case 'side':
+      stats.sideCompleted++;
+      stats.sideXPEarned += xpEarned;
+      break;
+    case 'pomodoro':
+      stats.pomodoroCompleted++;
+      stats.focusXPEarned += xpEarned;
+      break;
+  }
+  
+  localStorage.setItem('questStatistics', JSON.stringify(stats));
 }
 
 
@@ -564,9 +610,47 @@ function setCompletedDailies(completed) {
 }
 
 function resetDailyQuests() {
+  // Check for daily completion rewards/penalties before resetting
+  checkDailyCompletionRewards();
+  
   setCompletedDailies([]); // Clear completed for today
   renderDailyQuests([]);
   localStorage.setItem("lastReset", new Date().toDateString());
+}
+
+// Check daily completion and apply penalties only (rewards are handled in real-time)
+function checkDailyCompletionRewards() {
+  // Only check if it's not the first day (to avoid penalty on first load)
+  const lastReset = localStorage.getItem("lastReset");
+  if (!lastReset) return;
+  
+  // Get yesterday's completion status (the day that just ended)
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayKey = yesterday.toDateString();
+  
+  const completed = JSON.parse(localStorage.getItem("completedDailies_" + yesterdayKey)) || [];
+  const completedCount = completed.length;
+  const requiredCount = 5;
+  
+  // Only apply penalty if requirements not met for yesterday
+  if (completedCount < requiredCount) {
+    // Penalty: HP drops by 25 + 5% of max HP
+    const totalStats = gameStats.getTotalStats();
+    const penalty = 25 + Math.floor(totalStats.maxHP * 0.05);
+    
+    updateHealth(-penalty);
+    
+    const iconHP = '<img src="images/icons/hp.png" style="height: 20px; width: 20px; vertical-align: middle; margin-right: 4px;">';
+    
+    notyf.open({
+      type: 'death',
+      message: `⚠️ DAILY GOALS INCOMPLETE!\n${iconHP}-${penalty} HP\nComplete ${requiredCount}+ daily quests to avoid this penalty!`,
+      duration: 100000,
+      dismissible: true
+    });
+  }
+  // No else clause needed - rewards are now handled in real-time when 5th quest is completed
 }
 
 
@@ -683,15 +767,23 @@ document.addEventListener("click", (e) => {
       const completed = getCompletedDailies();
       const newCount = incrementCompletionCount(questId, 'daily');
       if (countDisplay) countDisplay.textContent = `⇆ ${newCount}`;
+      
+      // Check if this was a new completion (not already in the list)
+      let wasNewCompletion = false;
       if (!completed.includes(questText)) {
-
         completed.push(questText);
         setCompletedDailies(completed);
+        wasNewCompletion = true;
       }
+      
+      // Check if this completion triggers the 5-quest bonus
+      if (wasNewCompletion && completed.length === 5) {
+        showDailyQuestBonusMessage();
+      }
+      
       updateDailyProgress();
       maybeAwardZenCoins();
       gameStats.awardXP(15);
-
     }
     else if (item.classList.contains("positive")) {
       const newCount = incrementCompletionCount(questId, 'habit');
@@ -706,7 +798,17 @@ document.addEventListener("click", (e) => {
       updateHealth(-15);
     }
     else {
-      // For main and side quests
+      // For main and side quests - track completion before removal
+      const isMainQuest = item.parentElement.id === 'main-quest-list';
+      const isSideQuest = item.parentElement.id === 'side-quest-list';
+      
+      // Track quest completion immediately
+      if (isMainQuest) {
+        incrementQuestStatistic('main', 15);
+      } else if (isSideQuest) {
+        incrementQuestStatistic('side', 15);
+      }
+      
       gsap.to(item, {
         scale: 0.65,
         filter: "brightness(0.2)",
@@ -808,11 +910,6 @@ document.querySelectorAll('.pomodoro-type').forEach(btn => {
       circle.style.animation = 'timer-reset 0.7s';
       setTimeout(() => circle.style.animation = '', 500);
 
-      // Update GIF to match new mode
-      const gif = document.querySelector('.pomodoro-gif');
-      gif.src = currentState === 'FOCUS' ? 'images/animations/work.gif' : 'images/animations/sleep.gif';
-      gif.style.display = 'none';
-
       // Update timer display
       updatePomodoroDisplay();
     }
@@ -829,18 +926,12 @@ function startPomodoro() {
     const circle = document.querySelector('.pomodoro-circle');
     circle.style.animation = 'timer-pulse 4s infinite';
 
-    // Start GIF animation
-    const currentMode = document.querySelector('.pomodoro-type.active').dataset.type;
-    const gif = document.querySelector('.pomodoro-gif');
-    gif.src = currentMode === 'FOCUS' ? 'images/animations/work.gif' : 'images/animations/sleep.gif';
-    gif.style.display = 'block';
-
     document.getElementById('pomodoro-start').textContent = '...';
 
     // FOCUS message
     const message = document.getElementById('pomodoro-message');
 
-    if (currentMode === 'FOCUS') {
+    if (currentState === 'FOCUS') {
       message.textContent = 'FOCUS SPELL CASTED!';
       message.style.color = '#19A8E6';
     } else {
@@ -871,10 +962,6 @@ function completePomodoro() {
   circle.style.animation = 'timer-complete 1s';
   setTimeout(() => circle.style.animation = '', 1000);
 
-  // Hide GIF when completed
-  const gif = document.querySelector('.pomodoro-gif');
-  gif.style.display = 'none';
-
   const message = document.getElementById('pomodoro-message');
   message.textContent = 'SPELL ENDED!';
   message.style.color = '#4CAF50';
@@ -886,6 +973,9 @@ function completePomodoro() {
     updatePomodoroStats();
     gameStats.awardXP(POMODORO_STATES.FOCUS.xp);
     maybeAwardZenCoins();
+    
+    // Track Pomodoro completion statistics immediately
+    incrementQuestStatistic('pomodoro', POMODORO_STATES.FOCUS.xp);
   }
 
 
@@ -902,10 +992,6 @@ function pausePomodoro() {
     const circle = document.querySelector('.pomodoro-circle');
     circle.style.animation = 'timer-pause 0.7s';
     setTimeout(() => circle.style.animation = '', 300);
-
-    // Hide GIF when paused
-    const gif = document.querySelector('.pomodoro-gif');
-    gif.style.display = 'none';
 
     document.getElementById('pomodoro-start').textContent = 'Resume';
 
@@ -939,10 +1025,6 @@ function resetPomodoro() {
   circle.style.animation = 'timer-reset 0.7s';
   setTimeout(() => circle.style.animation = '', 500);
 
-  // Hide GIF on reset
-  const gif = document.querySelector('.pomodoro-gif');
-  gif.style.display = 'none';
-
   document.getElementById('pomodoro-start').textContent = 'Start';
 
   document.getElementById('pomodoro-message').textContent = '';
@@ -974,7 +1056,26 @@ function showLevelUpMessage(level) {
   const iconImg = '<img src="images/icons/levelup.png" style="height: 40px; width: 40px; vertical-align: middle;">';
   notyf.open({
     type: 'levelup',
-    message: `${iconImg}\nLevel Up!\nYou are now level ${level}!\nZen Coin gain increased.`
+    message: `${iconImg}\nLevel Up!\nYou are now level ${level}!\nZen Coin gain & chance increased.`
+  });
+}
+
+// Show daily quest bonus message
+function showDailyQuestBonusMessage() {
+  // Award the bonus rewards
+  const baseXpReward = 50;
+  const baseCoinReward = 100;
+  
+  const xpResult = gameStats.awardXP(baseXpReward);
+  const coinResult = gameStats.awardCoins(baseCoinReward);
+  
+  const iconImg = '<img src="images/icons/quest.png" style="height: 40px; width: 40px; vertical-align: middle;">';
+  const xpIcon = '<img src="images/icons/xp.png" style="height: 20px; width: 20px; vertical-align: middle; margin-right: 4px;">';
+  const coinIcon = '<img src="images/icons/coin.png" style="height: 20px; width: 20px; vertical-align: middle; margin-right: 4px;">';
+  
+  notyf.open({
+    type: 'levelup',
+    message: `${iconImg}\n🌟 DAILY QUEST BONUS! 🌟\n${xpIcon}+${xpResult.amount} XP\n${coinIcon}+${coinResult.amount} Zen Coins\nExcellent work today!`
   });
 }
 
@@ -1077,6 +1178,7 @@ function showZenCoinMessage(amount) {
 // On page load
 window.addEventListener("DOMContentLoaded", () => {
   setBackgroundByTime();
+  initializeQuestStatistics(); // Initialize quest stats tracking
   loadQuests();
   checkDailyReset();
   renderDailyQuests(getCompletedDailies());
@@ -1089,6 +1191,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // Initialize quest system with enhanced features
 function initializeQuestSystem() {
+  // Initialize quest statistics tracking
+  initializeQuestStatistics();
+  
   // Auto-save every 30 seconds
   setInterval(saveQuests, 30000);
 }

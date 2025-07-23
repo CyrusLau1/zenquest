@@ -30,12 +30,35 @@ const gameStats = {
         const equippedBonuses = JSON.parse(localStorage.getItem('totalEquippedBonuses') || '{}');
         const activeBoosts = this.getActiveBoosts();
         
+        // Calculate base bonuses (without potions)
+        const baseXpGainBonus = (ownedBonuses.xpGain || 0) + (equippedBonuses.xpGain || 0);
+        const baseCoinGainBonus = (ownedBonuses.coinGain || 0) + (equippedBonuses.coinGain || 0);
+        
+        // Apply potion multipliers on top of base bonuses
+        let finalXpGainBonus = baseXpGainBonus;
+        let finalCoinGainBonus = baseCoinGainBonus;
+        
+        if (activeBoosts.xpBoost) {
+            // Convert 25% boost to 1.25x multiplier, apply to total bonus
+            const multiplier = 1 + (activeBoosts.xpBoost / 100);
+            finalXpGainBonus = Math.floor((100 + baseXpGainBonus) * multiplier) - 100;
+        }
+        
+        if (activeBoosts.coinBoost) {
+            // Convert 30% boost to 1.30x multiplier, apply to total bonus
+            const multiplier = 1 + (activeBoosts.coinBoost / 100);
+            finalCoinGainBonus = Math.floor((100 + baseCoinGainBonus) * multiplier) - 100;
+        }
+        
         return {
             ...baseStats,
             maxHP: baseStats.maxHP + (ownedBonuses.maxHP || 0) + (equippedBonuses.maxHP || 0),
-            xpGainBonus: (ownedBonuses.xpGain || 0) + (equippedBonuses.xpGain || 0) + (activeBoosts.xpBoost || 0),
-            coinGainBonus: (ownedBonuses.coinGain || 0) + (equippedBonuses.coinGain || 0) + (activeBoosts.coinBoost || 0),
-            criticalChance: (ownedBonuses.criticalChance || 0) + (equippedBonuses.criticalChance || 0)
+            xpGainBonus: finalXpGainBonus,
+            coinGainBonus: finalCoinGainBonus,
+            baseXpGainBonus: baseXpGainBonus, // Store base bonus for display
+            baseCoinGainBonus: baseCoinGainBonus, // Store base bonus for display
+            criticalChance: (ownedBonuses.criticalChance || 0) + (equippedBonuses.criticalChance || 0),
+            activeBoosts: activeBoosts // Store active boosts for display
         };
     },
 
@@ -67,6 +90,7 @@ const gameStats = {
     awardXP(baseAmount) {
         const totalStats = this.getTotalStats();
         let finalAmount = baseAmount;
+        let isCritical = false;
         
         // Apply XP gain bonus
         if (totalStats.xpGainBonus > 0) {
@@ -78,18 +102,34 @@ const gameStats = {
             const random = Math.random() * 100;
             if (random < totalStats.criticalChance) {
                 finalAmount *= 2;
+                isCritical = true;
                 if (typeof notyf !== 'undefined') {
+                    const criticalIcon = '<img src="images/icons/critical.png" style="height: 18px; width: 18px; vertical-align: middle; margin-right: 4px;">';
                     notyf.open({
                         type: 'critical-xp',
-                        message: `💥 CRITICAL! +${finalAmount} XP`
+                        message: `${criticalIcon}CRITICAL! +${finalAmount} XP`
                     });
                 }
             }
         }
         
-        // Use the original app.js updateXP function for proper level calculations
+        // If it's not a critical hit, show normal XP message
+        if (!isCritical && typeof showXPMessage === 'function') {
+            showXPMessage(finalAmount);
+        }
+        
+        // Use the original app.js updateXP function for proper level calculations, but skip the message
         if (typeof updateXP === 'function') {
+            // Temporarily replace showXPMessage to prevent duplicate notification
+            const originalShowXPMessage = typeof showXPMessage !== 'undefined' ? showXPMessage : null;
+            if (originalShowXPMessage) {
+                window.showXPMessage = () => {}; // Temporarily disable
+            }
             updateXP(finalAmount);
+            // Restore original function
+            if (originalShowXPMessage) {
+                window.showXPMessage = originalShowXPMessage;
+            }
         } else {
             // Fallback: just add the XP
             const stats = this.loadStats();
@@ -97,13 +137,14 @@ const gameStats = {
             this.saveStats(stats);
         }
         
-        return finalAmount;
+        return { amount: finalAmount, isCritical };
     },
 
     // Award coins with bonuses and critical chance
     awardCoins(baseAmount) {
         const totalStats = this.getTotalStats();
         let finalAmount = baseAmount;
+        let isCritical = false;
         
         // Apply coin gain bonus
         if (totalStats.coinGainBonus > 0) {
@@ -115,13 +156,20 @@ const gameStats = {
             const random = Math.random() * 100;
             if (random < totalStats.criticalChance) {
                 finalAmount *= 2;
+                isCritical = true;
                 if (typeof notyf !== 'undefined') {
+                    const criticalIcon = '<img src="images/icons/critical.png" style="height: 18px; width: 18px; vertical-align: middle; margin-right: 4px;">';
                     notyf.open({
                         type: 'critical-coin',
-                        message: `💥 CRITICAL! +${finalAmount} Zen Coins`
+                        message: `${criticalIcon}CRITICAL! +${finalAmount} Zen Coins`
                     });
                 }
             }
+        }
+        
+        // If it's not a critical hit, show normal coin message
+        if (!isCritical && typeof showZenCoinMessage === 'function') {
+            showZenCoinMessage(finalAmount);
         }
         
         // Update using original localStorage system
@@ -129,7 +177,7 @@ const gameStats = {
         zenCoins += finalAmount;
         localStorage.setItem("zenCoins", zenCoins);
         this.updateHUD();
-        return finalAmount;
+        return { amount: finalAmount, isCritical };
     },
 
     initMiniHUD() {
@@ -237,13 +285,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Handle hash navigation on page load (for focus button from other pages)
+    const hash = window.location.hash;
+    if (hash === '#pomodoro') {
+        setTimeout(() => {
+            const pomodoroSection = document.getElementById('pomodoro');
+            if (pomodoroSection) {
+                pomodoroSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+        }, 100); // Small delay to ensure page is fully loaded
+    }
 });
 
 function navigateToPage(page) {
     // Save any necessary state before navigation
     saveGameState();
     
-    // Navigate to the new page
+    // Special handling for focus button - scroll to pomodoro section if on index page
+    if (page === 'focus') {
+        const currentPage = window.location.pathname;
+        const isOnIndex = currentPage.endsWith('index.html') || currentPage === '/' || currentPage.endsWith('/');
+        
+        if (isOnIndex) {
+            // Scroll to pomodoro section
+            const pomodoroSection = document.getElementById('pomodoro');
+            if (pomodoroSection) {
+                pomodoroSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+                return; // Don't navigate away
+            }
+        } else {
+            // If not on index page, navigate to index and then scroll
+            window.location.href = 'index.html#pomodoro';
+            return;
+        }
+    }
+    
+    // Navigate to the new page for other buttons
     window.location.href = page === 'index' ? 'index.html' : `${page}.html`;
 }
 
@@ -414,6 +497,84 @@ function initProgressiveLoading() {
 })();
 
 
+// Boost Indicator Management
+const BoostIndicator = {
+    updateInterval: null,
+
+    init() {
+        this.updateBoostIndicator();
+        // Update every second
+        this.updateInterval = setInterval(() => {
+            this.updateBoostIndicator();
+        }, 1000);
+    },
+
+    updateBoostIndicator() {
+        const boosts = JSON.parse(localStorage.getItem('activeBoosts') || '{}');
+        const now = Date.now();
+        const indicator = document.getElementById('boost-indicator');
+        const boostContent = document.getElementById('boost-content');
+
+        if (!indicator || !boostContent) return; // Exit if indicator doesn't exist on this page
+
+        // Find all active boosts
+        const activeBoosts = [];
+        Object.entries(boosts).forEach(([type, boost]) => {
+            const timeLeft = boost.endTime - now;
+            if (timeLeft > 0) {
+                activeBoosts.push({ type, ...boost, timeLeft });
+            }
+        });
+
+        if (activeBoosts.length > 0) {
+            // Show the indicator
+            indicator.style.display = 'block';
+            
+            // Clear existing content
+            boostContent.innerHTML = '';
+            
+            // Add each active boost
+            activeBoosts.forEach(boost => {
+                const boostItem = document.createElement('div');
+                boostItem.className = 'boost-item';
+                
+                const icon = document.createElement('img');
+                icon.className = 'boost-icon';
+                
+                if (boost.type === 'xpBoost') {
+                    icon.src = 'images/items/honey.png';
+                    icon.alt = 'XP Boost Active';
+                } else if (boost.type === 'coinBoost') {
+                    icon.src = 'images/items/elixir.png';
+                    icon.alt = 'Coin Boost Active';
+                }
+                
+                const timer = document.createElement('div');
+                timer.className = 'boost-timer';
+                
+                // Format and display the remaining time
+                const minutes = Math.floor(boost.timeLeft / 60000);
+                const seconds = Math.floor((boost.timeLeft % 60000) / 1000);
+                timer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                boostItem.appendChild(icon);
+                boostItem.appendChild(timer);
+                boostContent.appendChild(boostItem);
+            });
+        } else {
+            // Hide the indicator if no active boosts
+            indicator.style.display = 'none';
+        }
+    },
+
+    destroy() {
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = null;
+        }
+    }
+};
+
 // Initialize mini HUD on page load
 document.addEventListener('DOMContentLoaded', () => {
     gameStats.initMiniHUD();
@@ -421,6 +582,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(() => gameStats.updateHUD(), 300);
     initParticleEffects();
     initProgressiveLoading();
+    
+    // Initialize boost indicator
+    BoostIndicator.init();
 });
 
+// Clean up when page unloads
+window.addEventListener('beforeunload', () => {
+    BoostIndicator.destroy();
+});
 

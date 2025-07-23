@@ -5,12 +5,12 @@ const MARKET_ITEMS = {
             name: 'Echoes of Nirvana',
             description: 'The legendary blade that resonates with the ultimate enlightenment. Forged from crystallized meditation energy and cosmic wisdom, this weapon transcends mortal understanding.',
             image: 'images/items/zen_sword.png',
-            price: 50000,
+            price: 99999,
             ownedStats: {
                 xpGain: 3,
                 coinGain: 3,
                 maxHP: 15,
-                criticalChance: 2
+                criticalChance: 0.8
             },
             equippedStats: {
                 xpGain: 15,
@@ -25,16 +25,16 @@ const MARKET_ITEMS = {
             name: 'Dragon Bone Cleaver',
             description: 'A massive cleaver carved from ancient dragon bones. Its weight reminds you that strength comes from facing your inner dragons.',
             image: 'images/items/cleaver.png',
-            price: 2,
+            price: 100,
             ownedStats: {
                 xpGain: 1,
-                maxHP: 8,
-                criticalChance: 1
+                maxHP: 2,
+                criticalChance: 0.05
             },
             equippedStats: {
                 xpGain: 3,
                 maxHP: 20,
-                criticalChance: 5
+                criticalChance: 3
             },
             category: 'weapons'
         },
@@ -43,16 +43,16 @@ const MARKET_ITEMS = {
             name: 'Dagger of the Serene Spirit',
             description: 'A swift blade that moves like flowing water. Perfect for those who prefer precision over power in their spiritual journey.',
             image: 'images/items/dagger.png',
-            price: 100,
+            price: 175,
             ownedStats: {
                 xpGain: 1,
                 coinGain: 1,
-                criticalChance: 2
+                criticalChance: 0.05
             },
             equippedStats: {
                 xpGain: 4,
                 coinGain: 3,
-                criticalChance: 8
+                criticalChance: 5
             },
             category: 'weapons'
         },
@@ -65,7 +65,7 @@ const MARKET_ITEMS = {
             ownedStats: {
                 xpGain: 2,
                 coinGain: 1,
-                criticalChance: 1
+                criticalChance: 0.15
             },
             equippedStats: {
                 xpGain: 6,
@@ -82,8 +82,8 @@ const MARKET_ITEMS = {
             price: 800,
             ownedStats: {
                 xpGain: 1,
-                maxHP: 10,
-                criticalChance: 1
+                maxHP: 4,
+                criticalChance: 0.1
             },
             equippedStats: {
                 xpGain: 4,
@@ -101,7 +101,7 @@ const MARKET_ITEMS = {
             ownedStats: {
                 xpGain: 2,
                 coinGain: 2,
-                maxHP: 5
+                maxHP: 4
             },
             equippedStats: {
                 xpGain: 7,
@@ -118,11 +118,11 @@ const MARKET_ITEMS = {
             price: 600,
             ownedStats: {
                 xpGain: 2,
-                criticalChance: 1
+                criticalChance: 0.1
             },
             equippedStats: {
                 xpGain: 8,
-                criticalChance: 5
+                criticalChance: 10
             },
             category: 'weapons'
         },
@@ -135,12 +135,12 @@ const MARKET_ITEMS = {
             ownedStats: {
                 xpGain: 1,
                 coinGain: 2,
-                criticalChance: 2
+                criticalChance: 0.15
             },
             equippedStats: {
                 xpGain: 5,
                 coinGain: 7,
-                criticalChance: 8
+                criticalChance: 9
             },
             category: 'weapons'
         },
@@ -152,9 +152,9 @@ const MARKET_ITEMS = {
             name: 'Small Health Potion',
             description: 'A gentle healing elixir that restores vitality. Made from mountain spring water and healing herbs.',
             image: 'images/items/s_hp_potion.png',
-            price: 10,
+            price: 50,
             effect: 'heal',
-            value: 25,
+            value: 20,
             category: 'potions'
         },
         {
@@ -162,7 +162,7 @@ const MARKET_ITEMS = {
             name: 'Health Potion',
             description: 'A potent healing potion that rapidly restores health. Brewed by master alchemists using ancient recipes.',
             image: 'images/items/hp_potion.png',
-            price: 50,
+            price: 175,
             effect: 'heal',
             value: 75,
             category: 'potions'
@@ -170,9 +170,9 @@ const MARKET_ITEMS = {
         {
             id: 'potion3',
             name: 'XP Potion',
-            description: 'A mystical brew that accelerates learning and growth. The liquid wisdom of countless masters.',
+            description: 'A mystical brew that accelerates learning and growth. The liquid wisdom of countless masters.  XP gain scales with stats.',
             image: 'images/items/xp_potion.png',
-            price: 75,
+            price: 500,
             effect: 'xp',
             value: 100,
             category: 'potions'
@@ -182,31 +182,31 @@ const MARKET_ITEMS = {
             name: 'Max HP Potion',
             description: 'A transformative elixir that permanently strengthens your life force. Changes you at a cellular level.',
             image: 'images/items/max_hp_potion.png',
-            price: 200,
+            price: 1500,
             effect: 'maxHP',
-            value: 20,
+            value: 5,
             category: 'potions'
         },
         {
             id: 'potion5',
             name: 'Honey of Enlightenment',
-            description: 'Sacred honey that provides sustained focus and energy. Increases XP gain for a limited time.',
+            description: 'Sacred honey that provides sustained focus and energy. Increases XP gain for a limited time. Duration and effects do not stack (max duration is 2 hours).',
             image: 'images/items/honey.png',
-            price: 100,
+            price: 750,
             effect: 'xpBoost',
             value: 25,
-            duration: 1800000, // 30 minutes in milliseconds
+            duration: 7200000, // 2 hours in milliseconds
             category: 'potions'
         },
         {
             id: 'potion6',
             name: 'Elixir of Prosperity',
-            description: 'A shimmering potion that attracts abundance. Increases coin gain for a limited time.',
+            description: 'A shimmering potion that attracts abundance. Increases coin gain for a limited time. Duration and effects do not stack (max duration is 2 hours).',
             image: 'images/items/elixir.png',
-            price: 120,
+            price: 1000,
             effect: 'coinBoost',
             value: 30,
-            duration: 1800000, // 30 minutes
+            duration: 7200000, // 2 hours
             category: 'potions'
         },
         // Add more potions
@@ -219,7 +219,7 @@ const MARKET_ITEMS = {
             image: 'images/items/healing_totem.png',
             price: 200,
             ownedStats: {
-                maxHP: 12,
+                maxHP: 4,
                 xpGain: 1
             },
             equippedStats: {
@@ -235,14 +235,14 @@ const MARKET_ITEMS = {
             image: 'images/items/gold_armor.png',
             price: 5000,
             ownedStats: {
-                maxHP: 20,
+                maxHP: 15,
                 xpGain: 2,
                 coinGain: 2,
-                criticalChance: 1
+                criticalChance: 0.4
             },
             equippedStats: {
-                maxHP: 60,
-                xpGain: 8,
+                maxHP: 100,
+                xpGain: 9,
                 coinGain: 6,
                 criticalChance: 5
             },
@@ -255,8 +255,8 @@ const MARKET_ITEMS = {
             image: 'images/items/shield.png',
             price: 1500,
             ownedStats: {
-                maxHP: 15,
-                criticalChance: 1
+                maxHP: 7,
+                criticalChance: 0.25
             },
             equippedStats: {
                 maxHP: 40,
@@ -273,10 +273,10 @@ const MARKET_ITEMS = {
             ownedStats: {
                 xpGain: 2,
                 coinGain: 1,
-                criticalChance: 2
+                criticalChance: 0.3
             },
             equippedStats: {
-                xpGain: 6,
+                xpGain: 7,
                 coinGain: 4,
                 criticalChance: 7
             },
@@ -291,10 +291,10 @@ const MARKET_ITEMS = {
             ownedStats: {
                 coinGain: 3,
                 xpGain: 1,
-                criticalChance: 2
+                criticalChance: 0.3
             },
             equippedStats: {
-                coinGain: 10,
+                coinGain: 12,
                 xpGain: 4,
                 criticalChance: 8
             },
@@ -359,7 +359,7 @@ function renderMarketItems(category) {
                 ${currentPrice}
             </div>
             <button class="buy-btn pixel-corners-small ${isLevelLocked ? 'disabled' : ''}" data-id="${item.id}" data-category="${category}" ${isLevelLocked ? 'disabled' : ''}>
-                ${isLevelLocked ? `LV ${nextLevel} Required` : 
+                ${isLevelLocked ? ` User LV ${nextLevel} Required` : 
                   (category === 'potions' ? 'Buy' : (currentLevel > 0 ? 'Upgrade' : 'Buy'))}
             </button>
         `;
@@ -435,8 +435,11 @@ function formatItemStats(item, currentLevel) {
         
         Object.entries(item.ownedStats).forEach(([stat, value]) => {
             const totalValue = value * nextLevel;
+            const displayValue = stat === 'criticalChance' ? 
+                (totalValue % 1 === 0 ? totalValue : totalValue.toFixed(3).replace(/\.?0+$/, '')) : 
+                totalValue;
             html += `<div class="stat-item">
-                ${getStatIcon(stat)} ${formatStatName(stat)}: +${totalValue}${getStatUnit(stat)}
+                ${getStatIcon(stat)} ${formatStatName(stat)}: +${displayValue}${getStatUnit(stat)}
             </div>`;
         });
         
@@ -449,8 +452,11 @@ function formatItemStats(item, currentLevel) {
         html += '<div class="stats-list">';
         
         Object.entries(item.equippedStats).forEach(([stat, value]) => {
+            const displayValue = stat === 'criticalChance' ? 
+                (value % 1 === 0 ? value : value.toFixed(3).replace(/\.?0+$/, '')) : 
+                value;
             html += `<div class="stat-item">
-                ${getStatIcon(stat)} ${formatStatName(stat)}: +${value}${getStatUnit(stat)}
+                ${getStatIcon(stat)} ${formatStatName(stat)}: +${displayValue}${getStatUnit(stat)}
             </div>`;
         });
         
@@ -583,9 +589,27 @@ function handlePotionEffect(potion, stats) {
             stats.currentHP = Math.min(stats.currentHP + potion.value, stats.maxHP);
             break;
         case 'xp':
-            // Use the proper award system that handles bonuses and critical hits
-            gameStats.awardXP(potion.value);
-            return; // Don't save stats here since awardXP already does it
+            // For XP potions, apply bonuses but no critical hits
+            const totalStats = gameStats.getTotalStats();
+            let finalXPAmount = potion.value;
+            
+            // Apply XP gain bonus
+            if (totalStats.xpGainBonus > 0) {
+                finalXPAmount = Math.floor(potion.value * (1 + totalStats.xpGainBonus / 100));
+            }
+            
+            // Use the regular updateXP function to handle level ups
+            const originalShowXPMessage = typeof showXPMessage !== 'undefined' ? showXPMessage : null;
+            if (originalShowXPMessage) {
+                window.showXPMessage = () => {}; // Temporarily disable to prevent duplicate notification
+            }
+            updateXP(finalXPAmount);
+            // Restore original function
+            if (originalShowXPMessage) {
+                window.showXPMessage = originalShowXPMessage;
+            }
+            
+            return; // Don't save stats here since updateXP already does it
         case 'maxHP':
             stats.maxHP += potion.value;
             stats.currentHP += potion.value; // Also heal for the amount gained
@@ -614,9 +638,18 @@ function applyTempBoost(type, value, duration) {
     const minutes = duration / 60000;
     notyf.success(`${type === 'xpBoost' ? 'XP' : 'Coin'} boost active for ${minutes} minutes!`);
     
+    // Update boost indicator immediately
+    if (typeof BoostIndicator !== 'undefined' && BoostIndicator.updateBoostIndicator) {
+        BoostIndicator.updateBoostIndicator();
+    }
+    
     // Set timeout to notify when boost expires
     setTimeout(() => {
         notyf.error(`${type === 'xpBoost' ? 'XP' : 'Coin'} boost expired!`);
+        // Update boost indicator when boost expires
+        if (typeof BoostIndicator !== 'undefined' && BoostIndicator.updateBoostIndicator) {
+            BoostIndicator.updateBoostIndicator();
+        }
     }, duration);
 }
 
