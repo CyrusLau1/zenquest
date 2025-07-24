@@ -224,7 +224,10 @@ const gameStats = {
     updateHUD() {
         const stats = this.getTotalStats(); // Use total stats including bonuses
         
-        // Update main health bar and text
+        // Create desktop HUD layout if it doesn't exist
+        this.createDesktopHUD();
+        
+        // Update main health bar and text (for mobile)
         const healthProgress = document.getElementById('health-progress');
         const healthText = document.querySelector('.health-text');
         if (healthProgress) {
@@ -235,7 +238,18 @@ const gameStats = {
             }
         }
 
-        // Update main XP bar and text
+        // Update desktop health bar and text
+        const desktopHealthProgress = document.getElementById('desktop-health-progress');
+        const desktopHealthText = document.querySelector('.desktop-health-text');
+        if (desktopHealthProgress) {
+            const healthPercent = (stats.currentHP / stats.maxHP) * 100;
+            desktopHealthProgress.style.width = `${healthPercent}%`;
+            if (desktopHealthText) {
+                desktopHealthText.textContent = `[${stats.currentHP}/${stats.maxHP}]`;
+            }
+        }
+
+        // Update main XP bar and text (for mobile)
         const xpProgress = document.getElementById('xp-progress');
         const xpText = document.querySelector('.xp-text');
         if (xpProgress) {
@@ -243,6 +257,17 @@ const gameStats = {
             xpProgress.style.width = `${xpPercent}%`;
             if (xpText) {
                 xpText.textContent = `[${stats.xp}/${stats.xpToNext}]`;
+            }
+        }
+
+        // Update desktop XP bar and text
+        const desktopXpProgress = document.getElementById('desktop-xp-progress');
+        const desktopXpText = document.querySelector('.desktop-xp-text');
+        if (desktopXpProgress) {
+            const xpPercent = (stats.xp / stats.xpToNext) * 100;
+            desktopXpProgress.style.width = `${xpPercent}%`;
+            if (desktopXpText) {
+                desktopXpText.textContent = `[${stats.xp}/${stats.xpToNext}]`;
             }
         }
 
@@ -260,16 +285,95 @@ const gameStats = {
         }
 
         // Update level displays
-        ['level', 'mini-level'].forEach(id => {
+        ['level', 'mini-level', 'desktop-level'].forEach(id => {
             const elem = document.getElementById(id);
             if (elem) elem.textContent = stats.level;
         });
 
         // Update zen coins displays
-        ['zen-coins-count', 'mini-zen-coins-count'].forEach(id => {
+        ['zen-coins-count', 'mini-zen-coins-count', 'desktop-zen-coins-count'].forEach(id => {
             const elem = document.getElementById(id);
             if (elem) elem.textContent = stats.zenCoins;
         });
+    },
+
+    createDesktopHUD() {
+        // Only create desktop HUD on desktop screens (1200px and up)
+        if (window.innerWidth < 1200) return;
+        
+        const hud = document.querySelector('.hud:not(.mini-hud)');
+        if (!hud || hud.querySelector('.hud-item-level')) return; // Already created
+
+        // Get current stats to set initial values
+        const stats = this.getTotalStats();
+        const healthPercent = (stats.currentHP / stats.maxHP) * 100;
+        const xpPercent = (stats.xp / stats.xpToNext) * 100;
+
+        // Create level section
+        const levelSection = document.createElement('div');
+        levelSection.className = 'hud-item-level';
+        levelSection.innerHTML = `
+            <div class="level-badge pixel-corners-small">
+                <span class="level-label">Level</span>
+                <span id="desktop-level" class="level-number pixel-corners-small">${stats.level}</span>
+            </div>
+        `;
+
+        // Create progress section with HP and XP
+        const progressSection = document.createElement('div');
+        progressSection.className = 'hud-item-progress';
+        progressSection.innerHTML = `
+            <div class="progress-item">
+                <p><img class="hud-icon" src="images/icons/hp.png" alt="Health"> Health: <span class="desktop-health-text">[${stats.currentHP}/${stats.maxHP}]</span></p>
+                <div class="health-bar pixel-corners-small">
+                    <div id="desktop-health-progress" style="width: ${healthPercent}%;" class="pixel-corners-small"></div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <p><img class="hud-icon" src="images/icons/xp.png" alt="Experience"> XP: <span class="desktop-xp-text">[${stats.xp}/${stats.xpToNext}]</span></p>
+                <div class="xp-bar pixel-corners-small">
+                    <div id="desktop-xp-progress" style="width: ${xpPercent}%;" class="pixel-corners-small"></div>
+                </div>
+            </div>
+        `;
+
+        // Create coins section
+        const coinsSection = document.createElement('div');
+        coinsSection.className = 'hud-item-coins';
+        coinsSection.innerHTML = `
+            <span class="zen-coins-bar pixel-corners-small">
+                <img class="hud-icon" src="images/icons/coin.png" alt="Zen Coins"> <span id="desktop-zen-coins-count">${stats.zenCoins}</span>
+            </span>
+        `;
+
+        // Add sections to HUD
+        hud.appendChild(levelSection);
+        hud.appendChild(progressSection);
+        hud.appendChild(coinsSection);
+    },
+
+    removeDesktopHUD() {
+        const hud = document.querySelector('.hud:not(.mini-hud)');
+        if (!hud) return;
+
+        // Remove desktop-specific elements
+        const levelSection = hud.querySelector('.hud-item-level');
+        const progressSection = hud.querySelector('.hud-item-progress');
+        const coinsSection = hud.querySelector('.hud-item-coins');
+
+        if (levelSection) levelSection.remove();
+        if (progressSection) progressSection.remove();
+        if (coinsSection) coinsSection.remove();
+    },
+
+    handleResize() {
+        if (window.innerWidth >= 1200) {
+            // Desktop - create desktop HUD if it doesn't exist
+            this.createDesktopHUD();
+        } else {
+            // Mobile/Tablet - remove desktop HUD if it exists
+            this.removeDesktopHUD();
+        }
     }
 };
 
@@ -577,9 +681,18 @@ const BoostIndicator = {
 
 // Initialize mini HUD on page load
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize HUD based on screen size
+    gameStats.handleResize();
     gameStats.initMiniHUD();
     gameStats.updateHUD();
     setInterval(() => gameStats.updateHUD(), 300);
+    
+    // Add resize listener to handle screen size changes
+    window.addEventListener('resize', () => {
+        gameStats.handleResize();
+        gameStats.updateHUD();
+    });
+    
     initParticleEffects();
     initProgressiveLoading();
     

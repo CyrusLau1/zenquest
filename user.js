@@ -249,12 +249,15 @@ function calculateEquipmentStats() {
 // Add some visual enhancements with GSAP animations
 function animateStatsOnLoad() {
     if (typeof gsap !== 'undefined') {
-        // Animate stat categories with stagger
+        // Check if we're on desktop (1200px+)
+        const isDesktop = window.innerWidth >= 1200;
+        
+        // Animate stat categories with stagger (no stagger on desktop for grid layout)
         gsap.from('.stat-category', {
             y: 30,
             opacity: 0,
             duration: 0.6,
-            stagger: 0.1,
+            stagger: isDesktop ? 0 : 0.1, // No stagger on desktop
             ease: "power2.out"
         });
         
@@ -263,7 +266,7 @@ function animateStatsOnLoad() {
             y: 20,
             opacity: 0,
             duration: 0.5,
-            stagger: 0.05,
+            stagger: isDesktop ? 0 : 0.05, // No stagger on desktop
             delay: 0.3,
             ease: "power2.out"
         });
