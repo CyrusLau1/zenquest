@@ -971,14 +971,120 @@ function completePomodoro() {
     totalFocusTime += POMODORO_STATES.FOCUS.time * 60;
 
     updatePomodoroStats();
-    gameStats.awardXP(POMODORO_STATES.FOCUS.xp);
-    maybeAwardZenCoins();
+    
+    // Award XP and coins with critical chance
+    const xpResult = gameStats.awardXP(POMODORO_STATES.FOCUS.xp);
+    const coinResult = maybeAwardZenCoins();
+    
+    // Award random potion for completing focus session
+    const randomPotion = getRandomPotion();
+    addToInventory(randomPotion);
+    
+    // Show pomodoro completion toast
+    showPomodoroCompletionMessage(xpResult, coinResult, randomPotion);
     
     // Track Pomodoro completion statistics immediately
     incrementQuestStatistic('pomodoro', POMODORO_STATES.FOCUS.xp);
   }
 
 
+}
+
+// Get random potion from available potions in market
+function getRandomPotion() {
+  const potions = [
+    {
+      id: 'potion1',
+      name: 'Small Health Potion',
+      description: 'A gentle healing elixir that restores vitality. Made from mountain spring water and healing herbs.',
+      image: 'images/items/s_hp_potion.png',
+      price: 50,
+      effect: 'heal',
+      value: 20,
+      category: 'potions'
+    },
+    {
+      id: 'potion2',
+      name: 'Health Potion',
+      description: 'A potent healing potion that rapidly restores health. Brewed by master alchemists using ancient recipes.',
+      image: 'images/items/hp_potion.png',
+      price: 175,
+      effect: 'heal',
+      value: 75,
+      category: 'potions'
+    },
+    {
+      id: 'potion3',
+      name: 'XP Potion',
+      description: 'A mystical brew that accelerates learning and growth. The liquid wisdom of countless masters. XP gain scales with stats.',
+      image: 'images/items/xp_potion.png',
+      price: 500,
+      effect: 'xp',
+      value: 100,
+      category: 'potions'
+    },
+    {
+      id: 'potion4',
+      name: 'Max HP Potion',
+      description: 'A transformative elixir that permanently strengthens your life force. Changes you at a cellular level.',
+      image: 'images/items/max_hp_potion.png',
+      price: 1500,
+      effect: 'maxHP',
+      value: 5,
+      category: 'potions'
+    }
+  ];
+  
+  const randomIndex = Math.floor(Math.random() * potions.length);
+  return potions[randomIndex];
+}
+
+// Add item to inventory (ensure this exists in app.js)
+function addToInventory(item) {
+  const inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+  const existingItem = inventory.find(invItem => invItem.id === item.id);
+  
+  if (existingItem) {
+    // Increment quantity if item exists
+    existingItem.quantity = (existingItem.quantity || 1) + 1;
+  } else {
+    // Add new item with quantity 1
+    inventory.push({
+      ...item,
+      quantity: 1
+    });
+  }
+  
+  localStorage.setItem('inventory', JSON.stringify(inventory));
+}
+
+// Show pomodoro completion message with rewards
+function showPomodoroCompletionMessage(xpResult, coinResult, potion) {
+  const pomodoroIcon = '<img src="images/icons/pomodoro.png" style="height: 32px; width: 32px; vertical-align: middle;">';
+  const xpIcon = '<img src="images/icons/xp.png" style="height: 24px; width: 24px; vertical-align: middle;">';
+  const coinIcon = '<img src="images/icons/coin.png" style="height: 24px; width: 24px; vertical-align: middle;">';
+  const potionIcon = `<img src="${potion.image}" style="height: 24px; width: 24px; vertical-align: middle;">`;
+  
+  let xpText = `${xpIcon} +${xpResult.xpGained} XP`;
+  if (xpResult.isCritical) {
+    xpText += ' (CRITICAL!)';
+  }
+  
+  let coinText = '';
+  if (coinResult.coinsGained > 0) {
+    coinText = `\n${coinIcon} +${coinResult.coinsGained} Zen Coins`;
+    if (coinResult.isCritical) {
+      coinText += ' (CRITICAL!)';
+    }
+  } else {
+    coinText = '\nNo coins this time';
+  }
+  
+  notyf.open({
+    type: 'success',
+    message: `${pomodoroIcon} Focus Session Complete!\n${xpText}${coinText}\n${potionIcon} Found: ${potion.name}`,
+    duration: 4000
+  });
 }
 
 function pausePomodoro() {
@@ -1054,9 +1160,41 @@ updateDailyResetTimer();
 // Show level up message
 function showLevelUpMessage(level) {
   const iconImg = '<img src="images/icons/levelup.png" style="height: 40px; width: 40px; vertical-align: middle;">';
+  
+  // Add honey and elixir potions to inventory on level up
+  const honeyPotion = {
+    id: 'potion5',
+    name: 'Honey of Enlightenment',
+    description: 'Sacred honey that provides sustained focus and energy. Increases XP gain for a limited time. Duration and effects do not stack (max duration is 2 hours).',
+    image: 'images/items/honey.png',
+    price: 750,
+    effect: 'xpBoost',
+    value: 25,
+    duration: 7200000, // 2 hours in milliseconds
+    category: 'potions'
+  };
+  
+  const elixirPotion = {
+    id: 'potion6',
+    name: 'Elixir of Prosperity',
+    description: 'A shimmering potion that attracts abundance. Increases coin gain for a limited time. Duration and effects do not stack (max duration is 2 hours).',
+    image: 'images/items/elixir.png',
+    price: 1000,
+    effect: 'coinBoost',
+    value: 30,
+    duration: 7200000, // 2 hours
+    category: 'potions'
+  };
+  
+  addToInventory(honeyPotion);
+  addToInventory(elixirPotion);
+  
+  const honeyIcon = '<img src="images/items/honey.png" style="height: 24px; width: 24px; vertical-align: middle;">';
+  const elixirIcon = '<img src="images/items/elixir.png" style="height: 24px; width: 24px; vertical-align: middle;">';
+  
   notyf.open({
     type: 'levelup',
-    message: `${iconImg}\nLevel Up!\nYou are now level ${level}!\nZen Coin gain & chance increased.`
+    message: `${iconImg}\nLevel Up!\nYou are now level ${level}!\nZen Coin gain & chance increased.\n\nBonus rewards:\n${honeyIcon} Honey of Enlightenment\n${elixirIcon} Elixir of Prosperity`
   });
 }
 

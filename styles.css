@@ -2583,16 +2583,20 @@ body.market::before {
 }
 
 .notyf-levelup {
+  background: #232323 !important;
   border: 2px solid #6b6b6b !important;
   font-family: 'Minecraft', 'PixelCraft', monospace;
   font-size: 1.1rem !important;
   text-align: center !important;
-  padding: 5px 5px 5px 10px !important;
+  padding: 10px !important;
+  margin: 0 !important;
   white-space: pre-line !important;
   width: fit-content !important;
   max-width: 70vw !important;
   opacity: 0.85 !important;
-
+  z-index: 2000;
+  box-sizing: border-box !important;
+  color: #ffffff !important;
 }
 
 .notyf-death {
@@ -2606,6 +2610,7 @@ body.market::before {
   width: fit-content !important;
   max-width: 70vw !important;
   opacity: 0.85 !important;
+  z-index: 2000;
 }
 
 .notyf-success {
