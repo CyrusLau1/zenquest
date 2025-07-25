@@ -92,6 +92,7 @@ function renderInventory(category) {
         const useBtn = itemCard.querySelector('.use-btn');
         useBtn.addEventListener('click', function(e) {
             e.stopPropagation();
+            console.log('Use button clicked for:', item.name, 'ID:', item.id);
             useItem(item.id);
         });
         
@@ -345,25 +346,38 @@ function getButtonText(category, isEquipped = false) {
 }
 
 function useItem(itemId) {
+    console.log('useItem called with ID:', itemId);
     const inventory = JSON.parse(localStorage.getItem('inventory')) || [];
     const itemIndex = inventory.findIndex(i => i.id === itemId);
     
-    if (itemIndex === -1) return;
+    if (itemIndex === -1) {
+        console.log('Item not found in inventory');
+        return;
+    }
     
     const item = inventory[itemIndex];
+    console.log('Using item:', item.name, 'Category:', item.category);
     
     switch(item.category) {
         case 'potions':
+            console.log('Potion case - calling usePotion');
             const potionUsed = usePotion(item); // Check if potion was actually used
+            console.log('Potion used result:', potionUsed);
             if (potionUsed !== false) { // Only consume if potion was used
                 if (item.quantity > 1) {
                     item.quantity--;
+                    console.log('Decreased quantity to:', item.quantity);
                 } else {
                     inventory.splice(itemIndex, 1);
+                    console.log('Removed item from inventory');
                 }
                 localStorage.setItem('inventory', JSON.stringify(inventory));
+                
+                // Delay the re-render to prevent interference with potion effects
+                setTimeout(() => {
+                    renderInventory(item.category);
+                }, 100);
             }
-            renderInventory(item.category);
             break;
         case 'weapons':
         case 'equipment':
@@ -452,27 +466,31 @@ function updateEquippedStats() {
 }
 
 function usePotion(item) {
+    console.log('Using potion:', item.name, 'Effect:', item.effect);
     const stats = gameStats.loadStats();
     const totalStats = gameStats.getTotalStats(); // Get stats with equipment bonuses
     
     // Handle different potion effects
     switch(item.effect) {
         case 'heal':
+            console.log('Healing potion - Current HP:', stats.currentHP, 'Max HP:', totalStats.maxHP);
             const newHealth = Math.min(stats.currentHP + item.value, totalStats.maxHP);
             const healedAmount = newHealth - stats.currentHP;
             
             if (healedAmount > 0) {
                 stats.currentHP = newHealth;
                 gameStats.saveStats(stats);
+                console.log('Healed for:', healedAmount);
                 notyf.success(`Restored ${healedAmount} HP!`);
             } else {
+                console.log('Already at full health');
                 notyf.error(`Already at full health!`);
                 return false; // Return false to indicate potion was not consumed
             }
             break;
         case 'xp':
+            console.log('XP potion - Adding XP:', item.value);
             // For XP potions, apply bonuses but no critical hits
-            const totalStats = gameStats.getTotalStats();
             let finalXPAmount = item.value;
             
             // Apply XP gain bonus
@@ -491,12 +509,15 @@ function usePotion(item) {
                 window.showXPMessage = originalShowXPMessage;
             }
             
+            console.log('XP potion used, final amount:', finalXPAmount);
             notyf.success(`Gained ${finalXPAmount} XP!`);
             break;
         case 'maxHP':
+            console.log('Max HP potion - Increasing max HP by:', item.value);
             stats.maxHP += item.value;
             stats.currentHP += item.value; // Also heal for the amount gained
             gameStats.saveStats(stats);
+            console.log('Max HP increased, new max HP:', stats.maxHP);
             notyf.success(`Max HP increased by ${item.value}!`);
             break;
         case 'xpBoost':
