@@ -56,7 +56,7 @@ function updateXP(amount) {
     localStorage.setItem("level", level);
     showLevelUpMessage(level);
 
-    // Heal to max HP on level up (use actual maxHP, not hardcoded 100)
+    // Heal to max HP on level up 
     const currentStats = gameStats.loadStats();
     const totalStats = gameStats.getTotalStats(); // Get stats with equipment bonuses
     health = totalStats.maxHP; // Heal to actual max HP including bonuses
@@ -149,7 +149,7 @@ function maybeAwardZenCoins() {
     const baseCoins = Math.floor(Math.random() * 6) + 3; // Base random between 3 and 8
     const scaledCoins = Math.round(baseCoins * ((Math.log(stats.level + 1)) ** 1.05));
     const result = gameStats.awardCoins(scaledCoins);
-    // Don't show normal message since awardCoins handles both normal and critical notifications
+    
   }
 }
 
@@ -390,7 +390,7 @@ function initializeQuestStatistics() {
   }
 }
 
-// Function to increment quest completion statistics
+// Function to increment quest completion stats
 function incrementQuestStatistic(type, xpEarned = 0) {
   const stats = JSON.parse(localStorage.getItem('questStatistics')) || {
     mainCompleted: 0,
@@ -624,7 +624,7 @@ function checkDailyCompletionRewards() {
   const lastReset = localStorage.getItem("lastReset");
   if (!lastReset) return;
   
-  // Get yesterday's completion status (the day that just ended)
+  // Get yesterday's completion status
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayKey = yesterday.toDateString();
