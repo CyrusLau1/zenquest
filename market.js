@@ -662,22 +662,43 @@ function applyTempBoost(type, value, duration) {
 // Sorting functionality for market
 function sortMarketItems(items, sortBy) {
     const sortedItems = [...items];
+    const inventory = JSON.parse(localStorage.getItem('inventory')) || [];
     
     switch (sortBy) {
         case 'price-low':
-            return sortedItems.sort((a, b) => a.price - b.price);
+            return sortedItems.sort((a, b) => {
+                const aItem = inventory.find(i => i.id === a.id);
+                const bItem = inventory.find(i => i.id === b.id);
+                const aLevel = aItem ? aItem.quantity || 1 : 0;
+                const bLevel = bItem ? bItem.quantity || 1 : 0;
+                const aPrice = calculateItemPrice(a, aLevel);
+                const bPrice = calculateItemPrice(b, bLevel);
+                return aPrice - bPrice;
+            });
         case 'price-high':
-            return sortedItems.sort((a, b) => b.price - a.price);
+            return sortedItems.sort((a, b) => {
+                const aItem = inventory.find(i => i.id === a.id);
+                const bItem = inventory.find(i => i.id === b.id);
+                const aLevel = aItem ? aItem.quantity || 1 : 0;
+                const bLevel = bItem ? bItem.quantity || 1 : 0;
+                const aPrice = calculateItemPrice(a, aLevel);
+                const bPrice = calculateItemPrice(b, bLevel);
+                return bPrice - aPrice;
+            });
         case 'level-low':
             return sortedItems.sort((a, b) => {
-                const aLevel = getItemLevel(a);
-                const bLevel = getItemLevel(b);
+                const aItem = inventory.find(i => i.id === a.id);
+                const bItem = inventory.find(i => i.id === b.id);
+                const aLevel = aItem ? aItem.quantity || 1 : 0;
+                const bLevel = bItem ? bItem.quantity || 1 : 0;
                 return aLevel - bLevel;
             });
         case 'level-high':
             return sortedItems.sort((a, b) => {
-                const aLevel = getItemLevel(a);
-                const bLevel = getItemLevel(b);
+                const aItem = inventory.find(i => i.id === a.id);
+                const bItem = inventory.find(i => i.id === b.id);
+                const aLevel = aItem ? aItem.quantity || 1 : 0;
+                const bLevel = bItem ? bItem.quantity || 1 : 0;
                 return bLevel - aLevel;
             });
         case 'quantity-low':
@@ -702,15 +723,6 @@ function sortMarketItems(items, sortBy) {
 }
 
 // Helper functions for sorting
-function getItemLevel(item) {
-    if (item.category === 'potions') return 1; // Potions don't have levels
-    
-    // For weapons/equipment, try to get level from their stats or price as fallback
-    const totalStats = Object.values(item.ownedStats || {}).reduce((sum, val) => sum + val, 0) +
-                      Object.values(item.equippedStats || {}).reduce((sum, val) => sum + val, 0);
-    return Math.max(1, Math.floor(totalStats / 10) || Math.floor(item.price / 1000) || 1);
-}
-
 function getItemQuantity(item) {
     if (item.category !== 'potions') return 1; // Non-potions don't have meaningful quantity for sorting
     
@@ -760,11 +772,8 @@ function updateSortingOptions(category) {
         // Show level options for weapons and equipment
         sortSelect.innerHTML += '<option value="level-low">Level (Low to High)</option>';
         sortSelect.innerHTML += '<option value="level-high">Level (High to Low)</option>';
-    } else if (category === 'potions') {
-        // Show quantity options for potions
-        sortSelect.innerHTML += '<option value="quantity-low">Quantity (Low to High)</option>';
-        sortSelect.innerHTML += '<option value="quantity-high">Quantity (High to Low)</option>';
     }
+    // Note: Quantity options removed from potions as requested
     
     // Always show alphabetical options (except for custom rewards)
     if (category !== 'others') {

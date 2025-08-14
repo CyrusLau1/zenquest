@@ -30,9 +30,12 @@ const gameStats = {
         const equippedBonuses = JSON.parse(localStorage.getItem('totalEquippedBonuses') || '{}');
         const activeBoosts = this.getActiveBoosts();
         
-        // Calculate base bonuses (without potions)
+        // Calculate level bonuses
+        const levelCoinGain = Math.min(baseStats.level * 2, 100); // 2% per level, max 100%
+        
+        // Calculate base bonuses (equipment + level bonuses, without potions)
         const baseXpGainBonus = (ownedBonuses.xpGain || 0) + (equippedBonuses.xpGain || 0);
-        const baseCoinGainBonus = (ownedBonuses.coinGain || 0) + (equippedBonuses.coinGain || 0);
+        const baseCoinGainBonus = (ownedBonuses.coinGain || 0) + (equippedBonuses.coinGain || 0) + levelCoinGain;
         
         // Apply potion multipliers on top of base bonuses
         let finalXpGainBonus = baseXpGainBonus;

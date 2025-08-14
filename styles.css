@@ -1268,6 +1268,7 @@ body:not(.user-page):not(.market):not(.inventory) .game-section::before {
   opacity: 0.8;
   filter: sepia(20%) saturate(80%) hue-rotate(15deg) brightness(0.9) blur(0.3px);
   transition: filter 0.2s ease, transform 0.4s ease;
+  animation: branches-wiggle-continuous 4s ease-in-out infinite;
 }
 
 body:not(.user-page):not(.market):not(.inventory) .game-section:hover::before {
@@ -1482,6 +1483,7 @@ body:not(.user-page):not(.market):not(.inventory) .game-section::after {
   opacity: 0.7;
   filter: sepia(30%) saturate(60%) hue-rotate(25deg) brightness(0.8) blur(0.5px);
   transition: filter 0.3s ease, transform 0.4s ease;
+  animation: branches-wiggle-continuous-reverse 5s ease-in-out infinite;
 }
 
 body:not(.user-page):not(.market):not(.inventory) .game-section:hover::after {
@@ -1507,6 +1509,42 @@ body:not(.user-page):not(.market):not(.inventory) .game-section:hover::after {
   }
   100% { 
     transform: rotate(0deg) scale(1.008);
+  }
+}
+
+@keyframes branches-wiggle-continuous {
+  0% { 
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(0.15deg) scale(1.002);
+  }
+  50% {
+    transform: rotate(-0.1deg) scale(1.004);
+  }
+  75% {
+    transform: rotate(0.2deg) scale(1.003);
+  }
+  100% { 
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes branches-wiggle-continuous-reverse {
+  0% { 
+    transform: rotate(0deg) scale(1);
+  }
+  30% {
+    transform: rotate(-0.18deg) scale(1.003);
+  }
+  60% {
+    transform: rotate(0.12deg) scale(1.005);
+  }
+  90% {
+    transform: rotate(-0.08deg) scale(1.002);
+  }
+  100% { 
+    transform: rotate(0deg) scale(1);
   }
 }
 
@@ -3051,6 +3089,7 @@ body.market::before {
   font-family: 'Minecraft', 'PixelCraft', monospace;
   text-shadow: 1px 1px #000, 0 0 2px #4caf5099;
   border: 3px solid #4caf50;
+  z-index: 2000;
 }
 
 .notyf-error {
@@ -3058,6 +3097,7 @@ body.market::before {
   font-family: 'Minecraft', 'PixelCraft', monospace;
   text-shadow: 1px 1px #000, 0 0 2px #ff525299;
   border: 3px solid #ff5252;
+  z-index: 2000;
 }
 
 
