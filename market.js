@@ -311,11 +311,17 @@ function renderMarketItems(category) {
     
     container.innerHTML = '';
     
-    const items = MARKET_ITEMS[category] || [];
+    let items = MARKET_ITEMS[category] || [];
     
     if (items.length === 0) {
         container.innerHTML = '<div class="empty-state">No items available in this category</div>';
         return;
+    }
+    
+    // Apply sorting if a sort option is selected
+    const sortSelect = document.getElementById('market-sort');
+    if (sortSelect && sortSelect.value !== 'default') {
+        items = sortMarketItems(items, sortSelect.value);
     }
     
     items.forEach(item => {
@@ -653,6 +659,65 @@ function applyTempBoost(type, value, duration) {
     }, duration);
 }
 
+// Sorting functionality for market
+function sortMarketItems(items, sortBy) {
+    const sortedItems = [...items];
+    
+    switch (sortBy) {
+        case 'price-low':
+            return sortedItems.sort((a, b) => a.price - b.price);
+        case 'price-high':
+            return sortedItems.sort((a, b) => b.price - a.price);
+        case 'level-low':
+            return sortedItems.sort((a, b) => {
+                const aLevel = getItemLevel(a);
+                const bLevel = getItemLevel(b);
+                return aLevel - bLevel;
+            });
+        case 'level-high':
+            return sortedItems.sort((a, b) => {
+                const aLevel = getItemLevel(a);
+                const bLevel = getItemLevel(b);
+                return bLevel - aLevel;
+            });
+        case 'quantity-low':
+            return sortedItems.sort((a, b) => {
+                const aQty = getItemQuantity(a);
+                const bQty = getItemQuantity(b);
+                return aQty - bQty;
+            });
+        case 'quantity-high':
+            return sortedItems.sort((a, b) => {
+                const aQty = getItemQuantity(a);
+                const bQty = getItemQuantity(b);
+                return bQty - aQty;
+            });
+        case 'name-az':
+            return sortedItems.sort((a, b) => a.name.localeCompare(b.name));
+        case 'name-za':
+            return sortedItems.sort((a, b) => b.name.localeCompare(a.name));
+        default:
+            return sortedItems;
+    }
+}
+
+// Helper functions for sorting
+function getItemLevel(item) {
+    if (item.category === 'potions') return 1; // Potions don't have levels
+    
+    // For weapons/equipment, try to get level from their stats or price as fallback
+    const totalStats = Object.values(item.ownedStats || {}).reduce((sum, val) => sum + val, 0) +
+                      Object.values(item.equippedStats || {}).reduce((sum, val) => sum + val, 0);
+    return Math.max(1, Math.floor(totalStats / 10) || Math.floor(item.price / 1000) || 1);
+}
+
+function getItemQuantity(item) {
+    if (item.category !== 'potions') return 1; // Non-potions don't have meaningful quantity for sorting
+    
+    // For potions, use their effect value as a proxy for quantity/potency
+    return item.value || 1;
+}
+
 // Add event listeners for category tabs
 document.querySelectorAll('.market-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -666,6 +731,9 @@ document.querySelectorAll('.market-tab').forEach(tab => {
         const selectedSection = document.getElementById(tab.dataset.category);
         if (selectedSection) selectedSection.style.display = '';
         
+        // Update sorting options based on category
+        updateSortingOptions(tab.dataset.category);
+        
         // Handle custom rewards section specially
         if (tab.dataset.category === 'others') {
             displayCustomRewards();
@@ -673,6 +741,89 @@ document.querySelectorAll('.market-tab').forEach(tab => {
             renderMarketItems(tab.dataset.category);
         }
     });
+});
+
+// Update sorting options based on category
+function updateSortingOptions(category) {
+    const sortSelect = document.getElementById('market-sort');
+    if (!sortSelect) return;
+    
+    // Clear current options
+    sortSelect.innerHTML = '';
+    
+    // Add default option
+    sortSelect.innerHTML += '<option value="default">Default</option>';
+    sortSelect.innerHTML += '<option value="price-low">Price (Low to High)</option>';
+    sortSelect.innerHTML += '<option value="price-high">Price (High to Low)</option>';
+    
+    if (category === 'weapons' || category === 'equipment') {
+        // Show level options for weapons and equipment
+        sortSelect.innerHTML += '<option value="level-low">Level (Low to High)</option>';
+        sortSelect.innerHTML += '<option value="level-high">Level (High to Low)</option>';
+    } else if (category === 'potions') {
+        // Show quantity options for potions
+        sortSelect.innerHTML += '<option value="quantity-low">Quantity (Low to High)</option>';
+        sortSelect.innerHTML += '<option value="quantity-high">Quantity (High to Low)</option>';
+    }
+    
+    // Always show alphabetical options (except for custom rewards)
+    if (category !== 'others') {
+        sortSelect.innerHTML += '<option value="name-az">Name (A-Z)</option>';
+        sortSelect.innerHTML += '<option value="name-za">Name (Z-A)</option>';
+    } else {
+        // For custom rewards, only show basic options
+        sortSelect.innerHTML += '<option value="name-az">Name (A-Z)</option>';
+        sortSelect.innerHTML += '<option value="name-za">Name (Z-A)</option>';
+    }
+}
+
+// Add event listener for sorting dropdown
+document.addEventListener('DOMContentLoaded', () => {
+    const sortSelect = document.getElementById('market-sort');
+    if (sortSelect) {
+        // Initialize with default category (weapons)
+        updateSortingOptions('weapons');
+        
+        sortSelect.addEventListener('change', () => {
+            const activeTab = document.querySelector('.market-tab.active');
+            if (activeTab) {
+                if (activeTab.dataset.category === 'others') {
+                    displayCustomRewards();
+                } else {
+                    renderMarketItems(activeTab.dataset.category);
+                }
+            }
+        });
+    }
+    
+    // Compact view toggle functionality
+    const compactToggle = document.getElementById('compact-view-toggle');
+    if (compactToggle) {
+        let isCompact = localStorage.getItem('marketCompactView') === 'true';
+        
+        // Apply saved state
+        if (isCompact) {
+            document.querySelector('.market-container').classList.add('compact-view');
+            compactToggle.innerHTML = '<img src="images/icons/nine_squares.png" alt="Nine Squares" style="width: 16px; height: 16px;">';
+        } else {
+            compactToggle.innerHTML = '<img src="images/icons/four_squares.png" alt="Four Squares" style="width: 16px; height: 16px;">';
+        }
+        
+        compactToggle.addEventListener('click', () => {
+            const marketContainer = document.querySelector('.market-container');
+            isCompact = !isCompact;
+            
+            if (isCompact) {
+                marketContainer.classList.add('compact-view');
+                compactToggle.innerHTML = '<img src="images/icons/nine_squares.png" alt="Nine Squares" style="width: 16px; height: 16px;">';
+                localStorage.setItem('marketCompactView', 'true');
+            } else {
+                marketContainer.classList.remove('compact-view');
+                compactToggle.innerHTML = '<img src="images/icons/four_squares.png" alt="Four Squares" style="width: 16px; height: 16px;">';
+                localStorage.setItem('marketCompactView', 'false');
+            }
+        });
+    }
 });
 
 // Initial render
@@ -715,7 +866,13 @@ function displayCustomRewards() {
     const rewardsList = document.querySelector('.custom-rewards-list');
     if (!rewardsList) return;
 
-    const customRewards = JSON.parse(localStorage.getItem('customRewards') || '[]');
+    let customRewards = JSON.parse(localStorage.getItem('customRewards') || '[]');
+    
+    // Apply sorting if a sort option is selected
+    const sortSelect = document.getElementById('market-sort');
+    if (sortSelect && sortSelect.value !== 'default') {
+        customRewards = sortCustomRewards(customRewards, sortSelect.value);
+    }
     
     rewardsList.innerHTML = customRewards.map(reward => `
         <div class=" item-card pixel-corners-small">
@@ -729,6 +886,24 @@ function displayCustomRewards() {
             <button class="delete-reward pixel-corners-small" onclick="deleteCustomReward('${reward.name}')">×</button>
         </div>
     `).join('');
+}
+
+// Sorting for custom rewards
+function sortCustomRewards(rewards, sortBy) {
+    const sortedRewards = [...rewards];
+    
+    switch (sortBy) {
+        case 'price-low':
+            return sortedRewards.sort((a, b) => a.price - b.price);
+        case 'price-high':
+            return sortedRewards.sort((a, b) => b.price - a.price);
+        case 'name-az':
+            return sortedRewards.sort((a, b) => a.name.localeCompare(b.name));
+        case 'name-za':
+            return sortedRewards.sort((a, b) => b.name.localeCompare(a.name));
+        default:
+            return sortedRewards;
+    }
 }
 
 function buyCustomReward(price, name) {

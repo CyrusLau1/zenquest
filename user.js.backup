@@ -1,0 +1,656 @@
+// User page functionality for displaying comprehensive stats and bonuses
+
+// Initialize Notyf for notifications (if not already initialized)
+let userNotyf;
+try {
+    if (typeof Notyf !== 'undefined') {
+        userNotyf = new Notyf({
+            duration: 2000,
+            position: {x:'left',y:'top'},
+            types: [
+                {
+                    type: 'success',
+                    background: '#222',
+                    icon: false,
+                    className: 'notyf-success pixel-corners-small'
+                },
+                {
+                    type: 'error',
+                    background: '#222',
+                    icon: false,
+                    className: 'notyf-error pixel-corners-small'
+                }
+            ]
+        });
+    }
+} catch (e) {
+    console.log('Notyf not available, using fallback notifications');
+}
+
+function updateUserStats() {
+    const stats = gameStats.loadStats();
+    const totalStats = gameStats.getTotalStats();
+    
+    // Base Stats
+    document.getElementById('user-level').textContent = stats.level;
+    document.getElementById('base-max-hp').textContent = stats.maxHP;
+    document.getElementById('current-hp').textContent = stats.currentHP;
+    document.getElementById('user-zen-coins').textContent = stats.zenCoins;
+    
+    // Calculate item bonuses (owned + equipped)
+    const ownedBonuses = JSON.parse(localStorage.getItem('totalOwnedBonuses')) || {
+        xpGain: 0, coinGain: 0, maxHP: 0, criticalChance: 0
+    };
+    const equippedBonuses = JSON.parse(localStorage.getItem('totalEquippedBonuses')) || {
+        xpGain: 0, coinGain: 0, maxHP: 0, criticalChance: 0
+    };
+    
+    // Equipment bonuses (owned + equipped)
+    const totalEquipmentXP = ownedBonuses.xpGain + equippedBonuses.xpGain;
+    const totalEquipmentCoin = ownedBonuses.coinGain + equippedBonuses.coinGain;
+    const totalEquipmentHP = ownedBonuses.maxHP + equippedBonuses.maxHP;
+    const totalEquipmentCritical = ownedBonuses.criticalChance + equippedBonuses.criticalChance;
+    
+    document.getElementById('equipment-xp-gain').textContent = `+${totalEquipmentXP}%`;
+    document.getElementById('equipment-coin-gain').textContent = `+${totalEquipmentCoin}%`;
+    document.getElementById('equipment-max-hp').textContent = `+${totalEquipmentHP}`;
+    document.getElementById('equipment-critical').textContent = `+${totalEquipmentCritical % 1 === 0 ? totalEquipmentCritical : totalEquipmentCritical.toFixed(3).replace(/\.?0+$/, '')}%`;
+    
+    // Level bonuses for coins
+    const levelCoinGain = Math.min(stats.level * 2, 100); // 2% per level, max 100%
+    const baseCoinChance = 50; // 50% base chance
+    const levelCoinChance = Math.min(baseCoinChance + (stats.level * 1), 100); // +1% per level, max 100%
+    
+    document.getElementById('level-coin-gain').textContent = `+${levelCoinGain}%`;
+    document.getElementById('level-coin-chance').textContent = `${levelCoinChance}%`;
+    
+    // Total stats (from gameStats.getTotalStats())
+    document.getElementById('total-max-hp').textContent = totalStats.maxHP;
+    
+    // Display XP gain with potion multiplier if active
+    let xpGainDisplay = `+${totalStats.xpGainBonus}%`;
+    if (totalStats.activeBoosts && totalStats.activeBoosts.xpBoost) {
+        const multiplier = (1 + (totalStats.activeBoosts.xpBoost / 100)).toFixed(2);
+        xpGainDisplay += ` (x${multiplier})`;
+    }
+    document.getElementById('total-xp-gain').textContent = xpGainDisplay;
+    
+    document.getElementById('total-critical').textContent = `${totalStats.criticalChance % 1 === 0 ? totalStats.criticalChance : totalStats.criticalChance.toFixed(3).replace(/\.?0+$/, '')}%`;
+    
+    // Total coin gain with potion multiplier if active
+    const baseTotalCoinGain = totalEquipmentCoin + levelCoinGain;
+    let coinGainDisplay = `+${totalStats.coinGainBonus}%`;
+    if (totalStats.activeBoosts && totalStats.activeBoosts.coinBoost) {
+        const multiplier = (1 + (totalStats.activeBoosts.coinBoost / 100)).toFixed(2);
+        coinGainDisplay += ` (x${multiplier})`;
+    }
+    document.getElementById('total-coin-gain').textContent = coinGainDisplay;
+}
+
+// Calculate and display quest statistics
+function updateQuestStats() {
+    // Get current quest data
+    const today = new Date().toDateString();
+    const completedToday = JSON.parse(localStorage.getItem("completedDailies_" + today)) || [];
+    
+    // Daily quest stats
+    const dailyQuests = JSON.parse(localStorage.getItem("dailyQuestMaster")) || [];
+    const dailyCompletionCounts = JSON.parse(localStorage.getItem('dailyCompletionCounts') || '{}');
+    const totalDailyCompletions = Object.values(dailyCompletionCounts).reduce((sum, count) => sum + count, 0);
+    
+    document.getElementById('daily-completed-today').textContent = completedToday.length;
+    document.getElementById('daily-total').textContent = dailyQuests.length;
+    document.getElementById('daily-all-time').textContent = totalDailyCompletions;
+    
+    // Calculate daily completion rate (completed today / total available)
+    const dailyRate = dailyQuests.length > 0 ? (completedToday.length / dailyQuests.length * 100).toFixed(1) : 0;
+    document.getElementById('daily-completion-rate').textContent = `${dailyRate}%`;
+    
+    // Habit stats - get from localStorage
+    const habitQuestsHTML = localStorage.getItem("habitQuests") || '';
+    let totalHabits = 0, positiveHabits = 0, negativeHabits = 0;
+    
+    if (habitQuestsHTML && habitQuestsHTML.trim() !== '') {
+        // Parse HTML to count habits
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = habitQuestsHTML;
+        const habits = tempDiv.querySelectorAll('.quest-item');
+        totalHabits = habits.length;
+        positiveHabits = tempDiv.querySelectorAll('.quest-item.positive').length;
+        negativeHabits = tempDiv.querySelectorAll('.quest-item.negative').length;
+    }
+    
+    const habitCompletionCounts = JSON.parse(localStorage.getItem('habitCompletionCounts') || '{}');
+    const totalHabitCompletions = Object.values(habitCompletionCounts).reduce((sum, count) => sum + count, 0);
+    
+    document.getElementById('habits-total').textContent = totalHabits;
+    document.getElementById('habits-positive').textContent = positiveHabits;
+    document.getElementById('habits-negative').textContent = negativeHabits;
+    document.getElementById('habits-all-time').textContent = totalHabitCompletions;
+    
+    // Main and side quest stats - get from localStorage
+    const mainQuestsHTML = localStorage.getItem("mainQuests") || '';
+    const sideQuestsHTML = localStorage.getItem("sideQuests") || '';
+    
+    let activeMainQuests = 0, activeSideQuests = 0;
+    
+    if (mainQuestsHTML && mainQuestsHTML.trim() !== '') {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = mainQuestsHTML;
+        activeMainQuests = tempDiv.querySelectorAll('.quest-item').length;
+    }
+    
+    if (sideQuestsHTML && sideQuestsHTML.trim() !== '') {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = sideQuestsHTML;
+        activeSideQuests = tempDiv.querySelectorAll('.quest-item').length;
+    }
+    
+    // Get completed quest counts from localStorage
+    const questStats = JSON.parse(localStorage.getItem('questStatistics')) || {
+        mainCompleted: 0,
+        sideCompleted: 0,
+        mainXPEarned: 0,
+        sideXPEarned: 0,
+        pomodoroCompleted: 0,
+        focusXPEarned: 0
+    };
+    
+    document.getElementById('main-active').textContent = activeMainQuests;
+    document.getElementById('main-completed').textContent = questStats.mainCompleted;
+    document.getElementById('main-xp-earned').textContent = questStats.mainXPEarned;
+    
+    document.getElementById('side-active').textContent = activeSideQuests;
+    document.getElementById('side-completed').textContent = questStats.sideCompleted;
+    document.getElementById('side-xp-earned').textContent = questStats.sideXPEarned;
+    
+    // Overall stats
+    const totalCompleted = questStats.mainCompleted + questStats.sideCompleted + totalDailyCompletions + totalHabitCompletions;
+    const totalQuestXP = questStats.mainXPEarned + questStats.sideXPEarned + (totalDailyCompletions * 15) + (totalHabitCompletions * 5);
+    
+    document.getElementById('total-quests-completed').textContent = totalCompleted;
+    document.getElementById('total-quest-xp').textContent = totalQuestXP;
+    document.getElementById('pomodoro-completed').textContent = questStats.pomodoroCompleted;
+    document.getElementById('focus-xp-earned').textContent = questStats.focusXPEarned;
+}
+
+// Initialize quest statistics tracking if not already present
+function initializeQuestStatistics() {
+    if (!localStorage.getItem('questStatistics')) {
+        const initialStats = {
+            mainCompleted: 0,
+            sideCompleted: 0,
+            mainXPEarned: 0,
+            sideXPEarned: 0,
+            pomodoroCompleted: 0,
+            focusXPEarned: 0
+        };
+        localStorage.setItem('questStatistics', JSON.stringify(initialStats));
+    }
+}
+
+// Function to add some test data for demonstration
+function addTestQuestData() {
+    // Test data temporarily disabled - will show real data
+    console.log('Quest statistics will show real data from your actual quests and completions');
+}
+
+// Function to increment quest completion statistics
+function incrementQuestStatistic(type, xpEarned = 0) {
+    const stats = JSON.parse(localStorage.getItem('questStatistics')) || {
+        mainCompleted: 0,
+        sideCompleted: 0,
+        mainXPEarned: 0,
+        sideXPEarned: 0,
+        pomodoroCompleted: 0,
+        focusXPEarned: 0
+    };
+    
+    switch(type) {
+        case 'main':
+            stats.mainCompleted++;
+            stats.mainXPEarned += xpEarned;
+            break;
+        case 'side':
+            stats.sideCompleted++;
+            stats.sideXPEarned += xpEarned;
+            break;
+        case 'pomodoro':
+            stats.pomodoroCompleted++;
+            stats.focusXPEarned += xpEarned;
+            break;
+    }
+    
+    localStorage.setItem('questStatistics', JSON.stringify(stats));
+    
+    // Update display if we're on the user page
+    if (document.getElementById('quest-stats')) {
+        updateQuestStats();
+    }
+}
+
+// Calculate equipment stats from inventory
+function calculateEquipmentStats() {
+    const inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+    const equipped = JSON.parse(localStorage.getItem('equippedItems')) || {};
+    
+    let totalOwnedBonuses = {
+        xpGain: 0,
+        coinGain: 0,
+        maxHP: 0,
+        criticalChance: 0
+    };
+    
+    let totalEquippedBonuses = {
+        xpGain: 0,
+        coinGain: 0,
+        maxHP: 0,
+        criticalChance: 0
+    };
+    
+    // Calculate owned stats from all items in inventory
+    inventory.forEach(item => {
+        if (item.ownedStats && (item.category === 'weapons' || item.category === 'equipment')) {
+            const level = item.quantity || 1;
+            Object.entries(item.ownedStats).forEach(([stat, value]) => {
+                totalOwnedBonuses[stat] = (totalOwnedBonuses[stat] || 0) + (value * level);
+            });
+        }
+    });
+    
+    // Calculate equipped stats from equipped items
+    Object.values(equipped).forEach(item => {
+        if (item.equippedStats && (item.category === 'weapons' || item.category === 'equipment')) {
+            Object.entries(item.equippedStats).forEach(([stat, value]) => {
+                totalEquippedBonuses[stat] = (totalEquippedBonuses[stat] || 0) + value;
+            });
+        }
+    });
+    
+    // Store for use by other systems
+    localStorage.setItem('totalOwnedBonuses', JSON.stringify(totalOwnedBonuses));
+    localStorage.setItem('totalEquippedBonuses', JSON.stringify(totalEquippedBonuses));
+    
+    return { totalOwnedBonuses, totalEquippedBonuses };
+}
+
+// Add some visual enhancements with GSAP animations
+function animateStatsOnLoad() {
+    if (typeof gsap !== 'undefined') {
+        // Check if we're on desktop (1200px+)
+        const isDesktop = window.innerWidth >= 1200;
+        
+        // Animate stat categories with stagger (no stagger on desktop for grid layout)
+        gsap.from('.stat-category', {
+            y: 30,
+            opacity: 0,
+            duration: 0.6,
+            stagger: isDesktop ? 0 : 0.1, // No stagger on desktop
+            ease: "power2.out"
+        });
+        
+        // Animate instruction categories
+        gsap.from('.instruction-category', {
+            y: 20,
+            opacity: 0,
+            duration: 0.5,
+            stagger: isDesktop ? 0 : 0.05, // No stagger on desktop
+            delay: 0.3,
+            ease: "power2.out"
+        });
+        
+        // Add hover animations to stat items
+        document.querySelectorAll('.stat-item.highlight').forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                gsap.to(item, {
+                    scale: 1.02,
+                    duration: 0.2,
+                    ease: "power1.out"
+                });
+            });
+            
+            item.addEventListener('mouseleave', () => {
+                gsap.to(item, {
+                    scale: 1,
+                    duration: 0.2,
+                    ease: "power1.out"
+                });
+            });
+        });
+    }
+}
+
+// Auto-refresh stats periodically
+function startStatsRefresh() {
+    // Initialize quest statistics tracking
+    initializeQuestStatistics();
+    
+    // Update immediately
+    calculateEquipmentStats();
+    updateUserStats();
+    updateQuestStats();
+    
+    // Update every 5 seconds to keep stats current
+    setInterval(() => {
+        calculateEquipmentStats();
+        updateUserStats();
+        updateQuestStats();
+    }, 5000);
+}
+
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('User page DOM loaded, starting initialization...');
+    
+    // Initialize game stats HUD (this will update both main and mini HUD)
+    if (typeof gameStats !== 'undefined') {
+        gameStats.updateHUD();
+        console.log('Game stats HUD updated');
+    }
+    
+    // Calculate and display all stats
+    startStatsRefresh();
+    
+    // Add visual enhancements
+    animateStatsOnLoad();
+    
+    console.log('User page initialized successfully - main HUD hidden, mini HUD visible');
+});
+
+// ===== END OF USER PAGE INITIALIZATION =====
+
+// Note: Feedback system is now in feedback.js
+    console.log('Initializing feedback system...');
+    
+    const feedbackBtn = document.getElementById('feedback-btn');
+    const feedbackModal = document.getElementById('feedback-modal');
+    const closeFeedbackBtn = document.getElementById('close-feedback');
+    const cancelFeedbackBtn = document.getElementById('cancel-feedback');
+    const feedbackForm = document.getElementById('feedback-form');
+
+    if (!feedbackBtn || !feedbackModal) {
+        console.error('Feedback elements not found!');
+        return;
+    }
+
+    console.log('Feedback elements found, setting up event listeners...');
+
+    // Show feedback modal
+    feedbackBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Feedback button clicked!');
+        
+        feedbackModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    });
+
+    // Hide feedback modal
+    function closeFeedbackModal() {
+        feedbackModal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+        feedbackForm.reset(); // Clear form
+    }
+
+    // Close modal events
+    closeFeedbackBtn.addEventListener('click', closeFeedbackModal);
+    cancelFeedbackBtn.addEventListener('click', closeFeedbackModal);
+
+    // Close modal when clicking outside
+    feedbackModal.addEventListener('click', (e) => {
+        if (e.target === feedbackModal) {
+            closeFeedbackModal();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && feedbackModal.style.display === 'flex') {
+            closeFeedbackModal();
+        }
+    });
+
+    // Handle form submission
+    feedbackForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('Form submitted!');
+        
+        const feedbackType = document.getElementById('feedback-type').value;
+        const feedbackMessage = document.getElementById('feedback-message').value.trim();
+        const feedbackEmail = document.getElementById('feedback-email').value.trim();
+
+        console.log('Form values:', {
+            type: feedbackType,
+            message: feedbackMessage,
+            email: feedbackEmail
+        });
+
+        if (!feedbackType || !feedbackMessage) {
+            console.log('Validation failed');
+            // Use userNotyf or fallback to alert
+            if (userNotyf) {
+                userNotyf.error('Please fill in all required fields!');
+            } else if (typeof notyf !== 'undefined') {
+                notyf.error('Please fill in all required fields!');
+            } else {
+                alert('Please fill in all required fields!');
+            }
+            return;
+        }
+
+        console.log('Validation passed, proceeding with email send...');
+
+        // Show loading state
+        const submitBtn = document.querySelector('#feedback-form button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+        console.log('Button set to loading state');
+
+        // Get user stats for context
+        const stats = gameStats.loadStats();
+        console.log('User stats loaded:', stats);
+        
+        // Prepare email parameters - simplified for testing
+        const emailParams = {
+            feedback_type: feedbackType,
+            user_message: feedbackMessage,
+            user_email: feedbackEmail || 'Not provided',
+            user_level: stats.level.toString(),
+            user_coins: stats.zenCoins.toString(),
+            user_hp: stats.currentHP.toString(),
+            timestamp: new Date().toLocaleString()
+        };
+
+        console.log('Email parameters prepared:', emailParams);
+        console.log('Checking if EmailJS is available:', typeof emailjs !== 'undefined');
+
+        if (typeof emailjs === 'undefined') {
+            console.error('EmailJS is not available!');
+            alert('EmailJS is not loaded! Check your internet connection.');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            return;
+        }
+
+        console.log('EmailJS is available, proceeding with send...');
+        console.log('About to call emailjs.send...');
+
+        // Send email via EmailJS with extensive debugging
+        console.log('Calling emailjs.send with service: service_x3zku8f, template: template_c26knjp');
+        
+        // Let's try a simpler approach - test if emailjs.send works at all
+        try {
+            console.log('Testing EmailJS send availability...');
+            
+            const sendPromise = emailjs.send('service_x3zku8f', 'template_c26knjp', emailParams);
+            console.log('emailjs.send returned:', sendPromise);
+            
+            if (!sendPromise || typeof sendPromise.then !== 'function') {
+                throw new Error('emailjs.send did not return a promise!');
+            }
+            
+            sendPromise
+                .then(function(response) {
+                    console.log('SUCCESS! Email sent:', response);
+                    console.log('Response status:', response.status);
+                    console.log('Response text:', response.text);
+                    
+                    // Show success message
+                    alert('Thank you for your feedback! Email sent successfully.');
+                    
+                    // Close modal and reset form
+                    feedbackModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    feedbackForm.reset();
+                    
+                    // Give user XP reward
+                    setTimeout(function() {
+                        const xpReward = 10;
+                        gameStats.awardXP(xpReward);
+                        alert(`Bonus: +${xpReward} XP for providing feedback! 🎉`);
+                    }, 1000);
+                    
+                })
+                .catch(function(error) {
+                    console.error('FAILED! Email send error:', error);
+                    console.error('Error type:', typeof error);
+                    console.error('Error constructor:', error.constructor.name);
+                    console.error('Error details:', {
+                        message: error.message,
+                        status: error.status,
+                        text: error.text,
+                        name: error.name,
+                        stack: error.stack
+                    });
+                    
+                    // Show detailed error message
+                    alert(`Error sending feedback: ${error.message || error.text || 'Unknown error'}\n\nPlease try again or contact support.`);
+                })
+                .finally(function() {
+                    // Reset button
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                    console.log('Email send operation completed, button reset');
+                });
+                
+        } catch (immediateError) {
+            console.error('IMMEDIATE ERROR when calling emailjs.send:', immediateError);
+            console.error('Immediate error details:', {
+                message: immediateError.message,
+                stack: immediateError.stack,
+                type: typeof immediateError
+            });
+            
+            alert(`Immediate error: ${immediateError.message}`);
+            
+            // Reset button
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+            
+        console.log('emailjs.send call initiated - waiting for response...');
+    });
+}
+
+// Initialize feedback system when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing feedback system...');
+    
+    // Initialize EmailJS with detailed testing
+    console.log('Testing EmailJS availability...');
+    console.log('EmailJS object:', typeof emailjs);
+    console.log('EmailJS send method:', typeof emailjs?.send);
+    
+    if (typeof emailjs !== 'undefined') {
+        try {
+            console.log('Initializing EmailJS with public key...');
+            emailjs.init("BHHZFVMm0iLafKg4j");
+            console.log('EmailJS initialized successfully');
+            
+            // Test if all methods are available
+            console.log('Available EmailJS methods:', Object.keys(emailjs));
+            
+        } catch (error) {
+            console.error('Error initializing EmailJS:', error);
+        }
+    } else {
+        console.error('EmailJS is not loaded! Check if the script tag is working.');
+        alert('Error: EmailJS not loaded. Please refresh the page.');
+    }
+    
+    initFeedbackSystem();
+});
+
+// Developer function to view all feedback
+function viewAllFeedback() {
+    const feedback = JSON.parse(localStorage.getItem('userFeedback') || '[]');
+    
+    if (feedback.length === 0) {
+        console.log('No feedback found.');
+        return;
+    }
+    
+    console.log(`=== ALL FEEDBACK (${feedback.length} entries) ===`);
+    feedback.forEach((entry, index) => {
+        console.log(`\n--- Feedback #${index + 1} ---`);
+        console.log('Type:', entry.type);
+        console.log('Date:', new Date(entry.timestamp).toLocaleString());
+        console.log('Message:', entry.message);
+        console.log('Email:', entry.email);
+        console.log('User Level:', entry.gameStats?.level || 'Unknown');
+        console.log('User Coins:', entry.gameStats?.zenCoins || 'Unknown');
+        console.log('User HP:', entry.gameStats?.currentHP || 'Unknown');
+        console.log('---');
+    });
+    console.log('=== END FEEDBACK ===');
+    
+    return feedback;
+}
+
+// Developer function to clear all feedback
+function clearAllFeedback() {
+    localStorage.removeItem('userFeedback');
+    console.log('All feedback cleared.');
+}
+
+// Developer function to export feedback as downloadable file
+function exportFeedback() {
+    const feedback = JSON.parse(localStorage.getItem('userFeedback') || '[]');
+    
+    if (feedback.length === 0) {
+        console.log('No feedback to export.');
+        return;
+    }
+    
+    // Create formatted text
+    let exportText = `ZenQuest Feedback Export - ${new Date().toLocaleString()}\n`;
+    exportText += `Total Feedback Entries: ${feedback.length}\n\n`;
+    
+    feedback.forEach((entry, index) => {
+        exportText += `=== Feedback #${index + 1} ===\n`;
+        exportText += `Type: ${entry.type}\n`;
+        exportText += `Date: ${new Date(entry.timestamp).toLocaleString()}\n`;
+        exportText += `Email: ${entry.email}\n`;
+        exportText += `User Level: ${entry.gameStats?.level || 'Unknown'}\n`;
+        exportText += `User Coins: ${entry.gameStats?.zenCoins || 'Unknown'}\n`;
+        exportText += `User HP: ${entry.gameStats?.currentHP || 'Unknown'}\n`;
+        exportText += `Message:\n${entry.message}\n`;
+        exportText += `Browser: ${entry.userAgent}\n`;
+        exportText += `URL: ${entry.url}\n\n`;
+    });
+    
+    // Create and download file
+    const blob = new Blob([exportText], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `zenquest-feedback-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    console.log('Feedback exported as file download.');
+}

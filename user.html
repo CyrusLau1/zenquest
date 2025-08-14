@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <script defer src="utilities.js"></script>
     <script defer src="user.js"></script>
+    <script defer src="feedback.js"></script>
     <script defer src="app.js"></script>
     
     <!-- Notyf -->
@@ -15,8 +16,16 @@
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body class="user-page">
+    <!-- Floating Feedback Button (only on user page) -->
+    <div id="floating-feedback-btn" class="floating-feedback-btn shake-animation">
+        <img src="images/icons/feedback.png" alt="Feedback">
+    </div>
+    
     <div class="border-shadow"></div>
 
     <nav class="top-navbar">
@@ -351,7 +360,7 @@
                         <h4><img class="icon-tiny" src="images/icons/items.png">Equipment System</h4>
                         <p><strong>Owned Stats:</strong> Permanent bonuses that scale with item level.</p>
                         <p><strong>Equipped Stats:</strong> Active bonuses only when the item is equipped.</p>
-                        <p>Items can be upgraded by purchasing multiple times, but items level is capped by your character level.</p>
+                        <p>Items can be upgraded by purchasing multiple times, but items level is capped by your character level. All items can be sold or downgraded for half their original price.</p>
                         
                         <h4><img class="icon-tiny" src="images/icons/potstats.png">Potions</h4>
                         <p><strong>Health Potions:</strong> Restore HP instantly.</p>
@@ -392,11 +401,62 @@
             </div>
         </section>
 
+        <!-- Feedback Section -->
+        <section id="feedback-section" class="game-section pixel-corners">
+            <h2><img class="icon" src="images/icons/feedback.png">Feedback & Support</h2>
+            <hr>
+            <div class="feedback-container">
+                <p>Have feedback, suggestions, or found a bug? I'd love to hear from you!</p>
+                <button id="feedback-btn" class="feedback-button pixel-corners-small">
+                    <img class="icon-small" src="images/icons/levelup.png" alt="Feedback">
+                    Give Feedback
+                </button>
+            </div>
+        </section>
+
         <!-- Boost Indicator -->
         <div id="boost-indicator" class="boost-indicator pixel-corners-small" style="display: none;">
           <div class="boost-content" id="boost-content">
             <!-- Boost items will be added here dynamically -->
           </div>
+        </div>
+
+        <!-- Feedback Popup Modal -->
+        <div id="feedback-modal" class="modal" style="display: none;">
+            <div class="modal-content pixel-corners">
+                <div class="modal-header">
+                    <h3><img class="icon-small" src="images/icons/feedback.png" alt="Feedback">Send Feedback</h3>
+                    <button id="close-feedback" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="feedback-form">
+                        <div class="form-group">
+                            <label for="feedback-type">Feedback Type:</label>
+                            <select id="feedback-type" class="pixel-corners-small" required>
+                                <option value="">Select type...</option>
+                                <option value="bug">Bug Report</option>
+                                <option value="feature">Feature Request</option>
+                                <option value="improvement">Improvement Suggestion</option>
+                                <option value="general">General Feedback</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="feedback-message">Your Message:</label>
+                            <textarea id="feedback-message" class="pixel-corners-small" rows="6" placeholder="Please describe your feedback in detail..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="feedback-email">Your Email (optional):</label>
+                            <input type="email" id="feedback-email" class="pixel-corners-small" placeholder="your.email@example.com">
+                            <small>Only if you have a question and want a response back</small>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" id="cancel-feedback" class="modal-btn cancel-btn pixel-corners-small">Cancel</button>
+                            <button type="submit" class="modal-btn submit-btn pixel-corners-small">Send Feedback</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <nav class="game-navbar">

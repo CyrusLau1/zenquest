@@ -1,10 +1,69 @@
+// Sorting functionality for inventory
+function sortInventoryItems(items, sortBy) {
+    const sortedItems = [...items];
+    
+    switch (sortBy) {
+        case 'price-low':
+            return sortedItems.sort((a, b) => a.price - b.price);
+        case 'price-high':
+            return sortedItems.sort((a, b) => b.price - a.price);
+        case 'level-low':
+            return sortedItems.sort((a, b) => {
+                const aLevel = getItemLevel(a);
+                const bLevel = getItemLevel(b);
+                return aLevel - bLevel;
+            });
+        case 'level-high':
+            return sortedItems.sort((a, b) => {
+                const aLevel = getItemLevel(a);
+                const bLevel = getItemLevel(b);
+                return bLevel - aLevel;
+            });
+        case 'quantity-low':
+            return sortedItems.sort((a, b) => {
+                const aQty = getItemQuantity(a);
+                const bQty = getItemQuantity(b);
+                return aQty - bQty;
+            });
+        case 'quantity-high':
+            return sortedItems.sort((a, b) => {
+                const aQty = getItemQuantity(a);
+                const bQty = getItemQuantity(b);
+                return bQty - aQty;
+            });
+        case 'name-az':
+            return sortedItems.sort((a, b) => a.name.localeCompare(b.name));
+        case 'name-za':
+            return sortedItems.sort((a, b) => b.name.localeCompare(a.name));
+        default:
+            return sortedItems;
+    }
+}
+
+// Helper functions for sorting
+function getItemLevel(item) {
+    if (item.category === 'potions') return 1; // Potions don't have levels
+    
+    // For weapons/equipment, use their actual quantity/level
+    return item.quantity || 1;
+}
+
+function getItemQuantity(item) {
+    if (item.category === 'potions') {
+        return item.quantity || 1; // For potions, use actual quantity
+    }
+    
+    // For non-potions, return 1 since they don't have meaningful quantity for sorting
+    return 1;
+}
+
 function renderInventory(category) {
     const inventoryGrid = document.querySelector('.inventory-grid');
     const inventory = JSON.parse(localStorage.getItem('inventory')) || [];
     const equipped = JSON.parse(localStorage.getItem('equippedItems')) || {};
     
     // Filter items by category
-    const categoryItems = inventory.filter(item => item.category === category);
+    let categoryItems = inventory.filter(item => item.category === category);
     
     if (categoryItems.length === 0) {
         inventoryGrid.innerHTML = `
@@ -14,6 +73,12 @@ function renderInventory(category) {
             </div>
         `;
         return;
+    }
+    
+    // Apply sorting if a sort option is selected
+    const sortSelect = document.getElementById('inventory-sort');
+    if (sortSelect && sortSelect.value !== 'default') {
+        categoryItems = sortInventoryItems(categoryItems, sortSelect.value);
     }
     
     // Clear grid before adding new items
@@ -56,18 +121,18 @@ function renderInventory(category) {
         }
 
         itemCard.innerHTML = `
-            ${level > 1 ? 
-                (category === 'potions' ? 
-                    `<div class="item-level pixel-corners-small">x${level}</div>` : 
-                    `<div class="item-level pixel-corners-small">LV ${level}</div>`
-                ) : ''
-            }
-            ${isLevelCapped ? 
-                `<div class="level-capped pixel-corners-small">CAPPED AT LV ${stats.level}</div>` : ''
-            }
             ${isEquipped ? `<div class="equipped-badge pixel-corners-small">EQUIPPED</div>` : ''}
             <div class="item-image-container">
                 <img src="${item.image || `images/items/${category}/${item.id}.png`}" alt="${item.name}" class="item-image">
+                ${level > 1 ? 
+                    (category === 'potions' ? 
+                        `<div class="item-level pixel-corners-small">x${level}</div>` : 
+                        `<div class="item-level pixel-corners-small">LV ${level}</div>`
+                    ) : ''
+                }
+                ${isLevelCapped ? 
+                    `<div class="level-capped pixel-corners-small">CAPPED AT LV ${stats.level}</div>` : ''
+                }
             </div>
             <h3 class="item-name">${item.name}</h3>
             <p class="item-description">${item.description || ''}</p>
@@ -613,7 +678,82 @@ document.addEventListener('DOMContentLoaded', () => {
         tab.addEventListener('click', () => {
             document.querySelector('.inventory-tab.active').classList.remove('active');
             tab.classList.add('active');
+            
+            // Update sorting options based on category
+            updateInventorySortingOptions(tab.dataset.category);
+            
             renderInventory(tab.dataset.category);
         });
     });
+    
+    // Initialize with default category
+    updateInventorySortingOptions('weapons');
+    
+    // Add event listener for sorting dropdown
+    const sortSelect = document.getElementById('inventory-sort');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', () => {
+            const activeTab = document.querySelector('.inventory-tab.active');
+            if (activeTab) {
+                renderInventory(activeTab.dataset.category);
+            }
+        });
+    }
+    
+    // Compact view toggle functionality for inventory
+    const compactToggle = document.getElementById('inventory-compact-toggle');
+    if (compactToggle) {
+        let isCompact = localStorage.getItem('inventoryCompactView') === 'true';
+        
+        // Apply saved state
+        if (isCompact) {
+            document.querySelector('.inventory-container').classList.add('compact-view');
+            compactToggle.innerHTML = '<img src="images/icons/nine_squares.png" alt="Nine Squares" style="width: 16px; height: 16px;">';
+        } else {
+            compactToggle.innerHTML = '<img src="images/icons/four_squares.png" alt="Four Squares" style="width: 16px; height: 16px;">';
+        }
+        
+        compactToggle.addEventListener('click', () => {
+            const inventoryContainer = document.querySelector('.inventory-container');
+            isCompact = !isCompact;
+            
+            if (isCompact) {
+                inventoryContainer.classList.add('compact-view');
+                compactToggle.innerHTML = '<img src="images/icons/nine_squares.png" alt="Nine Squares" style="width: 16px; height: 16px;">';
+                localStorage.setItem('inventoryCompactView', 'true');
+            } else {
+                inventoryContainer.classList.remove('compact-view');
+                compactToggle.innerHTML = '<img src="images/icons/four_squares.png" alt="Four Squares" style="width: 16px; height: 16px;">';
+                localStorage.setItem('inventoryCompactView', 'false');
+            }
+        });
+    }
 });
+
+// Update sorting options based on inventory category
+function updateInventorySortingOptions(category) {
+    const sortSelect = document.getElementById('inventory-sort');
+    if (!sortSelect) return;
+    
+    // Clear current options
+    sortSelect.innerHTML = '';
+    
+    // Add default option
+    sortSelect.innerHTML += '<option value="default">Default</option>';
+    sortSelect.innerHTML += '<option value="price-low">Price (Low to High)</option>';
+    sortSelect.innerHTML += '<option value="price-high">Price (High to Low)</option>';
+    
+    if (category === 'weapons' || category === 'equipment') {
+        // Show level options for weapons and equipment
+        sortSelect.innerHTML += '<option value="level-low">Level (Low to High)</option>';
+        sortSelect.innerHTML += '<option value="level-high">Level (High to Low)</option>';
+    } else if (category === 'potions') {
+        // Show quantity options for potions
+        sortSelect.innerHTML += '<option value="quantity-low">Quantity (Low to High)</option>';
+        sortSelect.innerHTML += '<option value="quantity-high">Quantity (High to Low)</option>';
+    }
+    
+    // Always show alphabetical options
+    sortSelect.innerHTML += '<option value="name-az">Name (A-Z)</option>';
+    sortSelect.innerHTML += '<option value="name-za">Name (Z-A)</option>';
+}

@@ -1,4 +1,32 @@
 // User page functionality for displaying comprehensive stats and bonuses
+
+// Initialize Notyf for notifications (if not already initialized)
+let userNotyf;
+try {
+    if (typeof Notyf !== 'undefined') {
+        userNotyf = new Notyf({
+            duration: 2000,
+            position: {x:'left',y:'top'},
+            types: [
+                {
+                    type: 'success',
+                    background: '#222',
+                    icon: false,
+                    className: 'notyf-success pixel-corners-small'
+                },
+                {
+                    type: 'error',
+                    background: '#222',
+                    icon: false,
+                    className: 'notyf-error pixel-corners-small'
+                }
+            ]
+        });
+    }
+} catch (e) {
+    console.log('Notyf not available, using fallback notifications');
+}
+
 function updateUserStats() {
     const stats = gameStats.loadStats();
     const totalStats = gameStats.getTotalStats();
@@ -328,4 +356,43 @@ document.addEventListener('DOMContentLoaded', () => {
     animateStatsOnLoad();
     
     console.log('User page initialized successfully - main HUD hidden, mini HUD visible');
+    
+    // Initialize floating feedback button
+    initFloatingFeedbackButton();
 });
+
+// Floating feedback button functionality
+function initFloatingFeedbackButton() {
+    const floatingBtn = document.getElementById('floating-feedback-btn');
+    const feedbackSection = document.getElementById('feedback-section');
+    
+    if (floatingBtn && feedbackSection) {
+        floatingBtn.addEventListener('click', () => {
+            // Smooth scroll to feedback section
+            feedbackSection.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+            
+            // Stop the shake animation after clicking
+            floatingBtn.classList.remove('shake-animation');
+            
+            // Add a subtle pulse effect
+            floatingBtn.style.animation = 'none';
+            floatingBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                floatingBtn.style.transform = 'scale(1)';
+                floatingBtn.style.transition = 'all 0.3s ease';
+            }, 150);
+        });
+        
+        // Remove shake animation on hover
+        floatingBtn.addEventListener('mouseenter', () => {
+            floatingBtn.style.animationPlayState = 'paused';
+        });
+        
+        floatingBtn.addEventListener('mouseleave', () => {
+            floatingBtn.style.animationPlayState = 'running';
+        });
+    }
+}

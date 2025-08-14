@@ -215,6 +215,51 @@ function loadQuests() {
   if (localStorage.getItem("sideQuests")) {
     sideQuestList.innerHTML = localStorage.getItem("sideQuests");
   }
+  
+  // Update due date priority classes after loading
+  setTimeout(() => {
+    updateDueDatePriorities();
+  }, 100);
+}
+
+/**
+ * Update Due Date Priority Classes for Existing Quests
+ * Refreshes the color coding for all due date labels and quest item borders
+ */
+function updateDueDatePriorities() {
+  const dueDateLabels = document.querySelectorAll('.due-date-label');
+  
+  dueDateLabels.forEach(label => {
+    // Extract date from the label text (format: "�️ YYYY-MM-DD")
+    const labelText = label.textContent.trim();
+    const dateMatch = labelText.match(/(\d{4}-\d{2}-\d{2})/);
+    
+    if (dateMatch) {
+      const dueDate = dateMatch[1];
+      const priorityClass = getDueDatePriority(dueDate);
+      const questItem = label.closest('.quest-item');
+      
+      // Update due date label classes
+      label.classList.remove('overdue', 'urgent', 'soon', 'upcoming', 'distant');
+      label.classList.add(priorityClass);
+      
+      // Update quest item border classes
+      if (questItem) {
+        questItem.classList.remove('due-overdue', 'due-urgent', 'due-soon', 'due-upcoming', 'due-distant');
+        questItem.classList.add(`due-${priorityClass}`);
+      }
+    }
+  });
+  
+  // Also check quest items without due date labels (should have grey border)
+  const questItems = document.querySelectorAll('.quest-item');
+  questItems.forEach(item => {
+    const hasDateLabel = item.querySelector('.due-date-label');
+    if (!hasDateLabel) {
+      item.classList.remove('due-overdue', 'due-urgent', 'due-soon', 'due-upcoming', 'due-distant');
+      item.classList.add('due-distant'); // Grey border for no due date
+    }
+  });
 }
 
 // Count completions for quests
@@ -236,6 +281,36 @@ function incrementCompletionCount(questId, type) {
   counts[questId] = (counts[questId] || 0) + 1;
   localStorage.setItem(`${type}CompletionCounts`, JSON.stringify(counts));
   return counts[questId];
+}
+
+/**
+ * Calculate Due Date Priority Class
+ * Returns CSS class based on how close the due date is
+ */
+function getDueDatePriority(dueDate) {
+  if (!dueDate) return 'distant';
+  
+  const today = new Date();
+  const due = new Date(dueDate);
+  
+  // Reset time components to compare dates only
+  today.setHours(0, 0, 0, 0);
+  due.setHours(0, 0, 0, 0);
+  
+  const diffTime = due.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) {
+    return 'overdue'; // Red - past due
+  } else if (diffDays <= 1) {
+    return 'urgent'; // Orange - due today or tomorrow
+  } else if (diffDays <= 7) {
+    return 'soon'; // Yellow - within a week
+  } else if (diffDays <= 30) {
+    return 'upcoming'; // Green - within a month
+  } else {
+    return 'distant'; // Grey - over a month away
+  }
 }
 
 // Add New Quest
@@ -271,10 +346,15 @@ function addQuest(inputField, list, type = null, dueDate = null) {
     questContent = `
             <div class="quest-main">
                 <span contenteditable="true">${questText}</span>
-                ${dueDate ? `<div class="due-date-label">📅 ${dueDate}</div>` : ''}
+                ${dueDate ? `<div class="due-date-label ${getDueDatePriority(dueDate)}"><img src="images/icons/calendar.png" alt="Calendar" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 3px;">${dueDate}</div>` : ''}
             </div>
             <button class="complete-btn pixel-corners-small">✔</button>
         `;
+    
+    // Add due date priority class to the quest item if there's a due date
+    if (dueDate) {
+      li.classList.add(`due-${getDueDatePriority(dueDate)}`);
+    }
   }
 
   li.innerHTML = questContent;
@@ -283,7 +363,41 @@ function addQuest(inputField, list, type = null, dueDate = null) {
 
   li.style.opacity = "0";
   li.style.transform = "translateY(-20px)";
-  list.appendChild(li);
+  
+  // Insert main quests in due date order, but preserve existing quest order
+  if (list === mainQuestList && dueDate) {
+    const existingQuests = Array.from(list.children);
+    let insertPosition = null;
+    
+    for (let i = 0; i < existingQuests.length; i++) {
+      const existingQuestDueLabel = existingQuests[i].querySelector('.due-date-label');
+      
+      if (existingQuestDueLabel) {
+        const existingDateMatch = existingQuestDueLabel.textContent.match(/(\d{4}-\d{2}-\d{2})/);
+        if (existingDateMatch) {
+          const existingDueDate = existingDateMatch[1];
+          
+          // If new quest is due before this existing quest, insert here
+          if (dueDate < existingDueDate) {
+            insertPosition = existingQuests[i];
+            break;
+          }
+        }
+      } else {
+        // If existing quest has no due date, insert new quest before it
+        insertPosition = existingQuests[i];
+        break;
+      }
+    }
+    
+    if (insertPosition) {
+      list.insertBefore(li, insertPosition);
+    } else {
+      list.appendChild(li);
+    }
+  } else {
+    list.appendChild(li);
+  }
 
   gsap.fromTo(li,
     {
@@ -351,7 +465,17 @@ function updateDailyProgress() {
   if (progressText) {
     progressText.textContent = `${completedCount}/${Math.max(total, 5)} daily quests completed`;
     if (completedCount >= 5) {
-      progressText.textContent += ' ✨ Bonus achieved!';
+      progressText.textContent += ' ';
+      const starIcon = document.createElement('img');
+      starIcon.src = 'images/icons/star.png';
+      starIcon.style.width = '16px';
+      starIcon.style.height = '16px';
+      starIcon.style.verticalAlign = 'middle';
+      starIcon.style.marginLeft = '4px';
+      starIcon.alt = 'Star';
+      progressText.appendChild(starIcon);
+      const bonusText = document.createTextNode(' Bonus achieved!');
+      progressText.appendChild(bonusText);
       progressText.style.color = '#4caf50';
     } else {
       progressText.style.color = '';
@@ -551,6 +675,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Set up periodic due date priority updates
+document.addEventListener('DOMContentLoaded', function() {
+    // Update priorities on load
+    updateDueDatePriorities();
+    
+    // Update every 10 minutes to catch date changes
+    setInterval(updateDueDatePriorities, 10 * 60 * 1000);
+    
+    // Update at midnight each day
+    const now = new Date();
+    const msUntilMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0) - now;
+    setTimeout(() => {
+        updateDueDatePriorities();
+        // Then update daily
+        setInterval(updateDueDatePriorities, 24 * 60 * 60 * 1000);
+    }, msUntilMidnight);
+});
+
 
 const sortableLists = [
   dailyQuestList,
@@ -642,10 +784,11 @@ function checkDailyCompletionRewards() {
     updateHealth(-penalty);
     
     const iconHP = '<img src="images/icons/hp.png" style="height: 20px; width: 20px; vertical-align: middle; margin-right: 4px;">';
+    const warningIcon = '<img src="images/icons/warning.png" style="height: 20px; width: 20px; vertical-align: middle; margin-right: 4px;">';
     
     notyf.open({
       type: 'death',
-      message: `⚠️ DAILY GOALS INCOMPLETE!\n${iconHP}-${penalty} HP\nComplete ${requiredCount}+ daily quests to avoid this penalty!`,
+      message: `${warningIcon} DAILY GOALS INCOMPLETE!\n${iconHP}-${penalty} HP\nComplete ${requiredCount}+ daily quests to avoid this penalty!`,
       duration: 100000,
       dismissible: true
     });
@@ -1152,7 +1295,7 @@ function updateDailyResetTimer() {
   const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, "0");
   const mins = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, "0");
   const secs = String(Math.floor((diff / 1000) % 60)).padStart(2, "0");
-  timerElem.textContent = `⏳ Daily quests reset in ${hours}:${mins}:${secs}`;
+  timerElem.innerHTML = `<img src="images/icons/hourglass.png" alt="Hourglass" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 3px;">Daily quests reset in ${hours}:${mins}:${secs}`;
 }
 setInterval(updateDailyResetTimer, 1000);
 updateDailyResetTimer();
@@ -1210,10 +1353,11 @@ function showDailyQuestBonusMessage() {
   const iconImg = '<img src="images/icons/quest.png" style="height: 40px; width: 40px; vertical-align: middle;">';
   const xpIcon = '<img src="images/icons/xp.png" style="height: 20px; width: 20px; vertical-align: middle; margin-right: 4px;">';
   const coinIcon = '<img src="images/icons/coin.png" style="height: 20px; width: 20px; vertical-align: middle; margin-right: 4px;">';
+  const starIcon = '<img src="images/icons/star.png" style="height: 20px; width: 20px; vertical-align: middle; margin: 0 4px;">';
   
   notyf.open({
     type: 'levelup',
-    message: `${iconImg}\n🌟 DAILY QUEST BONUS! 🌟\n${xpIcon}+${xpResult.amount} XP\n${coinIcon}+${coinResult.amount} Zen Coins\nExcellent work today!`
+    message: `${iconImg}\n${starIcon} DAILY QUEST BONUS! ${starIcon}\n${xpIcon}+${xpResult.amount} XP\n${coinIcon}+${coinResult.amount} Zen Coins\nExcellent work today!`
   });
 }
 

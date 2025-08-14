@@ -1149,6 +1149,365 @@ hr::after {
   border-radius: 10px;
   backdrop-filter: blur(3px);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.616);
+  position: relative;
+  overflow: visible;
+}
+
+/* Gradient distribution from corners - dense to sparse */
+body:not(.user-page):not(.market):not(.inventory) .game-section::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: 
+    /* Top-right corner - dense cluster */
+    url('images/icons/branch.png') calc(100% - 5px) -2px/28px 28px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 2px) -5px/26px 26px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 8px) -1px/30px 30px no-repeat,
+    url('images/icons/branch.png') calc(100% - 12px) -3px/24px 24px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 4px) -7px/27px 27px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 15px) 0px/25px 25px no-repeat,
+    url('images/icons/branch.png') calc(100% - 9px) -4px/22px 22px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 6px) -6px/23px 23px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 18px) -2px/26px 26px no-repeat,
+    url('images/icons/branch.png') calc(100% - 3px) -8px/29px 29px no-repeat,
+    
+    /* Top-right - medium spread (20px-60px from corner) - MORE DENSE */
+    url('images/icons/branch.png') calc(100% - 20px) -2px/29px 29px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 25px) -4px/26px 26px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 35px) 1px/27px 27px no-repeat,
+    url('images/icons/branch.png') calc(100% - 45px) -1px/24px 24px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 55px) -3px/25px 25px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 60px) 0px/23px 23px no-repeat,
+    url('images/icons/branch.png') calc(100% - 30px) -3px/28px 28px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 40px) 1px/26px 26px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 50px) -2px/24px 24px no-repeat,
+    url('images/icons/branch.png') calc(100% - 28px) -5px/25px 25px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 38px) 2px/27px 27px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 48px) -1px/23px 23px no-repeat,
+    
+    /* Top-right - wider spread (80px-150px from corner) - MUCH MORE DENSE */
+    url('images/icons/branch.png') calc(100% - 80px) -2px/26px 26px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 100px) 1px/24px 24px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 120px) -1px/22px 22px no-repeat,
+    url('images/icons/branch.png') calc(100% - 140px) 0px/21px 21px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 160px) -2px/20px 20px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 90px) 2px/25px 25px no-repeat,
+    url('images/icons/branch.png') calc(100% - 110px) -3px/23px 23px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 130px) 1px/21px 21px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 150px) -1px/19px 19px no-repeat,
+    url('images/icons/branch.png') calc(100% - 85px) -4px/24px 24px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 105px) 3px/22px 22px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 125px) -2px/20px 20px no-repeat,
+    url('images/icons/branch.png') calc(100% - 145px) 1px/18px 18px no-repeat,
+    
+    /* Top-right - very wide spread (180px+ from corner) - DENSE EVEN HERE */
+    url('images/icons/branch3.png') calc(100% - 180px) 1px/19px 19px no-repeat,
+    url('images/icons/branch.png') calc(100% - 220px) -1px/18px 18px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 200px) 2px/17px 17px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 240px) -2px/16px 16px no-repeat,
+    url('images/icons/branch.png') calc(100% - 190px) 3px/18px 18px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 210px) -1px/17px 17px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 230px) 1px/16px 16px no-repeat,
+    url('images/icons/branch.png') calc(100% - 260px) 0px/15px 15px no-repeat,
+    
+    /* Bottom-left corner - dense cluster */
+    url('images/icons/branch2.png') -2px calc(100% - 5px)/28px 28px no-repeat,
+    url('images/icons/branch3.png') -5px calc(100% - 2px)/26px 26px no-repeat,
+    url('images/icons/branch.png') -1px calc(100% - 8px)/30px 30px no-repeat,
+    url('images/icons/branch2.png') -3px calc(100% - 12px)/24px 24px no-repeat,
+    url('images/icons/branch3.png') -7px calc(100% - 4px)/27px 27px no-repeat,
+    url('images/icons/branch.png') 0px calc(100% - 15px)/25px 25px no-repeat,
+    url('images/icons/branch2.png') -4px calc(100% - 9px)/22px 22px no-repeat,
+    url('images/icons/branch3.png') -6px calc(100% - 6px)/23px 23px no-repeat,
+    url('images/icons/branch.png') -2px calc(100% - 18px)/26px 26px no-repeat,
+    url('images/icons/branch2.png') -8px calc(100% - 3px)/29px 29px no-repeat,
+    
+    /* Bottom-left - medium spread (20px-60px from corner) - MORE DENSE */
+    url('images/icons/branch2.png') -2px calc(100% - 20px)/29px 29px no-repeat,
+    url('images/icons/branch3.png') -4px calc(100% - 25px)/26px 26px no-repeat,
+    url('images/icons/branch.png') 1px calc(100% - 35px)/27px 27px no-repeat,
+    url('images/icons/branch2.png') -1px calc(100% - 45px)/24px 24px no-repeat,
+    url('images/icons/branch3.png') -3px calc(100% - 55px)/25px 25px no-repeat,
+    url('images/icons/branch.png') 0px calc(100% - 60px)/23px 23px no-repeat,
+    url('images/icons/branch2.png') -3px calc(100% - 30px)/28px 28px no-repeat,
+    url('images/icons/branch3.png') 1px calc(100% - 40px)/26px 26px no-repeat,
+    url('images/icons/branch.png') -2px calc(100% - 50px)/24px 24px no-repeat,
+    url('images/icons/branch2.png') -5px calc(100% - 28px)/25px 25px no-repeat,
+    url('images/icons/branch3.png') 2px calc(100% - 38px)/27px 27px no-repeat,
+    url('images/icons/branch.png') -1px calc(100% - 48px)/23px 23px no-repeat,
+    
+    /* Bottom-left - wider spread (80px-150px from corner) - MUCH MORE DENSE */
+    url('images/icons/branch2.png') -2px calc(100% - 80px)/26px 26px no-repeat,
+    url('images/icons/branch3.png') 1px calc(100% - 100px)/24px 24px no-repeat,
+    url('images/icons/branch.png') -1px calc(100% - 120px)/22px 22px no-repeat,
+    url('images/icons/branch2.png') 0px calc(100% - 140px)/21px 21px no-repeat,
+    url('images/icons/branch3.png') -2px calc(100% - 160px)/20px 20px no-repeat,
+    url('images/icons/branch.png') 2px calc(100% - 90px)/25px 25px no-repeat,
+    url('images/icons/branch2.png') -3px calc(100% - 110px)/23px 23px no-repeat,
+    url('images/icons/branch3.png') 1px calc(100% - 130px)/21px 21px no-repeat,
+    url('images/icons/branch.png') -1px calc(100% - 150px)/19px 19px no-repeat,
+    url('images/icons/branch2.png') -4px calc(100% - 85px)/24px 24px no-repeat,
+    url('images/icons/branch3.png') 3px calc(100% - 105px)/22px 22px no-repeat,
+    url('images/icons/branch.png') -2px calc(100% - 125px)/20px 20px no-repeat,
+    url('images/icons/branch2.png') 1px calc(100% - 145px)/18px 18px no-repeat,
+    
+    /* Bottom-left - very wide spread (180px+ from corner) - DENSE EVEN HERE */
+    url('images/icons/branch.png') 1px calc(100% - 180px)/19px 19px no-repeat,
+    url('images/icons/branch2.png') -1px calc(100% - 220px)/18px 18px no-repeat,
+    url('images/icons/branch3.png') 2px calc(100% - 200px)/17px 17px no-repeat,
+    url('images/icons/branch.png') -2px calc(100% - 240px)/16px 16px no-repeat,
+    url('images/icons/branch2.png') 3px calc(100% - 190px)/18px 18px no-repeat,
+    url('images/icons/branch3.png') -1px calc(100% - 210px)/17px 17px no-repeat,
+    url('images/icons/branch.png') 1px calc(100% - 230px)/16px 16px no-repeat,
+    url('images/icons/branch2.png') 0px calc(100% - 260px)/15px 15px no-repeat;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.8;
+  filter: sepia(20%) saturate(80%) hue-rotate(15deg) brightness(0.9) blur(0.3px);
+  transition: filter 0.2s ease, transform 0.4s ease;
+}
+
+body:not(.user-page):not(.market):not(.inventory) .game-section:hover::before {
+  filter: sepia(20%) saturate(80%) hue-rotate(15deg) brightness(0.95) blur(0px);
+  background: 
+    /* Top-right corner - dense cluster */
+    url('images/icons/branch.png') calc(100% - 5px) -2px/28px 28px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 2px) -5px/26px 26px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 8px) -1px/30px 30px no-repeat,
+    url('images/icons/branch.png') calc(100% - 12px) -3px/24px 24px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 4px) -7px/27px 27px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 15px) 0px/25px 25px no-repeat,
+    url('images/icons/branch.png') calc(100% - 9px) -4px/22px 22px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 6px) -6px/23px 23px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 18px) -2px/26px 26px no-repeat,
+    url('images/icons/branch.png') calc(100% - 3px) -8px/29px 29px no-repeat,
+    
+    /* Top-right - medium spread */
+    url('images/icons/branch.png') calc(100% - 20px) -2px/29px 29px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 25px) -4px/26px 26px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 35px) 1px/27px 27px no-repeat,
+    url('images/icons/branch.png') calc(100% - 45px) -1px/24px 24px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 55px) -3px/25px 25px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 60px) 0px/23px 23px no-repeat,
+    url('images/icons/branch.png') calc(100% - 30px) -3px/28px 28px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 40px) 1px/26px 26px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 50px) -2px/24px 24px no-repeat,
+    url('images/icons/branch.png') calc(100% - 28px) -5px/25px 25px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 38px) 2px/27px 27px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 48px) -1px/23px 23px no-repeat,
+    
+    /* Top-right - wider spread */
+    url('images/icons/branch.png') calc(100% - 80px) -2px/26px 26px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 100px) 1px/24px 24px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 120px) -1px/22px 22px no-repeat,
+    url('images/icons/branch.png') calc(100% - 140px) 0px/21px 21px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 160px) -2px/20px 20px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 90px) 2px/25px 25px no-repeat,
+    url('images/icons/branch.png') calc(100% - 110px) -3px/23px 23px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 130px) 1px/21px 21px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 150px) -1px/19px 19px no-repeat,
+    url('images/icons/branch.png') calc(100% - 85px) -4px/24px 24px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 105px) 3px/22px 22px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 125px) -2px/20px 20px no-repeat,
+    url('images/icons/branch.png') calc(100% - 145px) 1px/18px 18px no-repeat,
+    
+    /* Top-right - very wide spread */
+    url('images/icons/branch3.png') calc(100% - 180px) 1px/19px 19px no-repeat,
+    url('images/icons/branch.png') calc(100% - 220px) -1px/18px 18px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 200px) 2px/17px 17px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 240px) -2px/16px 16px no-repeat,
+    url('images/icons/branch.png') calc(100% - 190px) 3px/18px 18px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 210px) -1px/17px 17px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 230px) 1px/16px 16px no-repeat,
+    url('images/icons/branch.png') calc(100% - 260px) 0px/15px 15px no-repeat,
+    
+    /* Bottom-left corner - dense cluster */
+    url('images/icons/branch2.png') -2px calc(100% - 5px)/28px 28px no-repeat,
+    url('images/icons/branch3.png') -5px calc(100% - 2px)/26px 26px no-repeat,
+    url('images/icons/branch.png') -1px calc(100% - 8px)/30px 30px no-repeat,
+    url('images/icons/branch2.png') -3px calc(100% - 12px)/24px 24px no-repeat,
+    url('images/icons/branch3.png') -7px calc(100% - 4px)/27px 27px no-repeat,
+    url('images/icons/branch.png') 0px calc(100% - 15px)/25px 25px no-repeat,
+    url('images/icons/branch2.png') -4px calc(100% - 9px)/22px 22px no-repeat,
+    url('images/icons/branch3.png') -6px calc(100% - 6px)/23px 23px no-repeat,
+    url('images/icons/branch.png') -2px calc(100% - 18px)/26px 26px no-repeat,
+    url('images/icons/branch2.png') -8px calc(100% - 3px)/29px 29px no-repeat,
+    
+    /* Bottom-left - medium spread */
+    url('images/icons/branch2.png') -2px calc(100% - 20px)/29px 29px no-repeat,
+    url('images/icons/branch3.png') -4px calc(100% - 25px)/26px 26px no-repeat,
+    url('images/icons/branch.png') 1px calc(100% - 35px)/27px 27px no-repeat,
+    url('images/icons/branch2.png') -1px calc(100% - 45px)/24px 24px no-repeat,
+    url('images/icons/branch3.png') -3px calc(100% - 55px)/25px 25px no-repeat,
+    url('images/icons/branch.png') 0px calc(100% - 60px)/23px 23px no-repeat,
+    url('images/icons/branch2.png') -3px calc(100% - 30px)/28px 28px no-repeat,
+    url('images/icons/branch3.png') 1px calc(100% - 40px)/26px 26px no-repeat,
+    url('images/icons/branch.png') -2px calc(100% - 50px)/24px 24px no-repeat,
+    url('images/icons/branch2.png') -5px calc(100% - 28px)/25px 25px no-repeat,
+    url('images/icons/branch3.png') 2px calc(100% - 38px)/27px 27px no-repeat,
+    url('images/icons/branch.png') -1px calc(100% - 48px)/23px 23px no-repeat,
+    
+    /* Bottom-left - wider spread */
+    url('images/icons/branch2.png') -2px calc(100% - 80px)/26px 26px no-repeat,
+    url('images/icons/branch3.png') 1px calc(100% - 100px)/24px 24px no-repeat,
+    url('images/icons/branch.png') -1px calc(100% - 120px)/22px 22px no-repeat,
+    url('images/icons/branch2.png') 0px calc(100% - 140px)/21px 21px no-repeat,
+    url('images/icons/branch3.png') -2px calc(100% - 160px)/20px 20px no-repeat,
+    url('images/icons/branch.png') 2px calc(100% - 90px)/25px 25px no-repeat,
+    url('images/icons/branch2.png') -3px calc(100% - 110px)/23px 23px no-repeat,
+    url('images/icons/branch3.png') 1px calc(100% - 130px)/21px 21px no-repeat,
+    url('images/icons/branch.png') -1px calc(100% - 150px)/19px 19px no-repeat,
+    url('images/icons/branch2.png') -4px calc(100% - 85px)/24px 24px no-repeat,
+    url('images/icons/branch3.png') 3px calc(100% - 105px)/22px 22px no-repeat,
+    url('images/icons/branch.png') -2px calc(100% - 125px)/20px 20px no-repeat,
+    url('images/icons/branch2.png') 1px calc(100% - 145px)/18px 18px no-repeat,
+    
+    /* Bottom-left - very wide spread */
+    url('images/icons/branch.png') 1px calc(100% - 180px)/19px 19px no-repeat,
+    url('images/icons/branch2.png') -1px calc(100% - 220px)/18px 18px no-repeat,
+    url('images/icons/branch3.png') 2px calc(100% - 200px)/17px 17px no-repeat,
+    url('images/icons/branch.png') -2px calc(100% - 240px)/16px 16px no-repeat,
+    url('images/icons/branch2.png') 3px calc(100% - 190px)/18px 18px no-repeat,
+    url('images/icons/branch3.png') -1px calc(100% - 210px)/17px 17px no-repeat,
+    url('images/icons/branch.png') 1px calc(100% - 230px)/16px 16px no-repeat,
+    url('images/icons/branch2.png') 0px calc(100% - 260px)/15px 15px no-repeat;
+  animation: branches-wiggle 0.6s ease-out;
+}
+
+@keyframes branches-wiggle {
+  0% { 
+    transform: rotate(0deg) scale(1);
+  }
+  20% {
+    transform: rotate(0.3deg) scale(1.005);
+  }
+  40% {
+    transform: rotate(-0.2deg) scale(1.008);
+  }
+  60% {
+    transform: rotate(0.25deg) scale(1.006);
+  }
+  80% {
+    transform: rotate(-0.1deg) scale(1.004);
+  }
+  100% { 
+    transform: rotate(0deg) scale(1.01);
+  }
+}
+
+body:not(.user-page):not(.market):not(.inventory) .game-section::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  background: 
+    /* Additional DENSE branches from top-right - close area */
+    url('images/icons/branch3.png') calc(100% - 17px) 2px/28px 28px no-repeat,
+    url('images/icons/branch.png') calc(100% - 22px) 3px/26px 26px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 32px) 1px/24px 24px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 27px) 4px/25px 25px no-repeat,
+    url('images/icons/branch.png') calc(100% - 42px) -1px/27px 27px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 37px) 2px/23px 23px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 52px) 3px/24px 24px no-repeat,
+    url('images/icons/branch.png') calc(100% - 47px) 0px/26px 26px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 62px) 2px/22px 22px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 57px) 1px/25px 25px no-repeat,
+    
+    /* Additional DENSE branches from top-right - medium area */
+    url('images/icons/branch.png') calc(100% - 70px) 3px/24px 24px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 77px) 1px/23px 23px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 87px) 2px/21px 21px no-repeat,
+    url('images/icons/branch.png') calc(100% - 97px) 4px/22px 22px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 107px) 0px/20px 20px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 117px) 3px/21px 21px no-repeat,
+    url('images/icons/branch.png') calc(100% - 127px) 1px/19px 19px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 137px) 2px/20px 20px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 147px) 4px/18px 18px no-repeat,
+    url('images/icons/branch.png') calc(100% - 157px) 1px/19px 19px no-repeat,
+    
+    /* Additional DENSE branches from top-right - far area */
+    url('images/icons/branch2.png') calc(100% - 170px) 2px/20px 20px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 185px) 3px/19px 19px no-repeat,
+    url('images/icons/branch.png') calc(100% - 195px) 1px/18px 18px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 205px) 4px/17px 17px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 215px) 0px/18px 18px no-repeat,
+    url('images/icons/branch.png') calc(100% - 225px) 2px/16px 16px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 235px) 3px/17px 17px no-repeat,
+    url('images/icons/branch3.png') calc(100% - 250px) 1px/15px 15px no-repeat,
+    url('images/icons/branch.png') calc(100% - 265px) 2px/16px 16px no-repeat,
+    url('images/icons/branch2.png') calc(100% - 280px) 0px/14px 14px no-repeat,
+    
+    /* Additional DENSE branches from bottom-left - close area */
+    url('images/icons/branch.png') 2px calc(100% - 17px)/28px 28px no-repeat,
+    url('images/icons/branch2.png') 3px calc(100% - 22px)/26px 26px no-repeat,
+    url('images/icons/branch3.png') 1px calc(100% - 32px)/24px 24px no-repeat,
+    url('images/icons/branch.png') 4px calc(100% - 27px)/25px 25px no-repeat,
+    url('images/icons/branch2.png') -1px calc(100% - 42px)/27px 27px no-repeat,
+    url('images/icons/branch3.png') 2px calc(100% - 37px)/23px 23px no-repeat,
+    url('images/icons/branch.png') 3px calc(100% - 52px)/24px 24px no-repeat,
+    url('images/icons/branch2.png') 0px calc(100% - 47px)/26px 26px no-repeat,
+    url('images/icons/branch3.png') 2px calc(100% - 62px)/22px 22px no-repeat,
+    url('images/icons/branch.png') 1px calc(100% - 57px)/25px 25px no-repeat,
+    
+    /* Additional DENSE branches from bottom-left - medium area */
+    url('images/icons/branch2.png') 3px calc(100% - 70px)/24px 24px no-repeat,
+    url('images/icons/branch3.png') 1px calc(100% - 77px)/23px 23px no-repeat,
+    url('images/icons/branch.png') 2px calc(100% - 87px)/21px 21px no-repeat,
+    url('images/icons/branch2.png') 4px calc(100% - 97px)/22px 22px no-repeat,
+    url('images/icons/branch3.png') 0px calc(100% - 107px)/20px 20px no-repeat,
+    url('images/icons/branch.png') 3px calc(100% - 117px)/21px 21px no-repeat,
+    url('images/icons/branch2.png') 1px calc(100% - 127px)/19px 19px no-repeat,
+    url('images/icons/branch3.png') 2px calc(100% - 137px)/20px 20px no-repeat,
+    url('images/icons/branch.png') 4px calc(100% - 147px)/18px 18px no-repeat,
+    url('images/icons/branch2.png') 1px calc(100% - 157px)/19px 19px no-repeat,
+    
+    /* Additional DENSE branches from bottom-left - far area */
+    url('images/icons/branch3.png') 2px calc(100% - 170px)/20px 20px no-repeat,
+    url('images/icons/branch.png') 3px calc(100% - 185px)/19px 19px no-repeat,
+    url('images/icons/branch2.png') 1px calc(100% - 195px)/18px 18px no-repeat,
+    url('images/icons/branch3.png') 4px calc(100% - 205px)/17px 17px no-repeat,
+    url('images/icons/branch.png') 0px calc(100% - 215px)/18px 18px no-repeat,
+    url('images/icons/branch2.png') 2px calc(100% - 225px)/16px 16px no-repeat,
+    url('images/icons/branch3.png') 3px calc(100% - 235px)/17px 17px no-repeat,
+    url('images/icons/branch.png') 1px calc(100% - 250px)/15px 15px no-repeat,
+    url('images/icons/branch2.png') 2px calc(100% - 265px)/16px 16px no-repeat,
+    url('images/icons/branch3.png') 0px calc(100% - 280px)/14px 14px no-repeat;
+  pointer-events: none;
+  z-index: -2;
+  opacity: 0.7;
+  filter: sepia(30%) saturate(60%) hue-rotate(25deg) brightness(0.8) blur(0.5px);
+  transition: filter 0.3s ease, transform 0.4s ease;
+}
+
+body:not(.user-page):not(.market):not(.inventory) .game-section:hover::after {
+  filter: sepia(30%) saturate(60%) hue-rotate(25deg) brightness(0.8) blur(0px);
+  animation: branches-wiggle-reverse 0.6s ease-out;
+}
+
+@keyframes branches-wiggle-reverse {
+  0% { 
+    transform: rotate(0deg) scale(1);
+  }
+  20% {
+    transform: rotate(-0.2deg) scale(1.003);
+  }
+  40% {
+    transform: rotate(0.35deg) scale(1.006);
+  }
+  60% {
+    transform: rotate(-0.15deg) scale(1.005);
+  }
+  80% {
+    transform: rotate(0.1deg) scale(1.002);
+  }
+  100% { 
+    transform: rotate(0deg) scale(1.008);
+  }
 }
 
 
@@ -1158,6 +1517,19 @@ hr::after {
     inset 0 1px 1px rgba(255, 255, 255, 0.01),
     0 7px 16px rgba(0, 0, 0, 0.5);
 }
+
+.game-section:hover::before {
+  opacity: 0.8;
+  transform: scale(1.02);
+  filter: sepia(25%) saturate(90%) hue-rotate(10deg) brightness(1.0);
+}
+
+.game-section:hover::after {
+  opacity: 0.6;
+  transform: scale(1.01);
+  filter: sepia(35%) saturate(70%) hue-rotate(20deg) brightness(0.9);
+}
+
 
 h2 {
   font-size: 1.4em;
@@ -1209,7 +1581,7 @@ h2 {
   padding: 8px 12px;
   margin: 8px 0;
   border-radius: 8px;
-  font-size: 0.75em;
+  font-size: 0.65em;
   box-shadow: 
     0 2px 8px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -1217,10 +1589,68 @@ h2 {
   gap: 10px;
   min-height: 42px;
   border: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 4px solid rgba(255, 255, 255, 0.15);
   cursor: grab;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+}
+
+/* Due Date Priority Borders for Quest Items */
+.quest-item.due-overdue {
+  border-left: 4px solid #ff4444;
+  animation: pulse-border-red 2s infinite;
+}
+
+.quest-item.due-urgent {
+  border-left: 4px solid #ff8800;
+  animation: pulse-border-orange 2s infinite;
+}
+
+.quest-item.due-soon {
+  border-left: 4px solid #ffdd00;
+}
+
+.quest-item.due-upcoming {
+  border-left: 4px solid #44ff44;
+}
+
+.quest-item.due-distant {
+  border-left: 4px solid rgba(255, 255, 255, 0.15);
+}
+
+@keyframes pulse-border-red {
+  0%, 100% {
+    border-left-color: #ff4444;
+    box-shadow: 
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    border-left-color: #cc2222;
+    box-shadow: 
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      -4px 0 16px rgba(204, 34, 34, 0.6),
+      0 0 12px rgba(204, 34, 34, 0.4);
+  }
+}
+
+@keyframes pulse-border-orange {
+  0%, 100% {
+    border-left-color: #ff8800;
+    box-shadow: 
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    border-left-color: #cc6600;
+    box-shadow: 
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      -4px 0 16px rgba(204, 102, 0, 0.6),
+      0 0 12px rgba(204, 102, 0, 0.4);
+  }
 }
 
 .quest-item span {
@@ -1251,7 +1681,7 @@ h2 {
 
 .quest-item {
   background: linear-gradient(90deg, #363636, #2d2d2d);
-  border-left: 7px solid #555;
+  border-left: 4px solid #555;
   margin: 8px 0;
   transition: all 0.2s;
   position: relative;
@@ -1356,19 +1786,19 @@ h2 {
 
 /* Positive and Negative Habits */
 .quest-item.positive {
-  border-left: 7px solid #1e8721;
+  border-left: 4px solid #22aa25;
 }
 
 .quest-item.negative {
-  border-left: 7px solid #a53d1d;
+  border-left: 4px solid #cc4422;
 }
 
 .quest-item.positive:hover {
-  border-left: 7px solid #27b82c;
+  border-left: 4px solid #33dd38;
 }
 
 .quest-item.negative:hover {
-  border-left: 7px solid #df481a;
+  border-left: 4px solid #ff5533;
 }
 
 .due-date {
@@ -1457,12 +1887,15 @@ h2 {
   text-shadow: none;
   line-height: 1.2;
   opacity: 0.55;
+  transition: all 0.2s ease;
 }
 
 .due-date-label:hover {
   opacity: 0.85;
   transform: scale(1.02);
 }
+
+/* Due Date Priority Colors - removed since priority is now shown on left border */
 
 
 /* Pomodoro Timer Styles */
@@ -2208,7 +2641,7 @@ h2 {
   max-width: fit-content !important;
   opacity: 0.85 !important;
   margin: 3px !important;
-  z-index: 2000 !important;
+  z-index: 3000 !important;
 }
 
 .notyf-success,
@@ -2218,7 +2651,7 @@ h2 {
   max-width: 50vw !important;
   opacity: 0.85 !important;
   max-width: fit-content !important;
-  z-index: 2000 !important;
+  z-index: 3000 !important;
 }
 
 .notyf-xp {
@@ -2866,6 +3299,163 @@ body.inventory::before {
 /* Inner shadow effect for item cards */
 .item-card {
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Sorting Controls for Market and Inventory */
+.sort-label {
+  color: #e4e4e4;
+  font-family: 'Minecraft', sans-serif;
+  font-size: 0.9em;
+  margin-right: 8px;
+  text-shadow: 1px 1px black;
+}
+
+/* Smaller size for sorting dropdowns specifically */
+#market-sort,
+#inventory-sort {
+  font-size: 0.9em;
+  padding: 3px 6px 6px 6px;
+  min-width: 160px;
+}
+
+/* Compact view toggle button */
+#compact-view-toggle,
+#inventory-compact-toggle {
+  font-size: 0.9em;
+  padding: 3px 8px 6px 8px;
+  margin-left: 5px;
+  min-width: auto;
+}
+
+/* Make square icons white */
+#compact-view-toggle img,
+#inventory-compact-toggle img {
+  filter: invert(1) brightness(1);
+}
+
+/* Desktop-specific styling for market/inventory controls */
+@media screen and (min-width: 1200px) {
+  /* Container for sorting controls */
+  .sorting-controls-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 15px 0;
+    padding: 8px 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    border: 1px solid #444;
+  }
+  
+  /* Create a flexbox container for sorting controls */
+  .sort-label {
+    margin: 0;
+    font-size: 1em;
+    white-space: nowrap;
+  }
+  
+  #market-sort,
+  #inventory-sort {
+    max-width: 250px;
+    min-width: 200px;
+    padding: 6px 12px;
+    font-size: 1em;
+    margin: 0;
+  }
+  
+  #compact-view-toggle,
+  #inventory-compact-toggle {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  /* Ensure icons are properly sized within the larger buttons */
+  #compact-view-toggle img,
+  #inventory-compact-toggle img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Compact view styling */
+.compact-view .item-card {
+  min-height: auto;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 140px;
+}
+
+.compact-view .item-card .item-name,
+.compact-view .item-card .item-description,
+.compact-view .item-card .item-stats,
+.compact-view .item-card .item-actions .sell-btn {
+  display: none;
+}
+
+.compact-view .item-card .item-image-container {
+  margin-bottom: 0.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.compact-view .item-card .item-image {
+  width: 48px;
+  height: 48px;
+}
+
+.compact-view .item-card .item-level,
+.compact-view .item-card .level-required,
+.compact-view .item-card .level-capped {
+  position: static;
+  margin-bottom: 0.25rem;
+  font-size: 0.6em;
+  padding: 1px 3px;
+  order: -1; /* Show above image */
+}
+
+.compact-view .item-card .equipped-badge {
+  position: static;
+  margin-bottom: 0.25rem;
+  font-size: 0.6em;
+  padding: 1px 4px;
+}
+
+.compact-view .item-card .item-price {
+  font-size: 0.75em;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.compact-view .item-card .item-price img {
+  width: 14px;
+  height: 14px;
+}
+
+.compact-view .item-card .buy-btn,
+.compact-view .item-card .use-btn {
+  font-size: 0.7em;
+  padding: 4px 8px;
+  margin: 0;
+  width: 100%;
+}
+
+.compact-view .market-items,
+.compact-view .inventory-grid {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.5rem;
 }
 
 /* Responsive adjustments */
@@ -3534,6 +4124,146 @@ button:not(:disabled) *,
     gap: 30px;
   }
   
+  /* Ensure feedback section is visible on desktop */
+  .user-page #feedback-section {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 1 !important;
+    margin: 30px 0;
+  }
+  
+  .user-page .feedback-container {
+    padding: 30px;
+    text-align: center;
+  }
+  
+  .user-page .feedback-button {
+    font-size: 1.1em;
+    padding: 15px 30px;
+  }
+  
+  /* Simple modal fix for desktop */
+  .user-page #feedback-modal {
+    z-index: 100000 !important;
+  }
+  
+  .user-page .modal-content {
+    max-width: 600px;
+    width: 80%;
+    background: #2c2c2c !important;
+    border: 3px solid #4CAF50 !important;
+    color: white !important;
+    min-height: 200px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    bottom: 0% !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 10001 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
+    margin: 0 !important;
+  }
+  
+  /* Force all child elements to be visible */
+  .user-page .modal-content * {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inherit !important;
+  }
+  
+  .user-page .modal-content h3,
+  .user-page .modal-content label,
+  .user-page .modal-content button,
+  .user-page .modal-content input,
+  .user-page .modal-content select,
+  .user-page .modal-content textarea {
+    color: white !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+  }
+  
+  /* Fix all modal content elements */
+  .user-page .modal-header {
+    display: flex !important;
+    background: rgba(40, 40, 40, 0.9) !important;
+    color: white !important;
+    padding: 20px 25px 15px 25px !important;
+    border-bottom: 1px solid #333 !important;
+  }
+  
+  .user-page .modal-header h3 {
+    color: #4CAF50 !important;
+    margin: 0 !important;
+  }
+  
+  .user-page .modal-body {
+    background: rgba(40, 40, 40, 0.9) !important;
+    color: white !important;
+    padding: 25px !important;
+    display: block !important;
+  }
+  
+  .user-page .form-group {
+    display: block !important;
+    margin-bottom: 20px !important;
+  }
+  
+  .user-page .form-group label {
+    display: block !important;
+    color: #e0e0e0 !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .user-page .form-group select,
+  .user-page .form-group input,
+  .user-page .form-group textarea {
+    display: block !important;
+    width: 100% !important;
+    color: white !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid #666 !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+  }
+  
+  .user-page .modal-actions {
+    display: flex !important;
+    padding: 20px 25px !important;
+  }
+  
+  .user-page .modal-actions button {
+    display: inline-block !important;
+    color: white !important;
+    padding: 10px 20px !important;
+    margin: 0 5px !important;
+  }
+  
+  /* Debug modal visibility */
+  .user-page .modal {
+    background-color: rgba(0, 0, 0, 0.3) !important; /* Lighter background */
+  }
+  
+  .user-page .modal-content {
+    background: #2c2c2c !important;
+    border: 3px solid #4CAF50 !important;
+    color: white !important;
+    min-height: 200px !important;
+    max-height: 70vh !important; /* Limit height */
+    overflow-y: auto !important; /* Make scrollable */
+  }
+  
+  .user-page .modal-header,
+  .user-page .modal-body {
+    color: white !important;
+    background: rgba(40, 40, 40, 0.9) !important;
+  }
+  
 }
 
 /* Boost Indicator */
@@ -3613,4 +4343,348 @@ button:not(:disabled) *,
     font-size: 8px;
     min-width: 25px;
   }
+}
+
+/* Feedback Section */
+.feedback-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.feedback-container p {
+  margin-bottom: 40px;
+  font-size: 0.9em;
+  color: #e0e0e0;
+}
+
+.feedback-button {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Minecraft', monospace;
+}
+
+#feedback-btn:hover,
+.feedback-button:hover {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  transform: translateY(-2px);
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
+  border: 2px solid #4CAF50;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 25px 15px 25px;
+  border-bottom: 1px solid #333;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #4CAF50;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #e0e0e0;
+  font-weight: bold;
+  font-size: 0.95em;
+}
+
+.form-group select {
+  font-family: 'Minecraft', monospace !important;
+  font-size: 0.8em !important;
+}
+
+.form-group select,
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #333;
+  color: white;
+  font-family: 'PixelCraft', monospace;
+  font-size: 0.65em;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group select:focus,
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form-group small {
+  color: #999;
+  font-size: 0.6em;
+  margin-top: 4px;
+  display: block;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #333;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  font-size: 0.9em;
+  min-width: 100px;
+}
+
+.modal-btn {
+  padding: 10px 20px;
+  font-size: 0.9em;
+  min-width: 100px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Minecraft', monospace;
+}
+
+.cancel-btn {
+  background: linear-gradient(135deg, #666, #555);
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: linear-gradient(135deg, #555, #444);
+  transform: translateY(-1px);
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  transform: translateY(-1px);
+}
+
+.submit-btn:disabled {
+  background: linear-gradient(135deg, #888, #777);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive modal */
+@media screen and (max-width: 600px) {
+  .modal-content {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .modal-actions button {
+    width: 100%;
+  }
+}
+
+/* Floating Feedback Button (User page only) */
+.floating-feedback-btn {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    z-index: 2000;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #444, #333);
+    border: 2px solid #666;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    font-family: 'Minecraft', monospace;
+    font-size: 10px;
+    color: #ccc;
+    user-select: none;
+}
+
+.floating-feedback-btn:hover {
+    background: linear-gradient(135deg, #555, #444);
+    border-color: #888;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.floating-feedback-btn:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.floating-feedback-btn img {
+    width: 30px;
+    height: 30px;
+    filter: brightness(1.3) contrast(1.1);
+}
+
+/* Enhanced Shake Animations - INTENSE VERSION */
+@keyframes shake {
+    0%, 100% { transform: translate(0); }
+    2% { transform: translate(-6px, -3px) rotate(-15deg); }
+    4% { transform: translate(6px, 3px) rotate(15deg); }
+    6% { transform: translate(-8px, 2px) rotate(-18deg); }
+    8% { transform: translate(8px, -4px) rotate(18deg); }
+    10% { transform: translate(-5px, 4px) rotate(-12deg); }
+    12% { transform: translate(7px, -2px) rotate(16deg); }
+    14% { transform: translate(-6px, -1px) rotate(-14deg); }
+    16% { transform: translate(4px, 3px) rotate(12deg); }
+    18% { transform: translate(-3px, -2px) rotate(-8deg); }
+    20% { transform: translate(2px, 1px) rotate(6deg); }
+    22% { transform: translate(0px, 0px); }
+    100% { transform: translate(0); }
+}
+
+@keyframes pulse-shake {
+    0%, 100% { transform: scale(1) translate(0); }
+    15% { transform: scale(1.15) translate(-4px, -2px) rotate(-8deg); }
+    30% { transform: scale(1.08) translate(5px, 3px) rotate(10deg); }
+    45% { transform: scale(1.12) translate(-3px, 1px) rotate(-6deg); }
+    60% { transform: scale(1.05) translate(4px, -2px) rotate(8deg); }
+    75% { transform: scale(1.1) translate(-2px, 2px) rotate(-5deg); }
+}
+
+@keyframes wiggle {
+    0%, 7% { transform: rotateZ(0); }
+    10% { transform: rotateZ(-12deg); }
+    15% { transform: rotateZ(15deg); }
+    20% { transform: rotateZ(-18deg); }
+    25% { transform: rotateZ(20deg); }
+    30% { transform: rotateZ(-15deg); }
+    35% { transform: rotateZ(12deg); }
+    40% { transform: rotateZ(-8deg); }
+    45% { transform: rotateZ(10deg); }
+    50% { transform: rotateZ(-6deg); }
+    55% { transform: rotateZ(8deg); }
+    60% { transform: rotateZ(-4deg); }
+    65% { transform: rotateZ(5deg); }
+    70% { transform: rotateZ(-3deg); }
+    75% { transform: rotateZ(3deg); }
+    80% { transform: rotateZ(-2deg); }
+    85% { transform: rotateZ(2deg); }
+    90% { transform: rotateZ(-1deg); }
+    95% { transform: rotateZ(1deg); }
+    100% { transform: rotateZ(0); }
+}
+
+.shake-animation {
+    animation: 
+        shake 1.2s ease-in-out infinite,
+        pulse-shake 1.5s ease-in-out infinite,
+        wiggle 2s ease-in-out infinite;
+    animation-delay: 1s, 1.3s, 2.8s;
+}
+
+.shake-animation:hover {
+    animation: none; /* Stop shaking on hover */
+}
+
+/* Mobile responsive for floating button */
+@media (max-width: 768px) {
+    .floating-feedback-btn {
+        top: 45px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+    }
+    
+    .floating-feedback-btn img {
+        width: 26px;
+        height: 26px;
+    }
 }
