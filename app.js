@@ -232,10 +232,25 @@ function updateDueDatePriorities() {
   dueDateLabels.forEach(label => {
     // Extract date from the label text (format: "�️ YYYY-MM-DD")
     const labelText = label.textContent.trim();
-    const dateMatch = labelText.match(/(\d{4}-\d{2}-\d{2})/);
+    let dateMatch = labelText.match(/(\d{2}-\d{2}-\d{4})/); // Try new format first
+    let dueDate;
     
     if (dateMatch) {
-      const dueDate = dateMatch[1];
+      // New DD-MM-YYYY format
+      const displayDate = dateMatch[1];
+      dueDate = parseDateFromDisplay(displayDate); // Convert back to YYYY-MM-DD for calculations
+    } else {
+      // Check for legacy YYYY-MM-DD format
+      dateMatch = labelText.match(/(\d{4}-\d{2}-\d{2})/);
+      if (dateMatch) {
+        dueDate = dateMatch[1]; // Already in YYYY-MM-DD format
+        // Update the display to new format
+        const newDisplayDate = formatDateForDisplay(dueDate);
+        label.innerHTML = label.innerHTML.replace(dueDate, newDisplayDate);
+      }
+    }
+    
+    if (dueDate) {
       const priorityClass = getDueDatePriority(dueDate);
       const questItem = label.closest('.quest-item');
       
@@ -281,6 +296,24 @@ function incrementCompletionCount(questId, type) {
   counts[questId] = (counts[questId] || 0) + 1;
   localStorage.setItem(`${type}CompletionCounts`, JSON.stringify(counts));
   return counts[questId];
+}
+
+/**
+ * Format date from YYYY-MM-DD to DD-MM-YYYY for display
+ */
+function formatDateForDisplay(dateString) {
+  if (!dateString) return '';
+  const [year, month, day] = dateString.split('-');
+  return `${day}-${month}-${year}`;
+}
+
+/**
+ * Parse date from DD-MM-YYYY back to YYYY-MM-DD for calculations
+ */
+function parseDateFromDisplay(displayDateString) {
+  if (!displayDateString) return '';
+  const [day, month, year] = displayDateString.split('-');
+  return `${year}-${month}-${day}`;
 }
 
 /**
@@ -346,7 +379,7 @@ function addQuest(inputField, list, type = null, dueDate = null) {
     questContent = `
             <div class="quest-main">
                 <span contenteditable="true">${questText}</span>
-                ${dueDate ? `<div class="due-date-label ${getDueDatePriority(dueDate)}"><img src="images/icons/calendar.png" alt="Calendar" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 3px;">${dueDate}</div>` : ''}
+                ${dueDate ? `<div class="due-date-label ${getDueDatePriority(dueDate)}"><img src="images/icons/calendar.png" alt="Calendar" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 3px;">${formatDateForDisplay(dueDate)}</div>` : ''}
             </div>
             <button class="complete-btn pixel-corners-small">✔</button>
         `;
@@ -373,10 +406,23 @@ function addQuest(inputField, list, type = null, dueDate = null) {
       const existingQuestDueLabel = existingQuests[i].querySelector('.due-date-label');
       
       if (existingQuestDueLabel) {
-        const existingDateMatch = existingQuestDueLabel.textContent.match(/(\d{4}-\d{2}-\d{2})/);
-        if (existingDateMatch) {
-          const existingDueDate = existingDateMatch[1];
-          
+        // Try both new DD-MM-YYYY and legacy YYYY-MM-DD formats
+        let existingDueDate = null;
+        const existingDateText = existingQuestDueLabel.textContent.trim();
+        
+        // Try new format first (DD-MM-YYYY)
+        let dateMatch = existingDateText.match(/(\d{2}-\d{2}-\d{4})/);
+        if (dateMatch) {
+          existingDueDate = parseDateFromDisplay(dateMatch[1]); // Convert to YYYY-MM-DD for comparison
+        } else {
+          // Try legacy format (YYYY-MM-DD)
+          dateMatch = existingDateText.match(/(\d{4}-\d{2}-\d{2})/);
+          if (dateMatch) {
+            existingDueDate = dateMatch[1]; // Already in YYYY-MM-DD format
+          }
+        }
+        
+        if (existingDueDate) {
           // If new quest is due before this existing quest, insert here
           if (dueDate < existingDueDate) {
             insertPosition = existingQuests[i];
